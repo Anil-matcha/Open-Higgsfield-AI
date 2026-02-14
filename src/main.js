@@ -3,21 +3,11 @@ import { Header } from './components/Header.js';
 import { ImageStudio } from './components/ImageStudio.js';
 
 const app = document.querySelector('#app');
-let contentArea; // Declare contentArea globally so navigate can access it
-
-app.innerHTML = '';
-app.appendChild(Header());
-
-contentArea = document.createElement('main'); // Assign to global contentArea
-contentArea.id = 'content-area';
-contentArea.className = 'flex-1 relative w-full overflow-hidden flex flex-col bg-app-bg';
-app.appendChild(contentArea);
-
-// Initial Route
-navigate('image');
+let contentArea;
 
 // Router
 function navigate(page) {
+  if (!contentArea) return;
   contentArea.innerHTML = '';
 
   if (page === 'image') {
@@ -25,11 +15,22 @@ function navigate(page) {
   } else if (page === 'video') {
     contentArea.innerHTML = '<div class="flex items-center justify-center h-full text-secondary">Video Studio Coming Soon 🎬</div>';
   } else if (page === 'cinema') {
-    contentArea.innerHTML = '<div class="flex items-center justify-center h-full text-secondary">Cinema Studio Coming Soon 🎥</div>';
+    import('./components/CinemaStudio.js').then(({ CinemaStudio }) => {
+      contentArea.appendChild(CinemaStudio());
+    });
   }
 }
 
-// Initial Load
+app.innerHTML = '';
+// Pass navigate to Header so links work
+app.appendChild(Header(navigate));
+
+contentArea = document.createElement('main');
+contentArea.id = 'content-area';
+contentArea.className = 'flex-1 relative w-full overflow-hidden flex flex-col bg-app-bg';
+app.appendChild(contentArea);
+
+// Initial Route
 navigate('image');
 
 // Event Listener for Navigation

@@ -42,6 +42,11 @@ export class MuapiClient {
             finalPayload.aspect_ratio = params.aspect_ratio;
         }
 
+        // Resolution
+        if (params.resolution) {
+            finalPayload.resolution = params.resolution;
+        }
+
         // Image-to-Image
         if (params.image_url) {
             finalPayload.image_url = params.image_url;

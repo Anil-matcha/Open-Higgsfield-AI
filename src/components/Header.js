@@ -1,4 +1,4 @@
-export function Header() {
+export function Header(navigate) {
     const header = document.createElement('header');
     header.className = 'w-full flex flex-col z-50 sticky top-0';
 
@@ -42,6 +42,18 @@ export function Header() {
         if (item === 'Contests') {
             link.innerHTML += ' <span class="bg-primary/10 text-primary text-[8px] px-1.5 py-0.5 rounded-full ml-1 border border-primary/20">New</span>';
         }
+
+        link.onclick = () => {
+            // Remove active state from all
+            Array.from(menu.children).forEach(child => child.classList.remove('text-white'));
+            // Add to current
+            link.classList.add('text-white');
+
+            if (item === 'Image') navigate('image');
+            else if (item === 'Video') navigate('video');
+            else if (item === 'Cinema Studio') navigate('cinema');
+        };
+
         menu.appendChild(link);
     });
 

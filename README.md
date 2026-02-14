@@ -6,12 +6,24 @@ An open-source AI image generation studio powered by [Muapi.ai](https://muapi.ai
 
 ## ✨ Features
 
+- **Cinema Studio** — specialized interface for photorealistic cinematic shots with pro camera controls (Lens, Focal Length, Aperture)
 - **Multi-Model Support** — Switch between 20+ AI image generation models (Flux, Nano Banana, Ideogram, Midjourney, SDXL, and more)
 - **Smart Controls** — Dynamic aspect ratio and resolution pickers that adapt to each model's capabilities
-- **Generation History** — Browse, revisit, and download all your past generations (persisted in browser storage)
-- **Image Download** — One-click download of generated images in full resolution
+- **Generation History** — Browse, revisit, and download all your past generations (persisted in browser storage). Now with a persistent sidebar in Cinema Studio.
+- **Image Download** — One-click download of generated images in full resolution (up to 4K)
 - **API Key Management** — Secure API key storage in browser localStorage (never sent to any server except Muapi)
 - **Responsive Design** — Works seamlessly on desktop and mobile with dark glassmorphism UI
+
+### 🎥 Cinema Studio Controls
+
+The **Cinema Studio** offers precise control over the virtual camera, translating your choices into optimized prompt modifiers:
+
+| Category | Available Options |
+| :--- | :--- |
+| **Cameras** | Modular 8K Digital, Full-Frame Cine Digital, Grand Format 70mm Film, Studio Digital S35, Classic 16mm Film, Premium Large Format Digital |
+| **Lenses** | Creative Tilt, Compact Anamorphic, Extreme Macro, 70s Cinema Prime, Classic Anamorphic, Premium Modern Prime, Warm Cinema Prime, Swirl Bokeh Portrait, Vintage Prime, Halation Diffusion, Clinical Sharp Prime |
+| **Focal Lengths** | 8mm (Ultra-Wide), 14mm, 24mm, 35mm (Human Eye), 50mm (Portrait), 85mm (Tight Portrait) |
+| **Apertures** | f/1.4 (Shallow DoF), f/4 (Balanced), f/11 (Deep Focus) |
 
 ## 🚀 Quick Start
 
@@ -48,7 +60,9 @@ npm run preview
 ```
 src/
 ├── components/
-│   ├── ImageStudio.js    # Main studio with prompt, pickers, canvas, history
+│   ├── ImageStudio.js    # Standard studio with prompt, pickers, canvas, history
+│   ├── CinemaStudio.js   # Pro studio with camera controls & infinite canvas flow
+│   ├── CameraControls.js # Scrollable picker for camera/lens/focal/aperture
 │   ├── Header.js         # App header with settings and controls
 │   ├── AuthModal.js      # API key input modal
 │   ├── SettingsModal.js   # Settings panel for API key management
@@ -78,7 +92,7 @@ Authentication uses the `x-api-key` header. During development, a Vite proxy han
 | Model | Endpoint | Resolution Options |
 |-------|----------|-------------------|
 | Nano Banana | `nano-banana` | — |
-| Nano Banana Pro | `nano-banana-pro` | 1K, 2K, 4K |
+| Nano Banana Pro | `nano-banana-pro` | **up to 4K** (Cinema Studio) |
 | Flux Schnell | `flux-schnell-image` | — |
 | Flux Dev | `flux-dev-image` | — |
 | Flux Dev LoRA | `flux-dev-lora` | — |

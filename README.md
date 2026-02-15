@@ -2,6 +2,8 @@
 
 An open-source AI image generation studio powered by [Muapi.ai](https://muapi.ai). Generate stunning images using state-of-the-art models like Flux Schnell, Flux Dev, Nano Banana Pro, and more — all from a sleek, modern interface.
 
+For a deep dive into the technical architecture and the philosophy behind the "Infinite Budget" cinema workflow, see our [comprehensive guide and roadmap](https://medium.com/@anilmatcha/building-open-higgsfield-ai-an-open-source-ai-cinema-studio-83c1e0a2a5f1).
+
 ![Studio Demo](docs/assets/studio_demo.webp)
 
 ## ✨ Features
@@ -114,3 +116,6 @@ MIT
 ## 🙏 Credits
 
 Built with [Muapi.ai](https://muapi.ai) — the unified API for AI image generation models.
+
+---
+**Deep Dive**: For more details on the "AI Influencer" engine, upcoming "Popcorn" storyboarding features, and the future of this project, read the [full technical overview](https://medium.com/@anilmatcha/building-open-higgsfield-ai-an-open-source-ai-cinema-studio-83c1e0a2a5f1).

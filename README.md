@@ -1,6 +1,14 @@
-# Open Higgsfield AI
+# Open Higgsfield AI — Open-Source Alternative to Higgsfield AI
 
-An open-source AI image generation studio powered by [Muapi.ai](https://muapi.ai). Generate stunning images using state-of-the-art models like Flux Schnell, Flux Dev, Nano Banana Pro, and more — all from a sleek, modern interface.
+> **The free, open-source alternative to Higgsfield AI.** Generate AI images and cinematic shots using 20+ state-of-the-art models — without the closed ecosystem or subscription fees.
+
+Open Higgsfield AI is an open-source AI image and cinema studio that brings Higgsfield-style creative workflows to everyone. Powered by [Muapi.ai](https://muapi.ai), it supports models like Flux Schnell, Flux Dev, SDXL, Ideogram, Midjourney, and more — all from a sleek, modern interface you can self-host and customize.
+
+**Why Open Higgsfield AI instead of Higgsfield AI?**
+- **Free & open-source** — no subscription, no vendor lock-in
+- **Self-hosted** — your data stays on your machine
+- **20+ models** — access more AI models than any single closed platform
+- **Extensible** — add your own models, modify the UI, build on top of it
 
 For a deep dive into the technical architecture and the philosophy behind the "Infinite Budget" cinema workflow, see our [comprehensive guide and roadmap](https://medium.com/@anilmatcha/building-open-higgsfield-ai-an-open-source-ai-cinema-studio-83c1e0a2a5f1).
 
@@ -8,7 +16,7 @@ For a deep dive into the technical architecture and the philosophy behind the "I
 
 ## ✨ Features
 
-- **Cinema Studio** — specialized interface for photorealistic cinematic shots with pro camera controls (Lens, Focal Length, Aperture)
+- **Cinema Studio** — Higgsfield AI-style interface for photorealistic cinematic shots with pro camera controls (Lens, Focal Length, Aperture)
 - **Multi-Model Support** — Switch between 20+ AI image generation models (Flux, Nano Banana, Ideogram, Midjourney, SDXL, and more)
 - **Smart Controls** — Dynamic aspect ratio and resolution pickers that adapt to each model's capabilities
 - **Generation History** — Browse, revisit, and download all your past generations (persisted in browser storage). Now with a persistent sidebar in Cinema Studio.
@@ -109,6 +117,19 @@ Authentication uses the `x-api-key` header. During development, a Vite proxy han
 - **Vanilla JS** — No framework, pure DOM manipulation
 - **Muapi.ai** — AI model API gateway
 
+## 🤔 How is this different from Higgsfield AI?
+
+Higgsfield AI is a proprietary AI video and image generation platform. **Open Higgsfield AI** is a community-driven, open-source alternative that provides similar creative capabilities without the closed ecosystem:
+
+| | Higgsfield AI | Open Higgsfield AI |
+| :--- | :--- | :--- |
+| **Cost** | Subscription-based | Free (open-source) |
+| **Models** | Proprietary | 20+ open & commercial models |
+| **Self-hosting** | No | Yes |
+| **Customizable** | No | Fully hackable |
+| **Data privacy** | Cloud-based | Your data stays local |
+| **Source code** | Closed | MIT licensed |
+
 ## 📄 License
 
 MIT
@@ -119,3 +140,6 @@ Built with [Muapi.ai](https://muapi.ai) — the unified API for AI image generat
 
 ---
 **Deep Dive**: For more details on the "AI Influencer" engine, upcoming "Popcorn" storyboarding features, and the future of this project, read the [full technical overview](https://medium.com/@anilmatcha/building-open-higgsfield-ai-an-open-source-ai-cinema-studio-83c1e0a2a5f1).
+
+---
+*Looking for a free Higgsfield AI alternative? Open Higgsfield AI is an open-source AI image generation studio and Higgsfield AI replacement that you can self-host, customize, and extend.*

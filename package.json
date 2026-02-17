@@ -1,5 +1,6 @@
 {
   "name": "open-higgsfield-ai",
+  "description": "Open-source alternative to Higgsfield AI — AI image generation and cinema studio with 20+ models",
   "private": true,
   "version": "0.0.0",
   "type": "module",

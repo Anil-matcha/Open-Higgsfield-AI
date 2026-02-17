@@ -1,4 +1,4 @@
-import { getModelById } from './models.js';
+import { getModelById, getVideoModelById } from './models.js';
 
 export class MuapiClient {
     constructor() {
@@ -158,6 +158,58 @@ export class MuapiClient {
         }
 
         throw new Error('Generation timed out after polling.');
+    }
+
+    async generateVideo(params) {
+        const key = this.getKey();
+
+        const modelInfo = getVideoModelById(params.model);
+        const endpoint = modelInfo?.endpoint || params.model;
+        const url = `${this.baseUrl}/api/v1/${endpoint}`;
+
+        const finalPayload = { prompt: params.prompt };
+
+        if (params.aspect_ratio) finalPayload.aspect_ratio = params.aspect_ratio;
+        if (params.duration) finalPayload.duration = params.duration;
+        if (params.resolution) finalPayload.resolution = params.resolution;
+        if (params.quality) finalPayload.quality = params.quality;
+
+        console.log('[Muapi] Video Request:', url);
+        console.log('[Muapi] Video Payload:', finalPayload);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': key
+                },
+                body: JSON.stringify(finalPayload)
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                console.error('[Muapi] API Error Body:', errText);
+                throw new Error(`API Request Failed: ${response.status} ${response.statusText} - ${errText.slice(0, 100)}`);
+            }
+
+            const submitData = await response.json();
+            console.log('[Muapi] Video Submit Response:', submitData);
+
+            const requestId = submitData.request_id || submitData.id;
+            if (!requestId) return submitData;
+
+            console.log('[Muapi] Polling for video results, request_id:', requestId);
+            const result = await this.pollForResult(requestId, key, 120, 2000);
+
+            const videoUrl = result.outputs?.[0] || result.url || result.output?.url;
+            console.log('[Muapi] Video URL:', videoUrl);
+            return { ...result, url: videoUrl };
+
+        } catch (error) {
+            console.error("Muapi Video Client Error:", error);
+            throw error;
+        }
     }
 
     getDimensionsFromAR(ar) {

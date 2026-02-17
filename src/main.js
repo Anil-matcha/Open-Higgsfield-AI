@@ -13,7 +13,9 @@ function navigate(page) {
   if (page === 'image') {
     contentArea.appendChild(ImageStudio());
   } else if (page === 'video') {
-    contentArea.innerHTML = '<div class="flex items-center justify-center h-full text-secondary">Video Studio Coming Soon 🎬</div>';
+    import('./components/VideoStudio.js').then(({ VideoStudio }) => {
+      contentArea.appendChild(VideoStudio());
+    });
   } else if (page === 'cinema') {
     import('./components/CinemaStudio.js').then(({ CinemaStudio }) => {
       contentArea.appendChild(CinemaStudio());

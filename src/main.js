@@ -1,41 +1,34 @@
 import './style.css';
 import { Header } from './components/Header.js';
-import { ImageStudio } from './components/ImageStudio.js';
+import { Sidebar } from './components/Sidebar.js';
+import { initRouter, navigate } from './lib/router.js';
 
 const app = document.querySelector('#app');
-let contentArea;
-
-// Router
-function navigate(page) {
-  if (!contentArea) return;
-  contentArea.innerHTML = '';
-
-  if (page === 'image') {
-    contentArea.appendChild(ImageStudio());
-  } else if (page === 'video') {
-    import('./components/VideoStudio.js').then(({ VideoStudio }) => {
-      contentArea.appendChild(VideoStudio());
-    });
-  } else if (page === 'cinema') {
-    import('./components/CinemaStudio.js').then(({ CinemaStudio }) => {
-      contentArea.appendChild(CinemaStudio());
-    });
-  }
-}
-
 app.innerHTML = '';
-// Pass navigate to Header so links work
-app.appendChild(Header(navigate));
 
-contentArea = document.createElement('main');
+const headerEl = Header((page) => navigate(page));
+app.appendChild(headerEl);
+
+const body = document.createElement('div');
+body.className = 'flex flex-1 overflow-hidden';
+
+const sidebar = Sidebar((page) => navigate(page));
+body.appendChild(sidebar);
+
+const contentArea = document.createElement('main');
 contentArea.id = 'content-area';
 contentArea.className = 'flex-1 relative w-full overflow-hidden flex flex-col bg-app-bg';
-app.appendChild(contentArea);
+body.appendChild(contentArea);
 
-// Initial Route
+app.appendChild(body);
+
+initRouter(contentArea, (page) => {
+  headerEl.dispatchEvent(new CustomEvent('route-changed', { detail: { page } }));
+  sidebar.dispatchEvent(new CustomEvent('route-changed', { detail: { page } }));
+});
+
 navigate('image');
 
-// Event Listener for Navigation
 window.addEventListener('navigate', (e) => {
   if (e.detail.page === 'settings') {
     import('./components/SettingsModal.js').then(({ SettingsModal }) => {

@@ -1,7 +1,6 @@
 @import './styles/global.css';
 @import './styles/studio.css';
 
-/* App-specific layout */
 #app {
   display: flex;
   flex-direction: column;
@@ -16,9 +15,9 @@ main {
   position: relative;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
 }
 
-/* Utilities */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -26,4 +25,25 @@ main {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }

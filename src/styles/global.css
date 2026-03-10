@@ -74,46 +74,6 @@
     animation: fade-in-up 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
 
-/* Help Panel */
-.help-panel {
-    position: fixed;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 280px;
-    background: rgba(10, 10, 10, 0.95);
-    backdrop-filter: blur(24px);
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    flex-direction: column;
-    transform: translateX(100%);
-    transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
-    z-index: 50;
-}
-
-.help-panel--open {
-    transform: translateX(0);
-}
-
-@media (max-width: 1023px) {
-    .help-panel {
-        top: auto;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        max-height: 60vh;
-        border-left: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 16px 16px 0 0;
-        transform: translateY(100%);
-    }
-
-    .help-panel--open {
-        transform: translateY(0);
-    }
-}
-
 /* Thumbnail cards */
 .thumb-hero {
     position: relative;
@@ -161,10 +121,6 @@
     .animate-fade-in-up {
         animation: none;
         opacity: 1;
-    }
-
-    .help-panel {
-        transition: none;
     }
 
     .thumb-hero img {

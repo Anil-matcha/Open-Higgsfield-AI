@@ -2,7 +2,7 @@ import { muapi } from '../lib/muapi.js';
 import { t2vModels, getAspectRatiosForVideoModel, getDurationsForModel, getResolutionsForVideoModel, i2vModels, getAspectRatiosForI2VModel, getDurationsForI2VModel, getResolutionsForI2VModel, v2vModels } from '../lib/models.js';
 import { AuthModal } from './AuthModal.js';
 import { createUploadPicker } from './UploadPicker.js';
-import { createHelpToggle } from './HelpPanel.js';
+import { createInlineInstructions } from './InlineInstructions.js';
 
 export function VideoStudio() {
     const container = document.createElement('div');
@@ -60,10 +60,6 @@ export function VideoStudio() {
         <p class="text-secondary text-sm font-medium tracking-wide opacity-60">Animate images into stunning AI videos with motion effects</p>
     `;
     container.appendChild(hero);
-
-    const helpBtn = createHelpToggle('video');
-    helpBtn.classList.add('absolute', 'top-4', 'right-4', 'z-30');
-    container.appendChild(helpBtn);
 
     // ==========================================
     // 2. PROMPT BAR
@@ -310,6 +306,10 @@ export function VideoStudio() {
     bar.appendChild(bottomRow);
     promptWrapper.appendChild(bar);
     container.appendChild(promptWrapper);
+
+    const inlineInstructions = createInlineInstructions('video');
+    inlineInstructions.classList.add('max-w-4xl', 'mt-8');
+    container.appendChild(inlineInstructions);
 
     // ==========================================
     // 3. DROPDOWNS

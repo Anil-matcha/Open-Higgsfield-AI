@@ -1,7 +1,7 @@
 import { muapi } from '../lib/muapi.js';
 import { AuthModal } from './AuthModal.js';
 import { createUploadPicker } from './UploadPicker.js';
-import { createHelpToggle } from './HelpPanel.js';
+import { createInlineInstructions } from './InlineInstructions.js';
 
 const EDIT_TOOLS = [
   { id: 'ai-object-eraser', name: 'Remove Object', description: 'Erase unwanted objects from images', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 5H9l-7 7 7 7h11a2 2 0 002-2V7a2 2 0 00-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>', hasPrompt: true, promptPlaceholder: 'What to remove...' },
@@ -45,11 +45,12 @@ export function EditStudio() {
   });
 
   topBar.appendChild(toolGrid);
-  container.appendChild(topBar);
 
-  const helpBtn = createHelpToggle('edit');
-  helpBtn.classList.add('absolute', 'top-4', 'right-4', 'z-30');
-  container.appendChild(helpBtn);
+  const inlineInstructions = createInlineInstructions('edit');
+  inlineInstructions.classList.add('px-4', 'md:px-8', 'mt-2');
+  topBar.appendChild(inlineInstructions);
+
+  container.appendChild(topBar);
 
   const workArea = document.createElement('div');
   workArea.className = 'flex-1 px-4 md:px-8 pb-8';

@@ -1,6 +1,6 @@
 import { muapi } from '../lib/muapi.js';
 import { AuthModal } from './AuthModal.js';
-import { createHelpToggle } from './HelpPanel.js';
+import { createInlineInstructions } from './InlineInstructions.js';
 
 const SHOT_TYPES = ['Wide Shot', 'Medium Shot', 'Close-Up', 'Extreme Close-Up', 'POV', 'Overhead', 'Low Angle'];
 
@@ -14,11 +14,11 @@ export function StoryboardStudio() {
     <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight mb-1">Storyboard Studio</h1>
     <p class="text-secondary text-xs mb-4">Plan your scenes with AI-generated storyboard frames</p>
   `;
-  container.appendChild(topBar);
+  const inlineInstructions = createInlineInstructions('storyboard');
+  inlineInstructions.classList.add('px-4', 'md:px-8', 'mt-2');
+  topBar.appendChild(inlineInstructions);
 
-  const helpBtn = createHelpToggle('storyboard');
-  helpBtn.classList.add('absolute', 'top-4', 'right-4', 'z-30');
-  container.appendChild(helpBtn);
+  container.appendChild(topBar);
 
   const frames = [
     { prompt: '', shot: 'Wide Shot', imageUrl: null },

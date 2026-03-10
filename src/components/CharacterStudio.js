@@ -1,7 +1,7 @@
 import { muapi } from '../lib/muapi.js';
 import { AuthModal } from './AuthModal.js';
 import { createUploadPicker } from './UploadPicker.js';
-import { createHelpToggle } from './HelpPanel.js';
+import { createInlineInstructions } from './InlineInstructions.js';
 
 const CHARACTER_MODELS = [
   { id: 'flux-pulid', name: 'Flux PuLID', description: 'Face ID preservation with text prompt' },
@@ -25,10 +25,6 @@ export function CharacterStudio() {
     <p class="text-secondary text-sm max-w-md mx-auto">Generate consistent character images using face ID preservation</p>
   `;
   container.appendChild(header);
-
-  const helpBtn = createHelpToggle('character');
-  helpBtn.classList.add('absolute', 'top-4', 'right-4', 'z-30');
-  container.appendChild(helpBtn);
 
   const formCard = document.createElement('div');
   formCard.className = 'w-full max-w-lg bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col gap-5 animate-fade-in-up';
@@ -95,6 +91,10 @@ export function CharacterStudio() {
   genBtn.textContent = 'Generate Character';
   formCard.appendChild(genBtn);
   container.appendChild(formCard);
+
+  const inlineInstructions = createInlineInstructions('character');
+  inlineInstructions.classList.add('max-w-lg', 'mt-6');
+  container.appendChild(inlineInstructions);
 
   const resultArea = document.createElement('div');
   resultArea.className = 'w-full max-w-lg mt-6 hidden';

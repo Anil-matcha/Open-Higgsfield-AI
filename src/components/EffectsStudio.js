@@ -2,7 +2,7 @@ import { muapi } from '../lib/muapi.js';
 import { AuthModal } from './AuthModal.js';
 import { createUploadPicker } from './UploadPicker.js';
 import { createMediaPreview, createFullscreenPreview } from './MediaPreview.js';
-import { createHelpToggle } from './HelpPanel.js';
+import { createInlineInstructions } from './InlineInstructions.js';
 import { i2iModels, i2vModels } from '../lib/models.js';
 
 const EFFECT_TABS = [
@@ -56,11 +56,12 @@ export function EffectsStudio() {
   });
 
   topBar.appendChild(tabRow);
-  container.appendChild(topBar);
 
-  const helpBtn = createHelpToggle('effects');
-  helpBtn.classList.add('absolute', 'top-4', 'right-4', 'z-30');
-  container.appendChild(helpBtn);
+  const inlineInstructions = createInlineInstructions('effects');
+  inlineInstructions.classList.add('mt-2');
+  topBar.appendChild(inlineInstructions);
+
+  container.appendChild(topBar);
 
   const bodyArea = document.createElement('div');
   bodyArea.className = 'flex flex-1 overflow-hidden';

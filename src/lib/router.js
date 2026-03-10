@@ -2,6 +2,7 @@ const ROUTE_MAP = {
   'Explore': 'explore',
   'Image': 'image',
   'Video': 'video',
+  'Storyboard': 'storyboard',
   'Edit': 'edit',
   'Character': 'character',
   'Contests': 'explore',
@@ -9,6 +10,7 @@ const ROUTE_MAP = {
   'Cinema Studio': 'cinema',
   'AI Influencer': 'influencer',
   'Apps': 'apps',
+  'Templates': 'apps',
   'Assist': 'assist',
   'Community': 'community',
 };

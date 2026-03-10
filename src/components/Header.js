@@ -25,7 +25,7 @@ export function Header(navigate) {
 
   const menu = document.createElement('nav');
   menu.className = 'hidden lg:flex items-center gap-5 text-[13px] font-bold text-secondary';
-  const items = ['Explore', 'Image', 'Video', 'Edit', 'Character', 'Contests', 'Vibe Motion', 'Cinema Studio', 'AI Influencer', 'Apps', 'Assist', 'Community'];
+  const items = ['Explore', 'Image', 'Video', 'Storyboard', 'Edit', 'Character', 'Contests', 'Vibe Motion', 'Cinema Studio', 'AI Influencer', 'Apps', 'Templates', 'Assist', 'Community'];
 
   const links = {};
 

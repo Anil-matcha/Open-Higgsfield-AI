@@ -1,6 +1,7 @@
 import { muapi } from '../lib/muapi.js';
 import { AuthModal } from './AuthModal.js';
 import { createUploadPicker } from './UploadPicker.js';
+import { createHelpToggle } from './HelpPanel.js';
 
 const CHARACTER_MODELS = [
   { id: 'flux-pulid', name: 'Flux PuLID', description: 'Face ID preservation with text prompt' },
@@ -9,7 +10,7 @@ const CHARACTER_MODELS = [
 
 export function CharacterStudio() {
   const container = document.createElement('div');
-  container.className = 'w-full h-full flex flex-col items-center bg-app-bg overflow-y-auto p-6 md:p-10';
+  container.className = 'w-full h-full flex flex-col items-center bg-app-bg overflow-y-auto p-6 md:p-10 relative';
 
   let uploadedUrl = null;
   let selectedModel = CHARACTER_MODELS[0];
@@ -24,6 +25,10 @@ export function CharacterStudio() {
     <p class="text-secondary text-sm max-w-md mx-auto">Generate consistent character images using face ID preservation</p>
   `;
   container.appendChild(header);
+
+  const helpBtn = createHelpToggle('character');
+  helpBtn.classList.add('absolute', 'top-4', 'right-4', 'z-30');
+  container.appendChild(helpBtn);
 
   const formCard = document.createElement('div');
   formCard.className = 'w-full max-w-lg bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col gap-5 animate-fade-in-up';

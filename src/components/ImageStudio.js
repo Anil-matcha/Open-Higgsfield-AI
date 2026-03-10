@@ -6,6 +6,7 @@ import {
 } from '../lib/models.js';
 import { AuthModal } from './AuthModal.js';
 import { createUploadPicker } from './UploadPicker.js';
+import { createHelpToggle } from './HelpPanel.js';
 
 export function ImageStudio() {
     const container = document.createElement('div');
@@ -52,6 +53,10 @@ export function ImageStudio() {
         <p class="text-secondary text-sm font-medium tracking-wide opacity-60">Transform images with AI — upscale, stylize, animate and more</p>
     `;
     container.appendChild(hero);
+
+    const helpBtn = createHelpToggle('image');
+    helpBtn.classList.add('absolute', 'top-4', 'right-4', 'z-30');
+    container.appendChild(helpBtn);
 
     // ==========================================
     // 2. PROMPT BAR (Tailwind Refactor)

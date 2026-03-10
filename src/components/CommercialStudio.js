@@ -1,6 +1,7 @@
 import { muapi } from '../lib/muapi.js';
 import { AuthModal } from './AuthModal.js';
 import { createUploadPicker } from './UploadPicker.js';
+import { createHelpToggle } from './HelpPanel.js';
 
 const SCENE_PRESETS = [
   'Studio white background', 'Luxury marble surface', 'Outdoor natural light',
@@ -17,7 +18,7 @@ const FORMAT_PRESETS = [
 
 export function CommercialStudio() {
   const container = document.createElement('div');
-  container.className = 'w-full h-full flex flex-col items-center bg-app-bg overflow-y-auto p-6 md:p-10';
+  container.className = 'w-full h-full flex flex-col items-center bg-app-bg overflow-y-auto p-6 md:p-10 relative';
 
   let uploadedUrl = null;
   let selectedScene = SCENE_PRESETS[0];
@@ -34,6 +35,10 @@ export function CommercialStudio() {
     <p class="text-secondary text-sm max-w-md mx-auto">AI product photography, ads, and commercial content</p>
   `;
   container.appendChild(header);
+
+  const helpBtn = createHelpToggle('commercial');
+  helpBtn.classList.add('absolute', 'top-4', 'right-4', 'z-30');
+  container.appendChild(helpBtn);
 
   const formCard = document.createElement('div');
   formCard.className = 'w-full max-w-xl bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col gap-5 animate-fade-in-up';

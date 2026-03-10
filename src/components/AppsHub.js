@@ -1,5 +1,6 @@
 import { templates, TEMPLATE_CATEGORIES, getAllCategories } from '../lib/templates.js';
 import { navigate } from '../lib/router.js';
+import { getStudioThumbnail, getTemplateThumbnail, createThumbnailImg } from '../lib/thumbnails.js';
 
 const CORE_STUDIOS = [
   { id: 'image', name: 'Image Studio', description: 'Generate images with 20+ AI models', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>', badge: '20+ models', color: 'bg-primary/10 text-primary border-primary/20' },
@@ -45,11 +46,15 @@ export function AppsHub() {
   if (recentRow) inner.appendChild(recentRow);
 
   inner.appendChild(createSection('Core Studios', CORE_STUDIOS.map(s => ({
-    ...s, onClick: () => { saveRecent(s.id, s.name); navigate(s.id); }
+    ...s,
+    thumbnail: getStudioThumbnail(s.id),
+    onClick: () => { saveRecent(s.id, s.name); navigate(s.id); },
   })), true));
 
   inner.appendChild(createSection('Tools & Editors', TOOL_STUDIOS.map(s => ({
-    ...s, onClick: () => { saveRecent(s.id, s.name); navigate(s.id); }
+    ...s,
+    thumbnail: getStudioThumbnail(s.id),
+    onClick: () => { saveRecent(s.id, s.name); navigate(s.id); },
   })), true));
 
   const categories = getAllCategories();
@@ -88,21 +93,48 @@ function createSection(title, items, isStudio = false) {
 
   items.forEach(item => {
     const card = document.createElement('div');
-    card.className = 'bg-white/[0.03] border border-white/5 rounded-xl p-4 cursor-pointer hover:bg-white/[0.06] hover:border-white/10 transition-all group';
+    card.className = 'bg-white/[0.03] border border-white/5 rounded-xl cursor-pointer hover:bg-white/[0.06] hover:border-white/10 transition-all group overflow-hidden';
     card.dataset.searchable = `${item.name} ${item.description || ''}`;
-    card.innerHTML = `
-      <div class="flex items-start gap-3 mb-2">
-        <div class="w-10 h-10 rounded-xl ${item.color || 'bg-white/5 text-secondary border-white/10'} border flex items-center justify-center shrink-0">
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+
+    if (item.thumbnail) {
+      const heroHeight = isStudio ? 'h-32' : 'h-20';
+      const heroWrapper = document.createElement('div');
+      heroWrapper.className = `thumb-hero ${heroHeight}`;
+
+      const skeleton = document.createElement('div');
+      skeleton.className = `thumb-skeleton absolute inset-0`;
+      heroWrapper.appendChild(skeleton);
+
+      const img = createThumbnailImg(item.thumbnail, item.name, 'absolute inset-0');
+      heroWrapper.appendChild(img);
+      card.appendChild(heroWrapper);
+    }
+
+    const content = document.createElement('div');
+    content.className = 'p-3';
+    content.innerHTML = `
+      <div class="flex items-start gap-3 mb-1">
+        <div class="w-8 h-8 rounded-lg ${item.color || 'bg-white/5 text-secondary border-white/10'} border flex items-center justify-center shrink-0">
           ${item.icon || ''}
         </div>
         <div class="min-w-0">
           <div class="text-sm font-bold text-white group-hover:text-primary transition-colors truncate">${item.name}</div>
-          ${item.description ? `<div class="text-xs text-muted mt-0.5 line-clamp-2">${item.description}</div>` : ''}
+          ${item.description ? `<div class="text-[11px] text-muted mt-0.5 line-clamp-2">${item.description}</div>` : ''}
         </div>
       </div>
-      ${item.badge ? `<div class="text-[10px] font-bold text-muted mt-1">${item.badge}</div>` : ''}
+      ${item.badge ? `<div class="text-[10px] font-bold text-muted mt-1 ml-11">${item.badge}</div>` : ''}
     `;
+    card.appendChild(content);
+
     card.onclick = item.onClick;
+    card.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        item.onClick();
+      }
+    };
     grid.appendChild(card);
   });
 
@@ -117,6 +149,7 @@ function createTemplateSection(category, catTemplates) {
     icon: `<span class="text-lg">${t.icon}</span>`,
     badge: t.outputType === 'video' ? 'Video' : 'Image',
     color: t.outputType === 'video' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-primary/10 text-primary border-primary/20',
+    thumbnail: getTemplateThumbnail(t.id),
     onClick: () => { saveRecent(t.id, t.name); navigate(`template/${t.id}`); },
   }));
   return createSection(category, items, false);

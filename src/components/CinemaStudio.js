@@ -3,6 +3,7 @@ import { muapi } from '../lib/muapi.js';
 import { CameraControls } from './CameraControls.js';
 import { buildNanoBananaPrompt, CAMERA_MAP, LENS_MAP } from '../lib/promptUtils.js';
 import { AuthModal } from './AuthModal.js';
+import { createHelpToggle } from './HelpPanel.js';
 
 export function CinemaStudio() {
     const container = document.createElement('div');
@@ -30,6 +31,10 @@ export function CinemaStudio() {
         </h1>
     `;
     container.appendChild(heroSection);
+
+    const helpBtn = createHelpToggle('cinema');
+    helpBtn.classList.add('absolute', 'top-4', 'right-4', 'z-30');
+    container.appendChild(helpBtn);
 
     // ==========================================
     // 2. CAMERA CONTROLS OVERLAY

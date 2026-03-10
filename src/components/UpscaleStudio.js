@@ -1,6 +1,7 @@
 import { muapi } from '../lib/muapi.js';
 import { AuthModal } from './AuthModal.js';
 import { createUploadPicker } from './UploadPicker.js';
+import { createHelpToggle } from './HelpPanel.js';
 
 const UPSCALE_METHODS = [
   { id: 'ai-image-upscaler', name: 'AI Upscaler', description: 'General-purpose AI upscaling with 2x/4x factor', factors: ['2', '4'] },
@@ -10,7 +11,7 @@ const UPSCALE_METHODS = [
 
 export function UpscaleStudio() {
   const container = document.createElement('div');
-  container.className = 'w-full h-full flex flex-col items-center bg-app-bg overflow-y-auto p-6 md:p-10';
+  container.className = 'w-full h-full flex flex-col items-center bg-app-bg overflow-y-auto p-6 md:p-10 relative';
 
   let selectedMethod = UPSCALE_METHODS[0];
   let selectedFactor = '2';
@@ -23,6 +24,10 @@ export function UpscaleStudio() {
     <p class="text-secondary text-sm">Enhance and upscale images with 3 AI methods</p>
   `;
   container.appendChild(header);
+
+  const helpBtn = createHelpToggle('upscale');
+  helpBtn.classList.add('absolute', 'top-4', 'right-4', 'z-30');
+  container.appendChild(helpBtn);
 
   const methodRow = document.createElement('div');
   methodRow.className = 'flex gap-3 mb-6 flex-wrap justify-center animate-fade-in-up';

@@ -73,3 +73,105 @@
 .animate-fade-in-up {
     animation: fade-in-up 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
+
+/* Help Panel */
+.help-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(24px);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: 50;
+}
+
+.help-panel--open {
+    transform: translateX(0);
+}
+
+@media (max-width: 1023px) {
+    .help-panel {
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-height: 60vh;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px 16px 0 0;
+        transform: translateY(100%);
+    }
+
+    .help-panel--open {
+        transform: translateY(0);
+    }
+}
+
+/* Thumbnail cards */
+.thumb-hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.thumb-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.thumb-hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent);
+    pointer-events: none;
+}
+
+.thumb-hero:hover img,
+.group:hover .thumb-hero img {
+    transform: scale(1.05);
+}
+
+.thumb-skeleton {
+    background: rgba(255, 255, 255, 0.03);
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.thumb-fallback .thumb-hero {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up {
+        animation: none;
+        opacity: 1;
+    }
+
+    .help-panel {
+        transition: none;
+    }
+
+    .thumb-hero img {
+        transition: none;
+    }
+
+    .thumb-skeleton {
+        animation: none;
+    }
+}

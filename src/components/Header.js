@@ -25,7 +25,7 @@ export function Header(navigate) {
 
   const menu = document.createElement('nav');
   menu.className = 'hidden lg:flex items-center gap-5 text-[13px] font-bold text-secondary';
-  const items = ['Explore', 'Image', 'Video', 'Storyboard', 'Edit', 'Character', 'Contests', 'Vibe Motion', 'Cinema Studio', 'AI Influencer', 'Apps', 'Templates', 'Assist', 'Community'];
+  const items = ['Explore', 'Image', 'Video', 'Storyboard', 'Edit', 'Character', 'Vibe Motion', 'Cinema Studio', 'AI Influencer', 'Apps', 'Templates', 'Assist', 'Community'];
 
   const links = {};
 
@@ -36,10 +36,6 @@ export function Header(navigate) {
     if (item === 'Image') link.classList.add('text-white');
 
     links[getRouteForItem(item)] = link;
-
-    if (item === 'Contests') {
-      link.innerHTML += ' <span class="bg-primary/10 text-primary text-[8px] px-1.5 py-0.5 rounded-full ml-1 border border-primary/20">New</span>';
-    }
 
     link.onclick = () => {
       const route = getRouteForItem(item);

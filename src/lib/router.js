@@ -5,7 +5,7 @@ const ROUTE_MAP = {
   'Storyboard': 'storyboard',
   'Edit': 'edit',
   'Character': 'character',
-  'Contests': 'contests',
+
   'Vibe Motion': 'effects',
   'Cinema Studio': 'cinema',
   'AI Influencer': 'influencer',
@@ -33,7 +33,7 @@ const pageLoaders = {
   influencer: () => import('../components/InfluencerStudio.js').then(m => m.InfluencerStudio()),
   commercial: () => import('../components/CommercialStudio.js').then(m => m.CommercialStudio()),
   explore: () => import('../components/ExplorePage.js').then(m => m.ExplorePage()),
-  contests: () => import('../components/ContestsPage.js').then(m => m.ContestsPage()),
+
   assist: () => import('../components/AssistPage.js').then(m => m.AssistPage()),
   community: () => import('../components/CommunityPage.js').then(m => m.CommunityPage()),
   storyboard: () => import('../components/StoryboardStudio.js').then(m => m.StoryboardStudio()),

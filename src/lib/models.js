@@ -8169,3 +8169,105 @@ export const imageLipSyncModels = lipsyncModels.filter(m => m.category === 'imag
 export const videoLipSyncModels = lipsyncModels.filter(m => m.category === 'video');
 
 export const getV2VModelById = (id) => v2vModels.find(m => m.id === id);
+
+// ─── Novita Models (OpenAI-compatible endpoint: https://api.novita.ai/openai) ───────────────────
+// Model IDs use '/' separator, never '-'
+// Only t2i/i2i models are registered (video models not supported by Novita endpoint)
+export const t2iModels = [
+    {
+        "id": "deepseek/deepseek-v3.2",
+        "name": "DeepSeek V3.2",
+        "endpoint": "deepseek/deepseek-v3.2",
+        "inputs": {
+            "prompt": {
+                "type": "string",
+                "title": "Prompt",
+                "name": "prompt",
+                "description": "Text prompt describing the image.",
+                "examples": [
+                    "A futuristic city built from glowing crystal towers under a violet sky,with floating islands and cascading waterfalls, cinematic lighting, ultra-detailed sci-fi architecture."
+                ]
+            },
+            "aspect_ratio": {
+                "type": "string",
+                "title": "Aspect Ratio",
+                "name": "aspect_ratio",
+                "description": "Aspect ratio of the output image.",
+                "enum": ["1:1", "16:9", "9:16", "4:3", "3:4"],
+                "default": "1:1"
+            },
+            "resolution": {
+                "type": "string",
+                "title": "Resolution",
+                "name": "resolution",
+                "enum": ["1k", "2k", "4k"],
+                "default": "1k"
+            }
+        }
+    },
+    {
+        "id": "zai-org/glm-5",
+        "name": "GLM-5",
+        "endpoint": "zai-org/glm-5",
+        "inputs": {
+            "prompt": {
+                "type": "string",
+                "title": "Prompt",
+                "name": "prompt",
+                "description": "Text prompt describing the image.",
+                "examples": [
+                    "A serene Japanese garden with cherry blossoms falling onto a koi pond, traditional wooden pavilion, foggy morning light, photorealistic detail."
+                ]
+            },
+            "aspect_ratio": {
+                "type": "string",
+                "title": "Aspect Ratio",
+                "name": "aspect_ratio",
+                "description": "Aspect ratio of the output image.",
+                "enum": ["1:1", "16:9", "9:16", "4:3", "3:4"],
+                "default": "1:1"
+            },
+            "resolution": {
+                "type": "string",
+                "title": "Resolution",
+                "name": "resolution",
+                "enum": ["1k", "2k", "4k"],
+                "default": "1k"
+            }
+        }
+    },
+    {
+        "id": "minimax/minimax-m2.5",
+        "name": "MiniMax M2.5",
+        "endpoint": "minimax/minimax-m2.5",
+        "inputs": {
+            "prompt": {
+                "type": "string",
+                "title": "Prompt",
+                "name": "prompt",
+                "description": "Text prompt describing the image.",
+                "examples": [
+                    "A majestic lion standing on a rocky cliff at sunset, golden mane flowing in the wind, distant mountains painted in warm purple and orange hues, cinematic composition, ultra-realistic wildlife photography."
+                ]
+            },
+            "aspect_ratio": {
+                "type": "string",
+                "title": "Aspect Ratio",
+                "name": "aspect_ratio",
+                "description": "Aspect ratio of the output image.",
+                "enum": ["1:1", "16:9", "9:16", "4:3", "3:4"],
+                "default": "1:1"
+            },
+            "resolution": {
+                "type": "string",
+                "title": "Resolution",
+                "name": "resolution",
+                "enum": ["1k", "2k", "4k"],
+                "default": "1k"
+            }
+        }
+    }
+];
+
+export const getNovitaT2IModelById = (id) => t2iModels.find(m => m.id === id);
+export const getNovitaResolutions = () => ["1k", "2k", "4k"];

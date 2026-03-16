@@ -1,5 +1,19 @@
 import { getNovitaImageModelById, getNovitaVideoModelById } from './models.js';
 
+const SUPPORTED_NOVITA_I2V_MODELS = new Set(['SVD', 'SVD-XT']);
+
+const dataUrlToBase64 = (dataUrl) => {
+    const parts = String(dataUrl).split(',');
+    return parts.length > 1 ? parts[1] : '';
+};
+
+const blobToBase64 = (blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(dataUrlToBase64(reader.result));
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+});
+
 export class NovitaClient {
     constructor() {
         this.baseUrl = 'https://api.novita.ai/v3/async';
@@ -7,7 +21,7 @@ export class NovitaClient {
 
     getKey() {
         const key = localStorage.getItem('novita_api_key');
-        if (!key) throw new Error('API Key missing. Please set it in Settings.');
+        if (!key) throw new Error('Novita API Key missing. Please set it in Settings.');
         return key;
     }
 
@@ -36,6 +50,32 @@ export class NovitaClient {
             payload.width = 2048;
             payload.height = 2048;
         }
+    }
+
+    normalizeResult(data, taskId = null) {
+        const imageUrl = data?.images?.[0]?.image_url;
+        const videoUrl = data?.videos?.[0]?.video_url;
+        const url = imageUrl || videoUrl || data?.url || null;
+        const outputs = url ? [url] : (data?.outputs || []);
+        return {
+            ...data,
+            id: taskId || data?.task?.task_id || data?.id,
+            request_id: taskId || data?.task?.task_id || data?.request_id,
+            url,
+            outputs
+        };
+    }
+
+    async convertImageUrlToBase64(imageUrl) {
+        if (!imageUrl) return null;
+        if (imageUrl.startsWith('data:')) return dataUrlToBase64(imageUrl);
+
+        const response = await fetch(imageUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch source image: ${response.status}`);
+        }
+        const blob = await response.blob();
+        return blobToBase64(blob);
     }
 
     async submitTask(path, payload, key) {
@@ -83,7 +123,7 @@ export class NovitaClient {
             const data = await response.json();
             const status = data?.task?.status;
 
-            if (status === 'TASK_STATUS_SUCCEED') return data;
+            if (status === 'TASK_STATUS_SUCCEED') return this.normalizeResult(data, taskId);
             if (status === 'TASK_STATUS_FAILED') {
                 throw new Error(`Generation failed: ${data?.task?.reason || 'Unknown error'}`);
             }
@@ -95,7 +135,7 @@ export class NovitaClient {
     async generateImage(params) {
         const key = this.getKey();
         const modelInfo = getNovitaImageModelById(params.model);
-        const modelName = modelInfo?.endpoint || params.model;
+        const modelName = modelInfo?.endpoint || 'seedream-5.0-lite';
 
         const request = {
             model_name: modelName,
@@ -121,14 +161,13 @@ export class NovitaClient {
         if (params.onRequestId) params.onRequestId(taskId);
 
         const result = await this.pollTaskResult(taskId, key);
-        const imageUrl = result.images?.[0]?.image_url;
-        return { ...result, request_id: taskId, url: imageUrl };
+        return this.normalizeResult(result, taskId);
     }
 
     async generateVideo(params) {
         const key = this.getKey();
         const modelInfo = getNovitaVideoModelById(params.model);
-        const modelName = modelInfo?.endpoint || params.model;
+        const modelName = modelInfo?.endpoint || 'kling-v3.0-pro-t2v';
 
         let width = 1024;
         let height = 576;
@@ -144,7 +183,7 @@ export class NovitaClient {
             width,
             height,
             steps: params.steps || 20,
-            prompts: [{ frames, prompt: params.prompt }]
+            prompts: [{ frames, prompt: params.prompt || 'Generate a high quality video.' }]
         };
 
         if (params.negative_prompt) payload.negative_prompt = params.negative_prompt;
@@ -155,22 +194,22 @@ export class NovitaClient {
         if (params.onRequestId) params.onRequestId(taskId);
 
         const result = await this.pollTaskResult(taskId, key, 360, 2500);
-        const videoUrl = result.videos?.[0]?.video_url;
-        return { ...result, request_id: taskId, url: videoUrl };
+        return this.normalizeResult(result, taskId);
     }
 
     async generateI2I(params) {
-        if (!params.image_base64) {
-            throw new Error('Novita i2i requires image_base64 for /v3/async/img2img.');
+        const imageBase64 = params.image_base64 || await this.convertImageUrlToBase64(params.image_url);
+        if (!imageBase64) {
+            throw new Error('Novita i2i requires image_base64 or image_url.');
         }
 
         const key = this.getKey();
         const modelInfo = getNovitaImageModelById(params.model);
-        const modelName = modelInfo?.endpoint || params.model;
+        const modelName = modelInfo?.endpoint || 'seedream-5.0-lite';
 
         const request = {
             model_name: modelName,
-            image_base64: params.image_base64,
+            image_base64: imageBase64,
             prompt: params.prompt || '',
             width: 1024,
             height: 1024,
@@ -192,24 +231,54 @@ export class NovitaClient {
         if (params.onRequestId) params.onRequestId(taskId);
 
         const result = await this.pollTaskResult(taskId, key);
-        const imageUrl = result.images?.[0]?.image_url;
-        return { ...result, request_id: taskId, url: imageUrl };
+        return this.normalizeResult(result, taskId);
     }
 
-    async generateI2V() {
-        throw new Error('Novita i2v in this client is not implemented yet. Use txt2video or extend with /v3/async/img2video + base64.');
+    async generateI2V(params) {
+        const imageBase64 = params.image_base64 || await this.convertImageUrlToBase64(params.image_url);
+        if (!imageBase64) {
+            throw new Error('Novita i2v requires image_base64 or image_url.');
+        }
+
+        const key = this.getKey();
+        const modelName = SUPPORTED_NOVITA_I2V_MODELS.has(params.model) ? params.model : 'SVD-XT';
+
+        const payload = {
+            model_name: modelName,
+            image_file: imageBase64,
+            frames_num: modelName === 'SVD' ? 14 : 25,
+            frames_per_second: 6,
+            image_file_resize_mode: 'CROP_TO_ASPECT_RATIO',
+            steps: params.steps || 20
+        };
+        if (typeof params.seed === 'number') payload.seed = params.seed;
+
+        const taskId = await this.submitTask('img2video', payload, key);
+        if (params.onRequestId) params.onRequestId(taskId);
+
+        const result = await this.pollTaskResult(taskId, key, 360, 2500);
+        return this.normalizeResult(result, taskId);
     }
 
-    async uploadFile() {
-        throw new Error('Novita v3 media APIs require base64 inputs for i2i/i2v; uploadFile is not supported in this client.');
+    async uploadFile(file) {
+        if (!file || !file.type?.startsWith('image/')) {
+            throw new Error('Novita upload only supports image files in this adapter.');
+        }
+
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result));
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
     }
 
     async processV2V() {
-        throw new Error('Novita v3 video-edit endpoint is not implemented yet in this client.');
+        throw new Error('Novita V2V is not implemented in this project yet. Please switch provider to Muapi for V2V.');
     }
 
     async processLipSync() {
-        throw new Error('Novita lipsync endpoint is not implemented yet in this client.');
+        throw new Error('Novita LipSync is not implemented in this project yet. Please switch provider to Muapi for LipSync.');
     }
 }
 

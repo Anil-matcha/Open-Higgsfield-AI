@@ -45,6 +45,10 @@ export function isSupabaseConfigured() {
   return !!(supabaseUrl && supabaseAnonKey);
 }
 
+export function getSupabaseUrl() {
+  return supabaseUrl || '';
+}
+
 export function getUserKey() {
   let key = localStorage.getItem('muapi_key');
   if (!key) return 'anonymous';

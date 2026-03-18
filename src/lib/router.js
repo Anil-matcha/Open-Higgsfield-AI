@@ -37,6 +37,12 @@ const pageLoaders = {
   assist: () => import('../components/AssistPage.js').then(m => m.AssistPage()),
   community: () => import('../components/CommunityPage.js').then(m => m.CommunityPage()),
   storyboard: () => import('../components/StoryboardStudio.js').then(m => m.StoryboardStudio()),
+  
+  // AI Video Agency Platform routes
+  render: () => import('../components/RenderPage.js').then(m => m.RenderPage()),
+  director: () => import('../components/DirectorPage.js').then(m => m.DirectorPage()),
+  editor: () => import('../components/EditorPage.js').then(m => m.EditorPage()),
+  videoagent: () => import('../components/VideoAgentPage.js').then(m => m.VideoAgentPage()),
 };
 
 // Valid routes for 404 checking
@@ -214,6 +220,11 @@ function getPageTitle(page) {
     'assist': 'Assist',
     'community': 'Community',
     'storyboard': 'Storyboard',
+    // AI Video Agency Platform
+    'render': 'Render',
+    'director': 'Director - Agentic Editor',
+    'editor': 'Editor - Full Editor',
+    'videoagent': 'VideoAgent - AI Processing',
   };
   
   if (page.startsWith('template/')) {

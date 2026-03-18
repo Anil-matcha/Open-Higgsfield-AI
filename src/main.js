@@ -5,6 +5,54 @@ import { initRouter, navigate } from './lib/router.js';
 
 console.log('[App] Starting initialization...');
 
+// Global error handlers for uncaught exceptions
+window.addEventListener('error', (event) => {
+  console.error('[Global Error]', event.error);
+  
+  // Don't show error UI for known benign errors
+  if (event.message?.includes('ResizeObserver') || 
+      event.message?.includes('passive event listener')) {
+    return;
+  }
+  
+  // Show error toast notification instead of full page crash
+  const errorToast = document.createElement('div');
+  errorToast.id = 'global-error-toast';
+  errorToast.innerHTML = `
+    <div style="position: fixed; bottom: 20px; right: 20px; background: rgba(220, 38, 38, 0.95); color: white; padding: 16px 24px; border-radius: 12px; font-size: 14px; z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-width: 400px;">
+      <div style="font-weight: bold; margin-bottom: 4px;">Something went wrong</div>
+      <div style="opacity: 0.9; font-size: 12px;">${event.message || 'An unexpected error occurred'}</div>
+    </div>
+  `;
+  document.body.appendChild(errorToast);
+  
+  // Auto-dismiss after 5 seconds
+  setTimeout(() => {
+    errorToast.style.opacity = '0';
+    errorToast.style.transition = 'opacity 0.3s';
+    setTimeout(() => errorToast.remove(), 300);
+  }, 5000);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[Unhandled Promise Rejection]', event.reason);
+  
+  // Only show UI for significant errors (not API cancellations)
+  if (event.reason?.name === 'AbortError' || 
+      event.reason?.message?.includes('cancelled')) {
+    return;
+  }
+});
+
+// Service worker registration for offline support (production)
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+      console.log('[SW] Registration failed:', err);
+    });
+  });
+}
+
 try {
   const app = document.querySelector('#app');
   if (!app) {
@@ -56,3 +104,15 @@ window.addEventListener('navigate', (e) => {
     navigate(e.detail.page);
   }
 });
+
+// Clean up mobile menu when navigating away
+const originalNavigate = navigate;
+navigate = (page, params) => {
+  // Remove any existing mobile menu before navigation
+  const existingMobileMenu = document.querySelector('[data-mobile-menu]');
+  if (existingMobileMenu) {
+    existingMobileMenu.classList.add('opacity-0', 'pointer-events-none');
+    setTimeout(() => existingMobileMenu.remove(), 300);
+  }
+  return originalNavigate(page, params);
+};

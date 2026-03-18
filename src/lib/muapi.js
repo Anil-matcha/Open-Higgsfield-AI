@@ -3,7 +3,15 @@ import { uploadFileToStorage } from './supabase.js';
 
 export class MuapiClient {
     constructor() {
-        this.proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/muapi-proxy`;
+        // Validate that Supabase URL is configured before building proxy URL
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        if (!supabaseUrl) {
+            console.error('[MuapiClient] VITE_SUPABASE_URL is not configured');
+            this.proxyUrl = '/functions/v1/muapi-proxy'; // Fallback to relative path
+        } else {
+            this.proxyUrl = `${supabaseUrl}/functions/v1/muapi-proxy`;
+        }
+        this.activeControllers = new Map(); // For request cancellation
     }
 
     getKey() {
@@ -12,7 +20,37 @@ export class MuapiClient {
         return key;
     }
 
-    async generateImage(params) {
+    // Cancel a specific request
+    cancelRequest(requestId) {
+        const controller = this.activeControllers.get(requestId);
+        if (controller) {
+            controller.abort();
+            this.activeControllers.delete(requestId);
+            console.log(`[MuapiClient] Cancelled request: ${requestId}`);
+        }
+    }
+
+    // Cancel all active requests
+    cancelAllRequests() {
+        for (const [requestId, controller] of this.activeControllers) {
+            controller.abort();
+        }
+        this.activeControllers.clear();
+        console.log('[MuapiClient] Cancelled all requests');
+    }
+
+    // Validate API response structure
+    validateResponse(data, expectedType) {
+        if (!data || typeof data !== 'object') {
+            throw new Error('Invalid response: expected object');
+        }
+        if (data.error) {
+            throw new Error(`API Error: ${data.error}`);
+        }
+        return true;
+    }
+
+    async generateImage(params, signal) {
         const modelInfo = getModelById(params.model);
         const endpoint = modelInfo?.endpoint || params.model;
 
@@ -54,7 +92,8 @@ export class MuapiClient {
                     params: finalPayload,
                     generationType: 'image',
                     studioType: params.studioType || 'image'
-                })
+                }),
+                signal
             });
 
             if (!response.ok) {
@@ -63,27 +102,50 @@ export class MuapiClient {
             }
 
             const submitData = await response.json();
+            this.validateResponse(submitData, 'submit');
 
             const requestId = submitData.request_id || submitData.id;
             if (!requestId) {
                 return submitData;
             }
 
-            const result = await this.pollForResult(requestId);
+            const result = await this.pollForResult(requestId, 60, 2000, signal);
 
+            // Validate output URL exists
             const imageUrl = result.outputs?.[0] || result.url || result.output?.url;
+            if (!imageUrl) {
+                console.warn('[MuapiClient] No image URL in response, returning full result');
+            }
             return { ...result, url: imageUrl };
 
         } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error('Request cancelled by user');
+            }
             throw error;
         }
     }
 
-    async pollForResult(requestId, maxAttempts = 60, interval = 2000) {
-        const pollUrl = `https://api.muapi.ai/api/v1/predictions/${requestId}/result`;
+    async pollForResult(requestId, maxAttempts = 60, baseInterval = 2000, signal) {
+        // Use exponential backoff with jitter for polling
+        const getInterval = (attempt) => {
+            const exponentialDelay = Math.min(baseInterval * Math.pow(1.5, attempt - 1), 30000); // Cap at 30s
+            const jitter = exponentialDelay * 0.2 * Math.random(); // 20% jitter
+            return exponentialDelay + jitter;
+        };
 
         for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-            await new Promise(resolve => setTimeout(resolve, interval));
+            // Check if request was cancelled before sleeping
+            if (signal?.aborted) {
+                throw new Error('Request cancelled');
+            }
+
+            await new Promise(resolve => setTimeout(resolve, getInterval(attempt)));
+
+            // Check cancellation before making request
+            if (signal?.aborted) {
+                throw new Error('Request cancelled');
+            }
 
             try {
                 const response = await fetch(this.proxyUrl, {
@@ -95,16 +157,21 @@ export class MuapiClient {
                         endpoint: `predictions/${requestId}/result`,
                         params: {},
                         generationType: 'poll'
-                    })
+                    }),
+                    signal
                 });
 
                 if (!response.ok) {
                     if (response.status >= 500) continue;
+                    if (response.status === 404) {
+                        throw new Error('Request not found - may have expired');
+                    }
                     const errText = await response.text();
                     throw new Error(`Poll Failed: ${response.status} - ${errText.slice(0, 100)}`);
                 }
 
                 const data = await response.json();
+                this.validateResponse(data, 'poll');
 
                 const status = data.status?.toLowerCase();
 
@@ -116,7 +183,15 @@ export class MuapiClient {
                     throw new Error(`Generation failed: ${data.error || 'Unknown error'}`);
                 }
 
+                // Log progress for long-running tasks
+                if (attempt % 10 === 0) {
+                    console.log(`[MuapiClient] Still processing... attempt ${attempt}/${maxAttempts}`);
+                }
+
             } catch (error) {
+                if (error.name === 'AbortError') {
+                    throw new Error('Request cancelled');
+                }
                 if (attempt === maxAttempts) throw error;
             }
         }
@@ -124,7 +199,7 @@ export class MuapiClient {
         throw new Error('Generation timed out after polling.');
     }
 
-    async generateVideo(params) {
+    async generateVideo(params, signal) {
         const modelInfo = getVideoModelById(params.model);
         const endpoint = modelInfo?.endpoint || params.model;
 
@@ -149,7 +224,8 @@ export class MuapiClient {
                     params: finalPayload,
                     generationType: 'video',
                     studioType: params.studioType || 'video'
-                })
+                }),
+                signal
             });
 
             if (!response.ok) {
@@ -158,21 +234,25 @@ export class MuapiClient {
             }
 
             const submitData = await response.json();
+            this.validateResponse(submitData, 'submit');
 
             const requestId = submitData.request_id || submitData.id;
             if (!requestId) return submitData;
 
-            const result = await this.pollForResult(requestId, 120, 2000);
+            const result = await this.pollForResult(requestId, 120, 2000, signal);
 
             const videoUrl = result.outputs?.[0] || result.url || result.output?.url;
             return { ...result, url: videoUrl };
 
         } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error('Request cancelled by user');
+            }
             throw error;
         }
     }
 
-    async generateI2I(params) {
+    async generateI2I(params, signal) {
         const modelInfo = getI2IModelById(params.model);
         const endpoint = modelInfo?.endpoint || params.model;
 
@@ -203,7 +283,8 @@ export class MuapiClient {
                     params: finalPayload,
                     generationType: 'i2i',
                     studioType: params.studioType || 'edit'
-                })
+                }),
+                signal
             });
 
             if (!response.ok) {
@@ -212,19 +293,23 @@ export class MuapiClient {
             }
 
             const submitData = await response.json();
+            this.validateResponse(submitData, 'submit');
 
             const requestId = submitData.request_id || submitData.id;
             if (!requestId) return submitData;
 
-            const result = await this.pollForResult(requestId);
+            const result = await this.pollForResult(requestId, 60, 2000, signal);
             const imageUrl = result.outputs?.[0] || result.url || result.output?.url;
             return { ...result, url: imageUrl };
         } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error('Request cancelled by user');
+            }
             throw error;
         }
     }
 
-    async generateI2V(params) {
+    async generateI2V(params, signal) {
         const modelInfo = getI2VModelById(params.model);
         const endpoint = modelInfo?.endpoint || params.model;
 
@@ -255,7 +340,8 @@ export class MuapiClient {
                     params: finalPayload,
                     generationType: 'i2v',
                     studioType: params.studioType || 'video'
-                })
+                }),
+                signal
             });
 
             if (!response.ok) {
@@ -264,14 +350,18 @@ export class MuapiClient {
             }
 
             const submitData = await response.json();
+            this.validateResponse(submitData, 'submit');
 
             const requestId = submitData.request_id || submitData.id;
             if (!requestId) return submitData;
 
-            const result = await this.pollForResult(requestId, 120, 2000);
+            const result = await this.pollForResult(requestId, 120, 2000, signal);
             const videoUrl = result.outputs?.[0] || result.url || result.output?.url;
             return { ...result, url: videoUrl };
         } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error('Request cancelled by user');
+            }
             throw error;
         }
     }
@@ -280,7 +370,7 @@ export class MuapiClient {
         return uploadFileToStorage(file);
     }
 
-    async processV2V(params) {
+    async processV2V(params, signal) {
         const modelInfo = getV2VModelById(params.model);
         const endpoint = modelInfo?.endpoint || params.model;
 
@@ -296,7 +386,8 @@ export class MuapiClient {
                     params: finalPayload,
                     generationType: 'v2v',
                     studioType: params.studioType || 'upscale'
-                })
+                }),
+                signal
             });
 
             if (!response.ok) {
@@ -305,14 +396,18 @@ export class MuapiClient {
             }
 
             const submitData = await response.json();
+            this.validateResponse(submitData, 'submit');
 
             const requestId = submitData.request_id || submitData.id;
             if (!requestId) return submitData;
 
-            const result = await this.pollForResult(requestId, 120, 2000);
+            const result = await this.pollForResult(requestId, 120, 2000, signal);
             const videoUrl = result.outputs?.[0] || result.url || result.output?.url;
             return { ...result, url: videoUrl };
         } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error('Request cancelled by user');
+            }
             throw error;
         }
     }

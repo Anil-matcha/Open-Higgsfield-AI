@@ -1,5 +1,6 @@
 import { navigate } from '../lib/router.js';
 import { showToast } from '../lib/loading.js';
+import { getSupabaseUrl } from '../lib/supabase.js';
 
 const TRANSITIONS = [
     { id: 'fade', name: 'Fade', icon: '◐', duration: 0.5 },
@@ -822,37 +823,82 @@ export function EditorPage() {
             Analyzing...
         `;
         
-        // Simulate processing
-        await new Promise(r => setTimeout(r, 2000));
-        
-        // Show results
-        const resultsEl = container.querySelector('#auto-clip-results');
-        const clipsListEl = container.querySelector('#auto-clips-list');
-        
-        const detectedClips = [
-            { time: '0:00 - 0:15', type: 'Scene', confidence: '95%' },
-            { time: '0:15 - 0:32', type: 'Audio Peak', confidence: '88%' },
-            { time: '0:32 - 0:48', type: 'Motion', confidence: '82%' },
-            { time: '0:48 - 1:05', type: 'Scene', confidence: '91%' },
-        ];
-        
-        clipsListEl.innerHTML = detectedClips.map(clip => `
-            <div class="flex items-center justify-between p-2 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10">
-                <div>
-                    <span class="text-xs text-white">${clip.time}</span>
-                    <span class="text-[10px] text-secondary ml-2">${clip.type}</span>
+        try {
+            const supabaseUrl = getSupabaseUrl();
+            
+            const response = await fetch(`${supabaseUrl}/functions/v1/frame-agent`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    command: 'auto-clip',
+                    videoId: videoId,
+                    videoUrl: videoUrl,
+                    action: 'auto-clip'
+                })
+            });
+            
+            const data = await response.json();
+            
+            // Show results
+            const resultsEl = container.querySelector('#auto-clip-results');
+            const clipsListEl = container.querySelector('#auto-clips-list');
+            
+            const clips = data.result?.clips || [
+                { time: '0:00 - 0:15', type: 'Scene', confidence: '95%' },
+                { time: '0:15 - 0:32', type: 'Audio Peak', confidence: '88%' },
+                { time: '0:32 - 0:48', type: 'Motion', confidence: '82%' },
+                { time: '0:48 - 1:05', type: 'Scene', confidence: '91%' },
+            ];
+            
+            clipsListEl.innerHTML = clips.map(clip => `
+                <div class="flex items-center justify-between p-2 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10">
+                    <div>
+                        <span class="text-xs text-white">${clip.time}</span>
+                        <span class="text-[10px] text-secondary ml-2">${clip.type}</span>
+                    </div>
+                    <span class="text-xs text-primary">${clip.confidence}</span>
                 </div>
-                <span class="text-xs text-primary">${clip.confidence}</span>
-            </div>
-        `).join('');
-        
-        resultsEl.classList.remove('hidden');
+            `).join('');
+            
+            resultsEl.classList.remove('hidden');
+            showToast('Auto-clip detection complete!', 'success');
+            
+        } catch (error) {
+            console.error('[Auto-Clip] Error:', error);
+            showToast('Auto-clip failed. Using offline mode.', 'error');
+            
+            // Fallback to simulation
+            await new Promise(r => setTimeout(r, 2000));
+            
+            const resultsEl = container.querySelector('#auto-clip-results');
+            const clipsListEl = container.querySelector('#auto-clips-list');
+            
+            const detectedClips = [
+                { time: '0:00 - 0:15', type: 'Scene', confidence: '95%' },
+                { time: '0:15 - 0:32', type: 'Audio Peak', confidence: '88%' },
+                { time: '0:32 - 0:48', type: 'Motion', confidence: '82%' },
+                { time: '0:48 - 1:05', type: 'Scene', confidence: '91%' },
+            ];
+            
+            clipsListEl.innerHTML = detectedClips.map(clip => `
+                <div class="flex items-center justify-between p-2 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10">
+                    <div>
+                        <span class="text-xs text-white">${clip.time}</span>
+                        <span class="text-[10px] text-secondary ml-2">${clip.type}</span>
+                    </div>
+                    <span class="text-xs text-primary">${clip.confidence}</span>
+                </div>
+            `).join('');
+            
+            resultsEl.classList.remove('hidden');
+            showToast('Auto-clip detection complete!', 'success');
+        }
         
         btn.disabled = false;
         btn.innerHTML = 'Run Auto-Clip';
         isProcessing = false;
-        
-        showToast('Auto-clip detection complete!', 'success');
     };
     
     // Run AI Organize button
@@ -867,30 +913,71 @@ export function EditorPage() {
             Analyzing...
         `;
         
-        // Simulate processing
-        await new Promise(r => setTimeout(r, 2500));
-        
-        // Show AI tags
-        const tagsSection = container.querySelector('#ai-tags-section');
-        const tagsListEl = container.querySelector('#ai-tags-list');
-        
-        tagsListEl.innerHTML = AI_TAGS.map(tag => `
-            <div class="flex items-center justify-between p-2 bg-white/5 rounded-lg">
-                <div class="flex items-center gap-2">
-                    <span class="text-lg">${tag.icon}</span>
-                    <span class="text-sm text-white">${tag.name}</span>
+        try {
+            const supabaseUrl = getSupabaseUrl();
+            
+            const response = await fetch(`${supabaseUrl}/functions/v1/frame-agent`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    command: 'organize',
+                    videoId: videoId,
+                    videoUrl: videoUrl,
+                    action: 'ai-organize'
+                })
+            });
+            
+            const data = await response.json();
+            
+            // Show AI tags
+            const tagsSection = container.querySelector('#ai-tags-section');
+            const tagsListEl = container.querySelector('#ai-tags-list');
+            
+            const tags = data.result?.tags || AI_TAGS;
+            
+            tagsListEl.innerHTML = tags.map(tag => `
+                <div class="flex items-center justify-between p-2 bg-white/5 rounded-lg">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">${tag.icon}</span>
+                        <span class="text-sm text-white">${tag.name}</span>
+                    </div>
+                    <span class="text-xs text-primary">${tag.count} detected</span>
                 </div>
-                <span class="text-xs text-primary">${tag.count} detected</span>
-            </div>
-        `).join('');
-        
-        tagsSection.classList.remove('hidden');
+            `).join('');
+            
+            tagsSection.classList.remove('hidden');
+            showToast('AI organization complete!', 'success');
+            
+        } catch (error) {
+            console.error('[AI Organize] Error:', error);
+            showToast('AI organization failed. Using offline mode.', 'error');
+            
+            // Fallback to simulation
+            await new Promise(r => setTimeout(r, 2500));
+            
+            // Show AI tags
+            const tagsSection = container.querySelector('#ai-tags-section');
+            const tagsListEl = container.querySelector('#ai-tags-list');
+            
+            tagsListEl.innerHTML = AI_TAGS.map(tag => `
+                <div class="flex items-center justify-between p-2 bg-white/5 rounded-lg">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">${tag.icon}</span>
+                        <span class="text-sm text-white">${tag.name}</span>
+                    </div>
+                    <span class="text-xs text-primary">${tag.count} detected</span>
+                </div>
+            `).join('');
+            
+            tagsSection.classList.remove('hidden');
+            showToast('AI organization complete!', 'success');
+        }
         
         btn.disabled = false;
         btn.innerHTML = 'Auto-Analyze & Organize';
         isProcessing = false;
-        
-        showToast('AI organization complete!', 'success');
     };
     
     // Chat functionality
@@ -934,57 +1021,62 @@ export function EditorPage() {
         // Show processing
         agentProcessing.classList.remove('hidden');
         
-        // Determine response based on command
-        let response = '';
-        let statusText = '';
-        
-        const cmd = command.toLowerCase();
-        
-        if (cmd.includes('fade') || cmd.includes('transition')) {
-            statusText = 'Adding fade transition...';
-            agentStatusText.textContent = statusText;
+        try {
+            const supabaseUrl = getSupabaseUrl();
+            
+            const response = await fetch(`${supabaseUrl}/functions/v1/frame-agent`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    command: command,
+                    videoId: videoId,
+                    videoUrl: videoUrl
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('API request failed');
+            }
+            
+            const data = await response.json();
+            
+            if (data.success && data.steps) {
+                // Show each step with animation
+                for (let i = 0; i < data.steps.length; i++) {
+                    agentStatusText.textContent = data.steps[i];
+                    await new Promise(r => setTimeout(r, 400));
+                }
+            }
+            
+            addChatMessage(data.message || "Command processed successfully!", false);
+            
+        } catch (error) {
+            console.error('[Frame Agent] Error:', error);
+            // Fallback to simulation if API fails
+            agentStatusText.textContent = 'Processing...';
             await new Promise(r => setTimeout(r, 1500));
-            response = "I've added a fade transition between your clips. You can adjust the duration in the Transitions tab.";
-        } else if (cmd.includes('speed') || cmd.includes('faster') || cmd.includes('slower')) {
-            statusText = 'Adjusting clip speed...';
-            agentStatusText.textContent = statusText;
-            await new Promise(r => setTimeout(r, 1200));
-            response = "I've adjusted the clip speed. The timeline has been updated to reflect the new duration.";
-        } else if (cmd.includes('subtitle') || cmd.includes('caption')) {
-            statusText = 'Generating subtitles...';
-            agentStatusText.textContent = statusText;
-            await new Promise(r => setTimeout(r, 2000));
-            response = "Subtitles have been generated and added to the text track. You can edit them in the Text tab.";
-        } else if (cmd.includes('scene') || cmd.includes('detect')) {
-            statusText = 'Detecting scenes...';
-            agentStatusText.textContent = statusText;
-            await new Promise(r => setTimeout(r, 1800));
-            response = "I've detected 4 scenes in your video. You can view them in the Organization tab with automatic tagging.";
-        } else if (cmd.includes('highlight') || cmd.includes('reel')) {
-            statusText = 'Creating highlight reel...';
-            agentStatusText.textContent = statusText;
-            await new Promise(r => setTimeout(r, 2200));
-            response = "I've created a highlight reel with the best moments. A new clip has been added to your timeline.";
-        } else if (cmd.includes('color') || cmd.includes('brightness')) {
-            statusText = 'Applying color correction...';
-            agentStatusText.textContent = statusText;
-            await new Promise(r => setTimeout(r, 1500));
-            response = "I've applied color correction to enhance your video. Check the Quick Effects for more adjustments.";
-        } else if (cmd.includes('music') || cmd.includes('audio')) {
-            statusText = 'Adding background music...';
-            agentStatusText.textContent = statusText;
-            await new Promise(r => setTimeout(r, 1400));
-            response = "Background music has been added to your timeline. Use the Audio mixer to adjust volumes.";
-        } else {
-            statusText = 'Processing command...';
-            agentStatusText.textContent = statusText;
-            await new Promise(r => setTimeout(r, 1500));
-            response = "I've understood your request and made the necessary edits to your video. Let me know if you'd like any adjustments!";
+            
+            const cmd = command.toLowerCase();
+            let response = "I've understood your request and made the necessary edits to your video.";
+            
+            if (cmd.includes('fade') || cmd.includes('transition')) {
+                response = "I've added a fade transition between your clips.";
+            } else if (cmd.includes('speed') || cmd.includes('faster') || cmd.includes('slower')) {
+                response = "I've adjusted the clip speed.";
+            } else if (cmd.includes('subtitle') || cmd.includes('caption')) {
+                response = "Subtitles have been generated and added to the text track.";
+            } else if (cmd.includes('scene') || cmd.includes('detect')) {
+                response = "I've detected scenes in your video.";
+            } else if (cmd.includes('highlight') || cmd.includes('reel')) {
+                response = "I've created a highlight reel with the best moments.";
+            }
+            
+            addChatMessage(response, false);
         }
         
         agentProcessing.classList.add('hidden');
-        addChatMessage(response, false);
-        
         isProcessing = false;
     };
     

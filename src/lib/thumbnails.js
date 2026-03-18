@@ -8,6 +8,11 @@ const STUDIO_THUMBNAILS = {
   upscale: '/thumbnails/studios/upscale.webp',
   character: '/thumbnails/studios/character.webp',
   commercial: '/thumbnails/studios/commercial.webp',
+  audio: '/thumbnails/studios/audio.webp',
+  avatar: '/thumbnails/studios/avatar.webp',
+  training: '/thumbnails/studios/training.webp',
+  videotools: '/thumbnails/studios/videotools.webp',
+  chat: '/thumbnails/studios/chat.webp',
 };
 
 const HERO_THUMBNAILS = {
@@ -21,6 +26,11 @@ const HERO_THUMBNAILS = {
   character: '/thumbnails/heroes/character.webp',
   commercial: '/thumbnails/heroes/commercial.webp',
   influencer: '/thumbnails/heroes/influencer.webp',
+  audio: '/thumbnails/heroes/audio.webp',
+  avatar: '/thumbnails/heroes/avatar.webp',
+  training: '/thumbnails/heroes/training.webp',
+  videotools: '/thumbnails/heroes/videotools.webp',
+  chat: '/thumbnails/heroes/chat.webp',
 };
 
 const TOOL_THUMBNAILS = {

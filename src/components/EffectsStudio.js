@@ -235,6 +235,70 @@ export function EffectsStudio() {
     renderEffects();
   }
 
+  // Helper to get thumbnail URL for an effect
+  function getEffectThumbnail(effectName, tabId, tabType) {
+    // Create a slug from the effect name
+    const slug = effectName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+    
+    // Map effect names to their thumbnail indices (for ai-video effects)
+    const effectIndexMap = {
+      '360 rotation': '01', 'abandoned places': '02', 'angry': '03', 'animal documentary': '04',
+      'assassin it': '05', 'baby it': '06', 'boxing': '07', 'bride it': '08', 'cakeify': '09',
+      'cartoon jaw drop': '10', 'cats': '11', 'crush it': '12', 'crying': '13', 'cyberpunk 2077': '14',
+      'deflate it': '15', 'disney princess it': '16', 'dogs': '17', 'eye close-up': '18',
+      'fantasy landscapes': '19', 'film noir': '20', 'fire': '21', 'glamor': '22', 'goblin': '23',
+      'gun reveal': '24', 'hug jesus': '25', 'hulk transformation': '26', 'inflate it': '27',
+      'jungle it': '28', 'jumpscare': '29', 'kamehameha': '30', 'kiss cam': '31', 'kissing': '32',
+      'lego': '33', 'laughing': '34', 'little planet': '35', 'live wallpaper': '36',
+      'looping pixel art': '37', 'melt it': '38', 'mona lisa it': '39', 'museum it': '40',
+      'muscle show off': '41', 'orc': '42', 'pixar': '43', 'pirate captain': '44', 'pov driving': '45',
+      'princess it': '46', 'puppy it': '47', 'robotic face reveal': '48', 'samurai it': '49',
+      'sharingan eyes': '50', 'skyrim fus-ro-dah': '51', 'snow white it': '52', 'squish it': '53',
+      'steamboat willie': '54', 'super saiyan transformation': '55', 'tsunami': '56', 'ultra wide': '57',
+      'vhs footage': '58', 'vip it': '59', 'warrior it': '60', 'wind blast': '61',
+      'younger self selfie': '62', 'zen it': '63', 'zoom call': '64'
+    };
+    
+    const index = effectIndexMap[slug] || effectIndexMap[effectName.toLowerCase()];
+    
+    if (tabId === 'ai-video-effects' && index) {
+      // AI Video Effects - use webp first, fallback to svg
+      return `/thumbnails/effects/ai-video/${index}-${slug}.webp.png`;
+    }
+    
+    if (tabId === 'image-effects') {
+      // Image Effects - use webp.png format
+      return `/thumbnails/effects/image-effects/${slug}.webp.png`;
+    }
+    
+    if (tabId === 'nano-banana-effects') {
+      // Nano Banana Effects - use webp.png format
+      return `/thumbnails/effects/nano-banana/${slug}.webp.png`;
+    }
+    
+    if (tabId === 'flux-kontext-effects') {
+      // Kontext Effects - use webp.png format
+      return `/thumbnails/effects/kontext-effects/${slug}.webp.png`;
+    }
+    
+    if (tabId === 'motion-controls') {
+      // Motion Controls - use webp.png format
+      return `/thumbnails/effects/motion-controls/${slug}.webp.png`;
+    }
+    
+    if (tabId === 'video-effects') {
+      // Video Effects v2 - use direct slug mapping
+      return `/thumbnails/effects/vfx/${slug}.webp.png`;
+    }
+    
+    if (tabType === 'i2v' && index) {
+      // Fallback for other i2v tabs
+      return `/thumbnails/effects/ai-video/${index}-${slug}.webp.png`;
+    }
+    
+    return null;
+  }
+
   function renderEffects(filter = '') {
     effectsGrid.innerHTML = '';
     let effects = getEffectsForModel(activeTab.id);
@@ -246,13 +310,27 @@ export function EffectsStudio() {
     effects.forEach(name => {
       const card = document.createElement('div');
       const isVideo = activeTab.type === 'i2v';
-      card.className = 'bg-white/[0.03] border border-white/5 rounded-xl p-3 cursor-pointer hover:bg-white/[0.06] hover:border-white/10 transition-all group';
+      const thumbnailUrl = getEffectThumbnail(name, activeTab.id, activeTab.type);
+      
+      card.className = 'bg-white/[0.03] border border-white/5 rounded-xl p-2 cursor-pointer hover:bg-white/[0.06] hover:border-white/10 transition-all group overflow-hidden';
+      
+      // Card HTML with thumbnail
       card.innerHTML = `
-        <div class="flex items-center gap-2 mb-1">
-          ${isVideo ? '<div class="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></div>' : '<div class="w-1.5 h-1.5 rounded-full bg-primary shrink-0"></div>'}
-          <div class="text-xs font-bold text-white group-hover:text-primary transition-colors truncate">${name}</div>
+        <div class="relative w-full aspect-square mb-2 rounded-lg overflow-hidden bg-white/5">
+          ${thumbnailUrl ? `<img src="${thumbnailUrl}" alt="${name}" class="w-full h-full object-cover" loading="lazy" decoding="async" />` : `
+            <div class="w-full h-full flex items-center justify-center">
+              ${isVideo ? 
+                '<svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>' :
+                '<svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'
+              }
+            </div>
+          `}
         </div>
-        <div class="text-[10px] text-muted">${isVideo ? 'Video' : 'Image'}</div>
+        <div class="flex items-center gap-1.5">
+          ${isVideo ? '<div class="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></div>' : '<div class="w-1.5 h-1.5 rounded-full bg-primary shrink-0"></div>'}
+          <div class="text-[10px] font-bold text-white group-hover:text-primary transition-colors truncate">${name}</div>
+        </div>
+        <div class="text-[9px] text-muted mt-0.5">${isVideo ? 'Video' : 'Image'}</div>
       `;
       card.onclick = () => {
         selectedEffect = name;

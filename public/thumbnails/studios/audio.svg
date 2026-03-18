@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">
+  <defs>
+    <linearGradient id="grad_audio" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="150" height="150" rx="12" fill="url(#grad_audio)"/>
+  <!-- Sound wave bars -->
+  <rect x="35" y="55" width="6" height="40" rx="3" fill="#00d4ff"/>
+  <rect x="47" y="45" width="6" height="60" rx="3" fill="#00d4ff"/>
+  <rect x="59" y="35" width="6" height="80" rx="3" fill="#00d4ff"/>
+  <rect x="71" y="45" width="6" height="60" rx="3" fill="#00d4ff"/>
+  <rect x="83" y="55" width="6" height="40" rx="3" fill="#00d4ff"/>
+  <rect x="95" y="65" width="6" height="20" rx="3" fill="#00d4ff"/>
+  <!-- Music note -->
+  <text x="75" y="130" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10" font-weight="bold">Audio Studio</text>
+</svg>

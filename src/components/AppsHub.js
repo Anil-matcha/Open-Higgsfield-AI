@@ -16,6 +16,14 @@ const TOOL_STUDIOS = [
   { id: 'commercial', name: 'Commercial Studio', description: 'Product photography and ads', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>', badge: 'Ads', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
 ];
 
+const AI_APPS = [
+  { id: 'audio', name: 'Audio Studio', description: 'Generate music, speech, and sound effects', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>', badge: 'AI Audio', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
+  { id: 'avatar', name: 'Avatar Studio', description: 'AI avatars and lip sync video generation', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11v2"/><path d="M8 13h8"/></svg>', badge: 'AI Avatars', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20' },
+  { id: 'training', name: 'Training Studio', description: 'Train custom LoRA models from your images', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>', badge: 'LoRA', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
+  { id: 'videotools', name: 'Video Tools', description: 'Upscale, edit, translate, and enhance videos', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3V9z"/></svg>', badge: 'Video Tools', color: 'bg-violet-500/10 text-violet-400 border-violet-500/20' },
+  { id: 'chat', name: 'Chat Studio', description: 'AI-powered text generation and conversation', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>', badge: 'LLM', color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
+];
+
 export function AppsHub() {
   const container = document.createElement('div');
   container.className = 'w-full h-full overflow-y-auto bg-app-bg';
@@ -51,6 +59,12 @@ export function AppsHub() {
   })), true));
 
   inner.appendChild(createSection('Tools & Editors', TOOL_STUDIOS.map(s => ({
+    ...s,
+    thumbnail: getStudioThumbnail(s.id),
+    onClick: () => { saveRecent(s.id, s.name); navigate(s.id); },
+  })), true));
+
+  inner.appendChild(createSection('AI Apps', AI_APPS.map(s => ({
     ...s,
     thumbnail: getStudioThumbnail(s.id),
     onClick: () => { saveRecent(s.id, s.name); navigate(s.id); },

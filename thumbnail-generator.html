@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Effects Thumbnail Generator</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            background: linear-gradient(90deg, #a855f7, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #9ca3af;
+            margin-bottom: 30px;
+        }
+        
+        .progress {
+            background: #1f2937;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            height: 24px;
+            background: #374151;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a855f7, #6366f1);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .thumbnail {
+            background: #1f2937;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #374151;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .thumbnail:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.2);
+        }
+        
+        .thumbnail img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .thumbnail-info {
+            padding: 12px;
+        }
+        
+        .thumbnail-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .thumbnail-status {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        .thumbnail-status.pending {
+            color: #fbbf24;
+        }
+        
+        .thumbnail-status.generating {
+            color: #60a5fa;
+        }
+        
+        .thumbnail-status.done {
+            color: #34d399;
+        }
+        
+        .thumbnail-status.error {
+            color: #f87171;
+        }
+        
+        .download-all {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 14px 28px;
+            background: linear-gradient(90deg, #a855f7, #6366f1);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .download-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+        }
+        
+        .download-all:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #a855f7, #6366f1);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #374151;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Video Effects Thumbnail Generator</h1>
+        <p class="subtitle">Generating 41 thumbnails for dark theme design</p>
+        
+        <div class="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Ready to generate</div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="startGeneration()">Generate All Thumbnails</button>
+            <button class="btn btn-secondary" onclick="downloadAll()">Download All</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+        </div>
+        
+        <div class="grid" id="grid"></div>
+        
+        <button class="download-all" id="downloadAllBtn" onclick="downloadAllAsZip()" disabled>Download All as ZIP</button>
+    </div>
+
+    <script>
+        const thumbnails = [
+            { id: 'balloon-flyaway', name: 'Balloon Flyaway', prompt: 'Person floating upward into dark sky clutching colorful balloons, dramatic upward motion, dark atmospheric background with purple undertones, professional photography, cinematic lighting' },
+            { id: 'blow-kiss', name: 'Blow Kiss', prompt: 'Person mid-kiss gesture with fingers touching lips then extending toward camera, dramatic studio lighting with rim light, dark moody background with blue undertones, professional portrait' },
+            { id: 'body-shake', name: 'Body Shake', prompt: 'Person shaking body with motion blur effect, energetic movement frozen mid-action, dark background with particle effects, dramatic sports photography style' },
+            { id: 'break-glass', name: 'Break Glass', prompt: 'Person mid-action breaking through shattered glass pane, shards flying outward, dramatic action shot, dark background with sharp lighting, VFX movie still' },
+            { id: 'carry-me', name: 'Carry Me', prompt: 'Romantic scene of person being lifted in arms, cinematic lighting, dark moody background with soft purple glow, wedding photography style' },
+            { id: 'cartoon-doll', name: 'Cartoon Doll', prompt: 'Person rendered as cute 3D cartoon doll character with large expressive eyes, vibrant colors, dark gradient background with pink and purple, toy commercial style' },
+            { id: 'cheek-kiss', name: 'Cheek Kiss', prompt: 'Close-up of cheek kiss moment, soft romantic lighting, dark background with subtle warm glow, intimate portrait photography' },
+            { id: 'child-memory', name: 'Child Memory', prompt: 'Person transformed into younger version as child, nostalgic dreamy aesthetic with soft focus, dark vignette with warm sepia tones, cinematic flashback' },
+            { id: 'couple-arrival', name: 'Couple Arrival', prompt: 'Couple walking toward camera in dramatic slow motion, cinematic lighting, dark atmospheric background with blue undertones, movie poster style' },
+            { id: 'fairy-me', name: 'Fairy Me', prompt: 'Person with glowing fairy wings and magical particles floating around, ethereal lighting with purple and pink glow, dark mystical forest background, fantasy photography' },
+            { id: 'fashion-stride', name: 'Fashion Stride', prompt: 'Person striding confidently on fashion runway, dramatic catwalk lighting from above, dark stage background with spotlight, high fashion editorial' },
+            { id: 'fisherman', name: 'Fisherman', prompt: 'Person dressed as fisherman casting fishing line at golden hour, dramatic warm lighting, dark moody water background with reflections, outdoor adventure photography' },
+            { id: 'flower-receive', name: 'Flower Receive', prompt: 'Person receiving flowers with surprised delighted expression, romantic soft lighting with warm glow, dark background, engagement photo style' },
+            { id: 'flying', name: 'Flying', prompt: 'Person flying through air with cape flowing behind in superman pose, dramatic sky with dark clouds, cinematic superhero movie still' },
+            { id: 'french-kiss', name: 'French Kiss', prompt: 'Couple mid-french kiss in romantic embrace, soft dramatic lighting with warm tones, dark background with subtle glow, movie romance scene' },
+            { id: 'gender-swap', name: 'Gender Swap', prompt: 'Split-screen transformation showing person with dramatically different gender presentation, dramatic reveal lighting, dark moody background, transformation摄影' },
+            { id: 'golden-epoch', name: 'Golden Epoch', prompt: 'Person in 1920s vintage golden era style, sepia tones with art deco aesthetic, dramatic vintage lighting, classic Hollywood portrait style' },
+            { id: 'hair-swap', name: 'Hair Swap', prompt: 'Person with dramatically different hairstyle showing transformation, before-after aesthetic, dramatic studio lighting with purple rim light, fashion editorial' },
+            { id: 'hugging', name: 'Hugging', prompt: 'Warm hugging embrace between two people, soft romantic lighting with warm golden glow, dark background, emotional portrait photography' },
+            { id: 'jiggle-up', name: 'Jiggle Up', prompt: 'Person jumping with jiggle physics effect frozen mid-air, energetic motion, dark background with motion blur edges, dynamic sports photography' },
+            { id: 'kissing-pro', name: 'Kissing Pro', prompt: 'Couple in passionate kiss pose like movie poster, dramatic cinematic lighting with rim light, dark background, theatrical romance photography' },
+            { id: 'live-memory', name: 'Live Memory', prompt: 'Person appearing as living memory with ethereal glow and soft focus, dreamy nostalgic aesthetic, dark vignette with warm light, cinematic flashback' },
+            { id: 'love-drop', name: 'Love Drop', prompt: 'Person with heart-shaped tears or droplets falling, emotional romantic scene with pink glow, dark background with soft lighting, dramatic portrait' },
+            { id: 'melt', name: 'Melt', prompt: 'Person melting like wax with dripping effect, surreal artistic style, dark background with warm amber lighting, conceptual art photography' },
+            { id: 'minecraft', name: 'Minecraft', prompt: 'Person in Minecraft blocky 3D world with voxel aesthetic, pixelated terrain and blocks, dark game-like background with pixel art style, gaming screenshot' },
+            { id: 'muscling', name: 'Muscling', prompt: 'Person flexing muscles showing strength, dramatic bodybuilding pose with spotlight, dark background with dramatic lighting, fitness photography' },
+            { id: 'nap-me', name: 'Nap Me', prompt: 'Person sleeping peacefully in bed with soft morning light from window, cozy peaceful atmosphere, dark bedroom with warm tones, lifestyle photography' },
+            { id: 'paperman', name: 'Paperman', prompt: 'Person transformed into paper cutout with 2D flat aesthetic, colorful geometric shapes, dark layered paper background, artistic illustration style' },
+            { id: 'pilot', name: 'Pilot', prompt: 'Person in pilot uniform with headset in cockpit, dramatic aviation lighting with blue instrument glow, dark interior with window showing sky' },
+            { id: 'pinch', name: 'Pinch', prompt: 'Person pinching small glowing orb between fingers, close-up macro shot with dramatic lighting, dark background with light particles, detail photography' },
+            { id: 'pixel-me', name: 'Pixel Me', prompt: 'Person rendered as pixel art character in 8-bit aesthetic, retro gaming style, dark digital background with scanlines, pixel art portrait' },
+            { id: 'romantic-lift', name: 'Romantic Lift', prompt: 'Person lifting partner in romantic embrace, slow motion capture, cinematic lighting with warm glow, dark background, romantic movie scene' },
+            { id: 'sexy-me', name: 'Sexy Me', prompt: 'Person in glamorous sexy pose with dramatic fashion lighting, dark studio background with purple rim light, high fashion editorial style' },
+            { id: 'slice-therapy', name: 'Slice Therapy', prompt: 'Person with body sliced revealing interior cross-section view, medical scan aesthetic with blue glow, dark background, sci-fi conceptual art' },
+            { id: 'soul-depart', name: 'Soul Depart', prompt: 'Person with ghostly soul or spirit separating from body in ethereal transparent form, mystical dark background with purple energy, paranormal photography' },
+            { id: 'split-stance', name: 'Split Stance', prompt: 'Person in powerful martial arts split stance pose, dramatic action lighting, dark background with spotlight, martial arts movie still' },
+            { id: 'squid-game', name: 'Squid Game', prompt: 'Person in iconic Squid Game green tracksuit with triangle mask, ominous dark background with red emergency light, dystopian thriller aesthetic' },
+            { id: 'toy-me', name: 'Toy Me', prompt: 'Person transformed into realistic toy action figure in plastic packaging on display stand, toy product photography, dark background with studio lighting' },
+            { id: 'walk-forward', name: 'Walk Forward', prompt: 'Person walking directly toward camera in slow motion, dramatic approach shot with shallow depth of field, dark background with blur' },
+            { id: 'zoom-in-fast', name: 'Zoom In Fast', prompt: 'Extreme fast zoom into person face with motion blur edges and radial blur effect, dramatic zoom impact, dark background with light streaks' },
+            { id: 'zoom-out-fast', name: 'Zoom Out Fast', prompt: 'Fast zoom out from person face revealing surroundings with expanding motion blur, dramatic reveal, dark background with environmental context' }
+        ];
+
+        let generatedImages = {};
+        
+        function init() {
+            const grid = document.getElementById('grid');
+            thumbnails.forEach((thumb, index) => {
+                const div = document.createElement('div');
+                div.className = 'thumbnail';
+                div.id = `thumb-${thumb.id}`;
+                div.innerHTML = `
+                    <div style="width: 100%; aspect-ratio: 16/9; background: #374151; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: #9ca3af; font-size: 12px;">${index + 1}. ${thumb.name}</span>
+                    </div>
+                    <div class="thumbnail-info">
+                        <div class="thumbnail-name">${thumb.name}</div>
+                        <div class="thumbnail-status pending">Pending</div>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+        
+        async function startGeneration() {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            progressText.textContent = 'Starting generation...';
+            
+            for (let i = 0; i < thumbnails.length; i++) {
+                const thumb = thumbnails[i];
+                const thumbDiv = document.getElementById(`thumb-${thumb.id}`);
+                const statusDiv = thumbDiv.querySelector('.thumbnail-status');
+                
+                statusDiv.textContent = 'Generating...';
+                statusDiv.className = 'thumbnail-status generating';
+                
+                try {
+                    const imgElement = await puter.ai.txt2img(thumb.prompt, {
+                        model: "flux-schnell"
+                    });
+                    
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 640;
+                    canvas.height = 360;
+                    const ctx = canvas.getContext('2d');
+                    
+                    await new Promise((resolve) => {
+                        imgElement.onload = resolve;
+                        imgElement.src = imgElement.src;
+                    });
+                    
+                    ctx.drawImage(imgElement, 0, 0, 640, 360);
+                    
+                    const dataUrl = canvas.toDataURL('image/webp', 0.9);
+                    generatedImages[thumb.id] = dataUrl;
+                    
+                    const img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.style.width = '100%';
+                    img.style.aspectRatio = '16/9';
+                    img.style.objectFit = 'cover';
+                    
+                    const placeholder = thumbDiv.querySelector('div');
+                    placeholder.innerHTML = '';
+                    placeholder.appendChild(img);
+                    
+                    statusDiv.textContent = 'Done';
+                    statusDiv.className = 'thumbnail-status done';
+                    
+                } catch (error) {
+                    console.error(`Error generating ${thumb.id}:`, error);
+                    statusDiv.textContent = 'Error';
+                    statusDiv.className = 'thumbnail-status error';
+                }
+                
+                const progress = ((i + 1) / thumbnails.length) * 100;
+                progressFill.style.width = `${progress}%`;
+                progressText.textContent = `Generated ${i + 1} of ${thumbnails.length} thumbnails`;
+            }
+            
+            progressText.textContent = `Completed! Generated ${Object.keys(generatedImages).length} of ${thumbnails.length} thumbnails`;
+            document.getElementById('downloadAllBtn').disabled = false;
+        }
+        
+        function downloadAll() {
+            Object.entries(generatedImages).forEach(([id, dataUrl]) => {
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = `${id}.webp`;
+                link.click();
+            });
+        }
+        
+        async function downloadAllAsZip() {
+            const progressText = document.getElementById('progressText');
+            progressText.textContent = 'Preparing ZIP download...';
+            
+            const zip = new JSZip();
+            
+            Object.entries(generatedImages).forEach(([id, dataUrl]) => {
+                const base64Data = dataUrl.split(',')[1];
+                zip.file(`${id}.webp`, base64Data, { base64: true });
+            });
+            
+            const content = await zip.generateAsync({ type: 'blob' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = 'ai-video-effect-thumbnails.zip';
+            link.click();
+            
+            progressText.textContent = 'ZIP downloaded!';
+        }
+        
+        function clearAll() {
+            generatedImages = {};
+            init();
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressText').textContent = 'Ready to generate';
+            document.getElementById('downloadAllBtn').disabled = true;
+        }
+        
+        init();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</body>
+</html>

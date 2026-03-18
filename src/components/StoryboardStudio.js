@@ -4,6 +4,7 @@ import { createInlineInstructions } from './InlineInstructions.js';
 import { createHeroSection } from '../lib/thumbnails.js';
 
 const SHOT_TYPES = ['Wide Shot', 'Medium Shot', 'Close-Up', 'Extreme Close-Up', 'POV', 'Overhead', 'Low Angle'];
+const LAYOUTS = ['Horizontal', 'Grid', 'Story'];
 
 export function StoryboardStudio() {
   const container = document.createElement('div');
@@ -28,19 +29,37 @@ export function StoryboardStudio() {
   container.appendChild(topBar);
 
   const frames = [
-    { prompt: '', shot: 'Wide Shot', imageUrl: null },
-    { prompt: '', shot: 'Medium Shot', imageUrl: null },
-    { prompt: '', shot: 'Close-Up', imageUrl: null },
+    { prompt: '', narration: '', shot: 'Wide Shot', imageUrl: null },
+    { prompt: '', narration: '', shot: 'Medium Shot', imageUrl: null },
+    { prompt: '', narration: '', shot: 'Close-Up', imageUrl: null },
   ];
 
   const controlBar = document.createElement('div');
-  controlBar.className = 'px-4 md:px-8 mb-4 flex items-center gap-3';
+  controlBar.className = 'px-4 md:px-8 mb-4 flex items-center gap-3 flex-wrap';
+
+  // Layout selector
+  const layoutLabel = document.createElement('span');
+  layoutLabel.className = 'text-xs font-bold text-secondary';
+  layoutLabel.textContent = 'Layout:';
+  controlBar.appendChild(layoutLabel);
+
+  const layoutSelect = document.createElement('select');
+  layoutSelect.className = 'bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs focus:outline-none appearance-none cursor-pointer';
+  LAYOUTS.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l.toLowerCase();
+    opt.textContent = l;
+    opt.style.background = '#111';
+    layoutSelect.appendChild(opt);
+  });
+  layoutSelect.onchange = () => { renderFrames(); };
+  controlBar.appendChild(layoutSelect);
 
   const addFrameBtn = document.createElement('button');
   addFrameBtn.className = 'px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-white hover:bg-white/10 transition-all';
   addFrameBtn.textContent = '+ Add Frame';
   addFrameBtn.onclick = () => {
-    frames.push({ prompt: '', shot: 'Wide Shot', imageUrl: null });
+    frames.push({ prompt: '', narration: '', shot: 'Wide Shot', imageUrl: null });
     renderFrames();
   };
   controlBar.appendChild(addFrameBtn);
@@ -49,6 +68,24 @@ export function StoryboardStudio() {
   genAllBtn.className = 'px-4 py-2 bg-primary text-black rounded-xl text-xs font-bold hover:shadow-glow transition-all';
   genAllBtn.textContent = 'Generate All Frames';
   controlBar.appendChild(genAllBtn);
+
+  // Export button
+  const exportBtn = document.createElement('button');
+  exportBtn.className = 'px-4 py-2 bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-white hover:bg-white/20 transition-all ml-auto';
+  exportBtn.innerHTML = 'Export PDF';
+  exportBtn.onclick = () => {
+    // Simple export - download as JSON for now
+    const data = JSON.stringify(frames, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'storyboard.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  controlBar.appendChild(exportBtn);
+
   container.appendChild(controlBar);
 
   const framesArea = document.createElement('div');
@@ -98,6 +135,15 @@ export function StoryboardStudio() {
       promptInput.value = frame.prompt;
       promptInput.oninput = () => { frame.prompt = promptInput.value; };
       card.appendChild(promptInput);
+
+      // Narration input
+      const narrationInput = document.createElement('input');
+      narrationInput.type = 'text';
+      narrationInput.className = 'w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-muted focus:outline-none focus:border-primary/50';
+      narrationInput.placeholder = 'Narration text (optional)...';
+      narrationInput.value = frame.narration || '';
+      narrationInput.oninput = () => { frame.narration = narrationInput.value; };
+      card.appendChild(narrationInput);
 
       const genFrameBtn = document.createElement('button');
       genFrameBtn.className = 'w-full bg-white/10 text-white py-2 rounded-lg text-xs font-bold hover:bg-white/20 transition-all';

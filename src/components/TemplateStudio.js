@@ -1,4 +1,5 @@
-import { getTemplateById } from '../lib/templates.js';
+plicationimport { getTemplateById } from '../lib/templates.js';
+import { getTemplateThumbnail } from '../lib/thumbnails.js';
 import { muapi } from '../lib/muapi.js';
 import { AuthModal } from './AuthModal.js';
 import { createUploadPicker } from './UploadPicker.js';
@@ -22,8 +23,15 @@ export function TemplateStudio(templateId) {
 
   const header = document.createElement('div');
   header.className = 'flex flex-col items-center mb-8 animate-fade-in-up';
+  
+  // Get template thumbnail
+  const thumbnailUrl = getTemplateThumbnail(template.id);
+  const thumbnailHtml = thumbnailUrl 
+    ? `<img src="${thumbnailUrl}" alt="${template.name}" class="w-24 h-24 object-cover rounded-2xl mb-4 border-2 border-primary/30" />`
+    : `<div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 mb-4 text-3xl">${template.icon}</div>`;
+  
   header.innerHTML = `
-    <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 mb-4 text-3xl">${template.icon}</div>
+    ${thumbnailHtml}
     <h1 class="text-2xl md:text-4xl font-black text-white tracking-tight mb-2 text-center">${template.name}</h1>
     <p class="text-secondary text-sm max-w-md text-center">${template.description}</p>
     <div class="flex gap-2 mt-3">

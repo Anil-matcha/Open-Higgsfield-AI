@@ -1,4 +1,4 @@
-import { getModelById, getVideoModelById, getI2IModelById, getI2VModelById, getV2VModelById } from './models.js';
+import { getModelById, getVideoModelById, getI2IModelById, getI2VModelById, getV2VModelById, getAudioModelById, getAvatarModelById, getTrainingModelById, getVideoToolById, getTextModelById } from './models.js';
 
 export class MuapiClient {
     constructor() {
@@ -433,6 +433,222 @@ export class MuapiClient {
         }
     }
 
+    /**
+     * Generates audio using a Text-to-Audio or TTS model.
+     * @param {Object} params
+     * @param {string} params.model - audioModel id
+     * @param {string} [params.prompt] - Text prompt for music/speech generation
+     * @param {string} [params.style] - Music style (for Suno/Udio)
+     * @param {string} [params.voice] - Voice ID (for TTS models)
+     * @param {number} [params.duration] - Audio duration in seconds
+     */
+    async generateAudio(params) {
+        const key = this.getKey();
+        const modelInfo = getAudioModelById(params.model);
+        const endpoint = modelInfo?.endpoint || params.model;
+        const url = `${this.baseUrl}/api/v1/${endpoint}`;
+
+        const finalPayload = {};
+
+        if (params.prompt) finalPayload.prompt = params.prompt;
+        if (params.style) finalPayload.style = params.style;
+        if (params.voice) finalPayload.voice = params.voice;
+        if (params.duration) finalPayload.duration = params.duration;
+
+        console.log('[Muapi] Audio Request:', url);
+        console.log('[Muapi] Audio Payload:', finalPayload);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-api-key': key },
+                body: JSON.stringify(finalPayload)
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`API Request Failed: ${response.status} ${response.statusText} - ${errText.slice(0, 100)}`);
+            }
+
+            const submitData = await response.json();
+            console.log('[Muapi] Audio Submit Response:', submitData);
+
+            const requestId = submitData.request_id || submitData.id;
+            if (!requestId) return submitData;
+
+            // Audio generation typically takes longer
+            const result = await this.pollForResult(requestId, key, 180, 3000);
+            const audioUrl = result.outputs?.[0] || result.url || result.output?.url;
+            console.log('[Muapi] Audio URL:', audioUrl);
+            return { ...result, url: audioUrl };
+        } catch (error) {
+            console.error('Muapi Audio Error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Generates an avatar video (Audio-to-Video or Lip Sync).
+     * @param {Object} params
+     * @param {string} params.model - avatarModel id
+     * @param {string} params.video_url - Source video/image URL
+     * @param {string} [params.audio_url] - Audio to sync (for lip sync models)
+     * @param {string} [params.prompt] - Optional prompt for driving animation
+     */
+    async generateAvatar(params) {
+        const key = this.getKey();
+        const modelInfo = getAvatarModelById(params.model);
+        const endpoint = modelInfo?.endpoint || params.model;
+        const url = `${this.baseUrl}/api/v1/${endpoint}`;
+
+        const finalPayload = {};
+
+        // Handle video/image field based on model
+        const videoField = modelInfo?.videoField || 'video_url';
+        if (params.video_url) finalPayload[videoField] = params.video_url;
+
+        if (params.audio_url) finalPayload.audio_url = params.audio_url;
+        if (params.prompt) finalPayload.prompt = params.prompt;
+
+        console.log('[Muapi] Avatar Request:', url);
+        console.log('[Muapi] Avatar Payload:', finalPayload);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-api-key': key },
+                body: JSON.stringify(finalPayload)
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`API Request Failed: ${response.status} ${response.statusText} - ${errText.slice(0, 100)}`);
+            }
+
+            const submitData = await response.json();
+            console.log('[Muapi] Avatar Submit Response:', submitData);
+
+            const requestId = submitData.request_id || submitData.id;
+            if (!requestId) return submitData;
+
+            // Avatar video generation can take a while
+            const result = await this.pollForResult(requestId, key, 180, 3000);
+            const avatarUrl = result.outputs?.[0] || result.url || result.output?.url;
+            console.log('[Muapi] Avatar Video URL:', avatarUrl);
+            return { ...result, url: avatarUrl };
+        } catch (error) {
+            console.error('Muapi Avatar Error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Trains a LoRA model from uploaded images.
+     * @param {Object} params
+     * @param {string} params.model - trainingModel id
+     * @param {string} params.name - Name for the trained LoRA
+     * @param {string[]} params.images_list - Array of image URLs to train from
+     * @param {number} [params.epochs] - Number of training epochs
+     * @param {string} [params.trigger_word] - Optional trigger word for the LoRA
+     */
+    async trainLora(params) {
+        const key = this.getKey();
+        const modelInfo = getTrainingModelById(params.model);
+        const endpoint = modelInfo?.endpoint || params.model;
+        const url = `${this.baseUrl}/api/v1/${endpoint}`;
+
+        const finalPayload = {};
+
+        if (params.name) finalPayload.name = params.name;
+        if (params.images_list) finalPayload.images_list = params.images_list;
+        if (params.epochs) finalPayload.epochs = params.epochs;
+        if (params.trigger_word) finalPayload.trigger_word = params.trigger_word;
+
+        console.log('[Muapi] LoRA Training Request:', url);
+        console.log('[Muapi] LoRA Payload:', finalPayload);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-api-key': key },
+                body: JSON.stringify(finalPayload)
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`API Request Failed: ${response.status} ${response.statusText} - ${errText.slice(0, 100)}`);
+            }
+
+            const submitData = await response.json();
+            console.log('[Muapi] LoRA Training Submit Response:', submitData);
+
+            const requestId = submitData.request_id || submitData.id;
+            if (!requestId) return submitData;
+
+            // Training takes significantly longer
+            const result = await this.pollForResult(requestId, key, 300, 5000);
+            console.log('[Muapi] LoRA Training Result:', result);
+            return { ...result, lora_url: result.outputs?.[0] || result.lora_url || result.url };
+        } catch (error) {
+            console.error('Muapi LoRA Training Error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Processes video using Video Tools (upscale, interpolate, stabilize, etc.)
+     * @param {Object} params
+     * @param {string} params.model - videoToolsModel id
+     * @param {string} params.video_url - The uploaded video URL
+     * @param {string} [params.prompt] - Optional prompt (for remix, style transfer)
+     * @param {string} [params.target_fps] - Target FPS (for interpolation)
+     * @param {string} [params.target_resolution] - Target resolution (for upscale)
+     */
+    async processVideoTool(params) {
+        const key = this.getKey();
+        const modelInfo = getVideoToolById(params.model);
+        const endpoint = modelInfo?.endpoint || params.model;
+        const url = `${this.baseUrl}/api/v1/${endpoint}`;
+
+        const videoField = modelInfo?.videoField || 'video_url';
+        const finalPayload = { [videoField]: params.video_url };
+
+        if (params.prompt) finalPayload.prompt = params.prompt;
+        if (params.target_fps) finalPayload.target_fps = params.target_fps;
+        if (params.target_resolution) finalPayload.target_resolution = params.target_resolution;
+
+        console.log('[Muapi] Video Tool Request:', url);
+        console.log('[Muapi] Video Tool Payload:', finalPayload);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-api-key': key },
+                body: JSON.stringify(finalPayload)
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`API Request Failed: ${response.status} ${response.statusText} - ${errText.slice(0, 100)}`);
+            }
+
+            const submitData = await response.json();
+            console.log('[Muapi] Video Tool Submit Response:', submitData);
+
+            const requestId = submitData.request_id || submitData.id;
+            if (!requestId) return submitData;
+
+            // Video processing takes longer
+            const result = await this.pollForResult(requestId, key, 180, 3000);
+            const videoUrl = result.outputs?.[0] || result.url || result.output?.url;
+            console.log('[Muapi] Video Tool Result URL:', videoUrl);
+            return { ...result, url: videoUrl };
+        } catch (error) {
+            console.error('Muapi Video Tool Error:', error);
+            throw error;
+        }
+    }
+
     getDimensionsFromAR(ar) {
         // Base unit 1024 (Flux standard)
         switch (ar) {
@@ -443,6 +659,56 @@ export class MuapiClient {
             case '3:2': return [1216, 832];
             case '21:9': return [1536, 640];
             default: return [1024, 1024];
+        }
+    }
+
+    /**
+     * Generates text using LLM models (Text-to-Text)
+     * @param {Object} params
+     * @param {string} params.model - textModel id
+     * @param {string} params.prompt - The prompt/message
+     * @param {string} [params.system_prompt] - Optional system prompt
+     * @param {number} [params.max_tokens] - Max tokens to generate
+     * @param {number} [params.temperature] - Sampling temperature
+     */
+    async generateText(params) {
+        const key = this.getKey();
+        const modelInfo = getTextModelById(params.model);
+        const endpoint = modelInfo?.endpoint || params.model;
+        const url = `${this.baseUrl}/api/v1/${endpoint}`;
+
+        const finalPayload = {
+            prompt: params.prompt,
+        };
+
+        if (params.system_prompt) finalPayload.system_prompt = params.system_prompt;
+        if (params.max_tokens) finalPayload.max_tokens = params.max_tokens;
+        if (params.temperature) finalPayload.temperature = params.temperature;
+
+        console.log('[Muapi] Text Request:', url);
+        console.log('[Muapi] Text Payload:', finalPayload);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-api-key': key },
+                body: JSON.stringify(finalPayload)
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`API Request Failed: ${response.status} ${response.statusText} - ${errText.slice(0, 100)}`);
+            }
+
+            const data = await response.json();
+            console.log('[Muapi] Text Response:', data);
+
+            // Extract text from response (different APIs may return differently)
+            const text = data.text || data.response || data.output || data.content || data.choices?.[0]?.text || data.choices?.[0]?.message?.content || JSON.stringify(data);
+            return { text, raw: data };
+        } catch (error) {
+            console.error('Muapi Text Error:', error);
+            throw error;
         }
     }
 }

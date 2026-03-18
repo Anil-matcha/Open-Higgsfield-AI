@@ -14,6 +14,10 @@ const EDIT_TOOLS = [
   { id: 'ai-skin-enhancer', name: 'Enhance Skin', description: 'Professional skin retouching', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>', hasPrompt: false },
   { id: 'ai-color-photo', name: 'Colorize', description: 'Add color to B&W photos', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="13" r="2.5"/><circle cx="7" cy="13" r="2.5"/><circle cx="13.5" cy="19.5" r="2.5"/></svg>', hasPrompt: false },
   { id: 'add-image-watermark', name: 'Add Watermark', description: 'Overlay watermark on images', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', hasPrompt: true, promptPlaceholder: 'Watermark text...' },
+  { id: 'ai-image-upscaler', name: 'Upscale', description: 'AI image upscaling to higher resolution', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>', hasPrompt: false },
+  { id: 'ai-image-face-swap', name: 'Face Swap', description: 'Swap faces in images', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>', hasPrompt: false },
+  { id: 'ai-product-shot', name: 'Product Shot', description: 'Create professional product images', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg>', hasPrompt: true, promptPlaceholder: 'Product style...' },
+  { id: 'ai-ghibli-style', name: 'Ghibli Style', description: 'Transform into Studio Ghibli art style', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>', hasPrompt: false },
 ];
 
 export function EditStudio() {
@@ -29,11 +33,11 @@ export function EditStudio() {
   if (editBanner) {
     const bannerText = document.createElement('div');
     bannerText.className = 'absolute bottom-0 left-0 right-0 p-4 z-10';
-    bannerText.innerHTML = '<h1 class="text-2xl md:text-3xl font-black text-white tracking-tight mb-1">Edit Studio</h1><p class="text-white/60 text-xs">9 AI-powered editing tools for images</p>';
+    bannerText.innerHTML = '<h1 class="text-2xl md:text-3xl font-black text-white tracking-tight mb-1">Edit Studio</h1><p class="text-white/60 text-xs">13 AI-powered editing tools for images</p>';
     editBanner.appendChild(bannerText);
     topBar.appendChild(editBanner);
   } else {
-    topBar.innerHTML = '<h1 class="text-2xl md:text-3xl font-black text-white tracking-tight mb-1">Edit Studio</h1><p class="text-secondary text-xs mb-5">9 AI-powered editing tools for images</p>';
+    topBar.innerHTML = '<h1 class="text-2xl md:text-3xl font-black text-white tracking-tight mb-1">Edit Studio</h1><p class="text-secondary text-xs mb-5">13 AI-powered editing tools for images</p>';
   }
 
   const toolGrid = document.createElement('div');

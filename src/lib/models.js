@@ -8014,3 +8014,443 @@ export const v2vModels = [
 ];
 
 export const getV2VModelById = (id) => v2vModels.find(m => m.id === id);
+
+// ─── Audio models (Text-to-Audio, Music, Speech) ─────────────────────────────────
+export const audioModels = [
+  {
+    "id": "minimax-speech-2.6-turbo",
+    "name": "Minimax Speech Turbo",
+    "endpoint": "minimax-speech-2.6-turbo",
+    "family": "audio",
+    "type": "tts",
+    "hasPrompt": true,
+    "description": "Fast text-to-speech with natural voices",
+    "voiceOptions": true
+  },
+  {
+    "id": "minimax-speech-2.6-hd",
+    "name": "Minimax Speech HD",
+    "endpoint": "minimax-speech-2.6-hd",
+    "family": "audio",
+    "type": "tts",
+    "hasPrompt": true,
+    "description": "High-definition text-to-speech with enhanced quality",
+    "voiceOptions": true
+  },
+  {
+    "id": "minimax-voice-clone",
+    "name": "Minimax Voice Clone",
+    "endpoint": "minimax-voice-clone",
+    "family": "audio",
+    "type": "voice-clone",
+    "hasPrompt": false,
+    "description": "Clone voice from audio sample",
+    "requiresAudio": true
+  },
+  {
+    "id": "suno-create-music",
+    "name": "Suno Create Music",
+    "endpoint": "suno-create-music",
+    "family": "audio",
+    "type": "music",
+    "hasPrompt": true,
+    "description": "Generate full songs from text description",
+    "supportsStyles": true
+  },
+  {
+    "id": "suno-extend-music",
+    "name": "Suno Extend Music",
+    "endpoint": "suno-extend-music",
+    "family": "audio",
+    "type": "music",
+    "hasPrompt": true,
+    "hasAudio": true,
+    "description": "Extend existing audio tracks"
+  },
+  {
+    "id": "suno-remix-music",
+    "name": "Suno Remix Music",
+    "endpoint": "suno-remix-music",
+    "family": "audio",
+    "type": "music",
+    "hasPrompt": true,
+    "hasAudio": true,
+    "description": "Remix audio in a new style"
+  },
+  {
+    "id": "mmaudio-v2-text-to-audio",
+    "name": "MMAudio V2 Text-to-Audio",
+    "endpoint": "mmaudio-v2-text-to-audio",
+    "family": "audio",
+    "type": "tts",
+    "hasPrompt": true,
+    "description": "AI-powered text-to-audio generation"
+  }
+];
+
+export const getAudioModelById = (id) => audioModels.find(m => m.id === id);
+
+// ─── Avatar models (Audio-to-Video, Lip Sync, AI Avatars) ─────────────────────────────────
+export const avatarModels = [
+  // Lip Sync
+  {
+    "id": "ltx-2.3-lipsync",
+    "name": "LTX LipSync",
+    "endpoint": "ltx-2.3-lipsync",
+    "family": "avatar",
+    "subtype": "lipsync",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "Real-time lip sync from audio"
+  },
+  {
+    "id": "ltx-2-19b-lipsync",
+    "name": "LTX 19B LipSync",
+    "endpoint": "ltx-2-19b-lipsync",
+    "family": "avatar",
+    "subtype": "lipsync",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "High-quality lip sync with 19B model"
+  },
+  {
+    "id": "veed-lipsync",
+    "name": "VEED LipSync",
+    "endpoint": "veed-lipsync",
+    "family": "avatar",
+    "subtype": "lipsync",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "VEED lip sync solution"
+  },
+  {
+    "id": "creatify-lipsync",
+    "name": "Creatify LipSync",
+    "endpoint": "creatify-lipsync",
+    "family": "avatar",
+    "subtype": "lipsync",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "Creatify lip sync for marketing videos"
+  },
+  {
+    "id": "latent-sync",
+    "name": "LatentSync",
+    "endpoint": "latent-sync",
+    "family": "avatar",
+    "subtype": "lipsync",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "Advanced latent space lip synchronization"
+  },
+  // AI Avatars
+  {
+    "id": "kling-v2-avatar-pro",
+    "name": "Kling Avatar v2 Pro",
+    "endpoint": "kling-v2-avatar-pro",
+    "family": "avatar",
+    "subtype": "avatar",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "Professional AI avatar generation"
+  },
+  {
+    "id": "kling-v2-avatar-standard",
+    "name": "Kling Avatar v2 Standard",
+    "endpoint": "kling-v2-avatar-standard",
+    "family": "avatar",
+    "subtype": "avatar",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "Standard AI avatar generation"
+  },
+  {
+    "id": "kling-v1-avatar-pro",
+    "name": "Kling Avatar v1 Pro",
+    "endpoint": "kling-v1-avatar-pro",
+    "family": "avatar",
+    "subtype": "avatar",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "Professional AI avatar v1"
+  },
+  {
+    "id": "kling-v1-avatar-standard",
+    "name": "Kling Avatar v1 Standard",
+    "endpoint": "kling-v1-avatar-standard",
+    "family": "avatar",
+    "subtype": "avatar",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "Standard AI avatar v1"
+  },
+  // Speech to Video
+  {
+    "id": "wan2.2-speech-to-video",
+    "name": "WAN 2.2 Speech to Video",
+    "endpoint": "wan2.2-speech-to-video",
+    "family": "avatar",
+    "subtype": "speech-to-video",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "Animate image from audio speech"
+  },
+  // Talking Media
+  {
+    "id": "infinitetalk-image-to-video",
+    "name": "InfiniteTalk Image to Video",
+    "endpoint": "infinitetalk-image-to-video",
+    "family": "avatar",
+    "subtype": "talking-image",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "Create talking video from still image"
+  },
+  {
+    "id": "infinitetalk-video-to-video",
+    "name": "InfiniteTalk Video to Video",
+    "endpoint": "infinitetalk-video-to-video",
+    "family": "avatar",
+    "subtype": "talking-video",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "Lip sync video to video"
+  },
+  {
+    "id": "mmaudio-v2-video-to-video",
+    "name": "MMAudio V2 Video to Video",
+    "endpoint": "mmaudio-v2-video-to-video",
+    "family": "avatar",
+    "subtype": "audio-to-video",
+    "hasVideo": true,
+    "hasAudio": true,
+    "hasPrompt": false,
+    "description": "Generate video from audio"
+  }
+];
+
+export const getAvatarModelById = (id) => avatarModels.find(m => m.id === id);
+
+// ─── Training models (LoRA Training) ─────────────────────────────────
+export const trainingModels = [
+  {
+    "id": "sdxl-lora",
+    "name": "SDXL LoRA",
+    "endpoint": "sdxl-lora",
+    "family": "training",
+    "subtype": "sdxl",
+    "hasImages": true,
+    "hasPrompt": false,
+    "description": "Train custom LoRA model for SDXL",
+    "requiresImages": true
+  },
+  {
+    "id": "wan2.1-lora-t2v",
+    "name": "WAN 2.1 LoRA T2V",
+    "endpoint": "wan2.1-lora-t2v",
+    "family": "training",
+    "subtype": "wan-t2v",
+    "hasImages": true,
+    "hasPrompt": false,
+    "description": "Train LoRA for text-to-video generation",
+    "requiresImages": true
+  },
+  {
+    "id": "wan2.1-lora-i2v",
+    "name": "WAN 2.1 LoRA I2V",
+    "endpoint": "wan2.1-lora-i2v",
+    "family": "training",
+    "subtype": "wan-i2v",
+    "hasImages": true,
+    "hasPrompt": false,
+    "description": "Train LoRA for image-to-video generation",
+    "requiresImages": true
+  },
+  {
+    "id": "flux-dev-lora",
+    "name": "Flux LoRA",
+    "endpoint": "flux-dev-lora",
+    "family": "training",
+    "subtype": "flux",
+    "hasImages": true,
+    "hasPrompt": false,
+    "description": "Train custom LoRA for Flux models",
+    "requiresImages": true
+  }
+];
+
+export const getTrainingModelById = (id) => trainingModels.find(m => m.id === id);
+
+// ─── Video Tools models ─────────────────────────────────
+export const videoToolsModels = [
+  // Video Upscaling
+  {
+    "id": "ai-video-upscaler",
+    "name": "AI Video Upscaler",
+    "endpoint": "ai-video-upscaler",
+    "family": "videotools",
+    "subtype": "upscale",
+    "videoField": "video_url",
+    "hasPrompt": false,
+    "description": "Basic AI video upscaling"
+  },
+  {
+    "id": "ai-video-upscaler-pro",
+    "name": "AI Video Upscaler Pro",
+    "endpoint": "ai-video-upscaler-pro",
+    "family": "videotools",
+    "subtype": "upscale",
+    "videoField": "video_url",
+    "hasPrompt": false,
+    "description": "Professional AI video upscaling"
+  },
+  {
+    "id": "topaz-video-upscale",
+    "name": "Topaz Video Upscale",
+    "endpoint": "topaz-video-upscale",
+    "family": "videotools",
+    "subtype": "upscale",
+    "videoField": "video_url",
+    "hasPrompt": false,
+    "description": "Topaz-quality video enhancement"
+  },
+  // Video Editing
+  {
+    "id": "wan2.2-edit-video",
+    "name": "WAN 2.2 Edit Video",
+    "endpoint": "wan2.2-edit-video",
+    "family": "videotools",
+    "subtype": "edit",
+    "videoField": "video_url",
+    "hasPrompt": true,
+    "description": "Text-based video editing"
+  },
+  {
+    "id": "wan2.2-animate",
+    "name": "WAN 2.2 Animate",
+    "endpoint": "wan2.2-animate",
+    "family": "videotools",
+    "subtype": "animate",
+    "videoField": "video_url",
+    "hasPrompt": false,
+    "description": "Character animation from video"
+  },
+  // Video Enhancement
+  {
+    "id": "luma-flash-reframe",
+    "name": "Luma Flash Reframe",
+    "endpoint": "luma-flash-reframe",
+    "family": "videotools",
+    "subtype": "reframe",
+    "videoField": "video_url",
+    "hasPrompt": false,
+    "description": "Intelligent video resizing and reframing"
+  },
+  {
+    "id": "luma-modify-video",
+    "name": "Luma Modify Video",
+    "endpoint": "luma-modify-video",
+    "family": "videotools",
+    "subtype": "modify",
+    "videoField": "video_url",
+    "hasPrompt": true,
+    "description": "Style transformation for videos"
+  },
+  // Video Processing
+  {
+    "id": "ai-clipping",
+    "name": "AI Clipping",
+    "endpoint": "ai-clipping",
+    "family": "videotools",
+    "subtype": "clip",
+    "videoField": "video_url",
+    "hasPrompt": false,
+    "description": "Auto-clip long videos into short segments"
+  },
+  {
+    "id": "remix-video",
+    "name": "Remix Video",
+    "endpoint": "remix-video",
+    "family": "videotools",
+    "subtype": "remix",
+    "videoField": "video_url",
+    "hasPrompt": false,
+    "description": "Transform and resize video"
+  },
+  {
+    "id": "heygen-video-translate",
+    "name": "HeyGen Video Translate",
+    "endpoint": "heygen-video-translate",
+    "family": "videotools",
+    "subtype": "translate",
+    "videoField": "video_url",
+    "hasPrompt": false,
+    "description": "Translate video to multiple languages"
+  },
+  {
+    "id": "seedance-2.0-watermark-remover",
+    "name": "Seedance Watermark Remover",
+    "endpoint": "seedance-2.0-watermark-remover",
+    "family": "videotools",
+    "subtype": "watermark",
+    "videoField": "video_url",
+    "hasPrompt": false,
+    "description": "Remove watermarks from videos"
+  }
+];
+
+export const getVideoToolById = (id) => videoToolsModels.find(m => m.id === id);
+
+// ─── Text-to-Text models (LLM) ─────────────────────────────────
+export const textModels = [
+  {
+    "id": "gpt-5-mini",
+    "name": "GPT-5 Mini",
+    "endpoint": "gpt-5-mini",
+    "family": "llm",
+    "type": "chat",
+    "hasPrompt": true,
+    "description": "Fast GPT-5 model for quick responses"
+  },
+  {
+    "id": "gpt-5-nano",
+    "name": "GPT-5 Nano",
+    "endpoint": "gpt-5-nano",
+    "family": "llm",
+    "type": "chat",
+    "hasPrompt": true,
+    "description": "Ultra-fast GPT-5 for simple tasks"
+  },
+  {
+    "id": "any-llm",
+    "name": "Any LLM",
+    "endpoint": "any-llm",
+    "family": "llm",
+    "type": "chat",
+    "hasPrompt": true,
+    "description": "Universal LLM endpoint for any model"
+  },
+  {
+    "id": "openrouter-vision",
+    "name": "OpenRouter Vision",
+    "endpoint": "openrouter-vision",
+    "family": "llm",
+    "type": "vision",
+    "hasPrompt": true,
+    "description": "LLM with vision capabilities"
+  }
+];
+
+export const getTextModelById = (id) => textModels.find(m => m.id === id);

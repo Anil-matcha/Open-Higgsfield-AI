@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">
+  <defs>
+    <linearGradient id="grad_14" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d2d3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#01a3a4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="150" height="150" rx="12" fill="url(#grad_14)"/>
+  <circle cx="75" cy="65" r="25" fill="#fff" opacity="0.9"/>
+  <ellipse cx="75" cy="85" rx="30" ry="20" fill="#fff" opacity="0.7"/>
+  <text x="75" y="130" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="10" font-weight="bold">Cyberpunk 2077</text>
+</svg>

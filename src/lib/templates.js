@@ -1,4 +1,4 @@
-export const TEMPLATE_CATEGORIES = {
+of the export const TEMPLATE_CATEGORIES = {
   SOCIAL: 'Social Media',
   STYLE: 'Style Transfer',
   ENTERTAINMENT: 'Entertainment',
@@ -24,7 +24,10 @@ export const templates = [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Describe the video', placeholder: 'e.g. dancing in the rain' },
       { name: 'name', type: 'select', label: 'Effect', options: ['360 Rotation', 'Cakeify', 'Disney Princess It', 'Lego', 'Pixar', 'Super Saiyan Transformation', 'VHS Footage', 'Wind Blast'] },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['9:16', '16:9', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
+    basePrompt: '{prompt}, TikTok video format, vertical 9:16, trending content, viral style, Gen Z aesthetic, mobile-optimized, engaging, share-worthy, 4K quality',
     defaultParams: { resolution: '720p', duration: 5 },
   },
   {
@@ -41,7 +44,10 @@ export const templates = [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Describe the scene', placeholder: 'e.g. fashion editorial vibe' },
       { name: 'name', type: 'select', label: 'Camera Motion', options: ['Dolly In', 'Dolly Zoom In', 'Crane Up', 'Arc Shot', 'FPV Drone Cam', 'Whip Pan', 'Zoom In'] },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['9:16', '16:9', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
+    basePrompt: '{prompt}, Instagram Reel format, vertical 9:16, social media content, cinematic motion, professional cinematography, engaging, mobile-optimized, trending, high quality, 4K',
     defaultParams: { resolution: '720p', duration: 5 },
   },
   {
@@ -70,8 +76,10 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. shocked expression, dramatic lighting' },
       { name: 'name', type: 'select', label: 'Effect', options: ['Advanced Photography', 'Cyberpunk', 'Futuristic American Comics'] },
     ],
+    basePrompt: '{prompt}, reaction thumbnail style, expressive emotion, dramatic lighting, high impact, YouTube clickbait, bold composition, vibrant colors, professional quality, 4K',
     defaultParams: {},
   },
   {
@@ -88,7 +96,10 @@ export const templates = [
       { name: 'image_url', type: 'image', label: 'Upload product image' },
       { name: 'prompt', type: 'text', label: 'Product description', placeholder: 'e.g. luxury sneaker reveal' },
       { name: 'name', type: 'select', label: 'Camera Motion', options: ['Dolly In', 'Crash Zoom In', 'Lazy Susan', '360 Orbit', 'Zoom In'] },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['9:16', '16:9', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10', '15'] },
     ],
+    basePrompt: '{prompt}, short-form advertisement, vertical 9:16, product showcase, commercial quality, brand storytelling, engaging, mobile-first, professional marketing, high conversion, 4K',
     defaultParams: { resolution: '720p', duration: 5 },
   },
   {
@@ -121,6 +132,7 @@ export const templates = [
       { name: 'name', type: 'select', label: 'Enhancement', options: ['Professional Photo', 'Face Enhancement', 'Background Change', 'Color Correction', 'Style Transfer'] },
       { name: 'prompt', type: 'text', label: 'Additional instructions', placeholder: 'e.g. warm studio lighting' },
     ],
+    basePrompt: '{prompt}, professional profile picture, LinkedIn-ready, clean background, professional lighting, high quality, polished, corporate, trustworthy, 4K',
   },
   {
     id: 'banner-creator',
@@ -148,7 +160,9 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. dramatic anime scene with action' },
     ],
+    basePrompt: '{prompt}, anime style, Japanese animation, hand-drawn, Studio Ghibli inspired, vibrant colors, expressive, detailed, anime aesthetic, 4K quality',
     defaultParams: {},
   },
   {
@@ -162,8 +176,10 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. superhero action scene' },
       { name: 'name', type: 'select', label: 'Style', options: ['American Comic Style', 'Futuristic American Comics'] },
     ],
+    basePrompt: '{prompt}, American comic book style, bold colors, dynamic action, superhero pose, Marvel DC aesthetic, comic panel, ink lines, dramatic lighting, pop art, 4K quality',
   },
   {
     id: 'gta-loading-screen',
@@ -191,7 +207,9 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. fantasy character in a dungeon' },
     ],
+    basePrompt: '{prompt}, pixel art style, 16-bit retro game, chiptune aesthetic, NES SNES era, pixelated, nostalgic, video game graphics, detailed pixel work, 4K',
     defaultParams: { name: 'Lofi Pixel Character' },
   },
   {
@@ -205,8 +223,10 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. magical forest with flyingna ship' },
       { name: 'style', type: 'select', label: 'Style', options: ['Auto', 'Realistic', 'Fiction'] },
     ],
+    basePrompt: '{prompt}, Studio Ghibli style, Hayao Miyazaki aesthetic, hand-drawn animation, whimsical, magical realism, lush nature, soft colors, Japanese anime, detailed, 4K quality',
   },
   {
     id: 'cyberpunk-style',
@@ -219,7 +239,9 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. neon city with rain' },
     ],
+    basePrompt: '{prompt}, cyberpunk style, neon lights, futuristic, high tech low life, rain-soaked streets, holographic billboards, chrome, LED lights, Blade Runner aesthetic, 4K',
     defaultParams: { name: 'Cyberpunk' },
   },
   {
@@ -235,7 +257,10 @@ export const templates = [
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Scene description', placeholder: 'e.g. home video nostalgia' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
+    basePrompt: '{prompt}, VHS retro style, analog video effect, 80s aesthetic, scan lines, tracking errors, vintage home video, nostalgic, retro, lo-fi, 4K quality',
     defaultParams: { name: 'VHS Footage', resolution: '480p', duration: 5 },
   },
   {
@@ -251,7 +276,10 @@ export const templates = [
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Scene mood', placeholder: 'e.g. rainy night detective' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
+    basePrompt: '{prompt}, film noir style, classic black and white, noir cinema, detective mystery, rainy streets, dramatic shadows, high contrast, Hitchcock aesthetic, vintage, 4K quality',
     defaultParams: { name: 'Film Noir', resolution: '720p', duration: 5 },
   },
   {
@@ -297,7 +325,10 @@ export const templates = [
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Action description', placeholder: 'e.g. dodging in slow motion' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
+    basePrompt: '{prompt}, bullet time effect, Matrix-style freeze frame, slow motion rotation, cinematic action, dynamic composition, time freeze, epic stunt, 4K quality',
     defaultParams: { name: 'Matrix Shot', resolution: '720p', duration: 5 },
   },
   {
@@ -311,7 +342,9 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. heroic pose with cape' },
     ],
+    basePrompt: '{prompt}, action figure style, collectible toy, 3D render, plastic material, realistic details, packaging design, Hasbro Mattel style, collector item, 4K quality',
     defaultParams: { name: 'Action Figure' },
   },
   {
@@ -328,7 +361,10 @@ export const templates = [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Character description', placeholder: 'e.g. friendly adventurer' },
       { name: 'name', type: 'select', label: 'Style', options: ['Pixar', 'Disney Princess It', 'Snow White It'] },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
+    basePrompt: '{prompt}, Disney Pixar style, 3D animated movie, CGI character, Pixar quality, heartwarming, expressive, detailed fur and textures, cinematic lighting, feature film quality, 4K',
     defaultParams: { resolution: '720p', duration: 5 },
   },
   {
@@ -345,7 +381,10 @@ export const templates = [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Hero style', placeholder: 'e.g. powerful energy burst' },
       { name: 'name', type: 'select', label: 'Transformation', options: ['Hulk Transformation', 'Super Saiyan Transformation', 'Kamehameha'] },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
+    basePrompt: '{prompt}, superhero transformation, epic power-up, comic book style, Marvel DC aesthetic, dramatic energy burst, heroic, powerful, cinematic, 4K quality',
     defaultParams: { resolution: '720p', duration: 5 },
   },
   {
@@ -361,6 +400,8 @@ export const templates = [
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Scene', placeholder: 'e.g. lego city builder' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Lego', resolution: '720p', duration: 5 },
   },
@@ -376,6 +417,9 @@ export const templates = [
     aspectRatio: '16:9',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. dramatic survival game scene' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Squid Game' },
   },
@@ -436,6 +480,8 @@ export const templates = [
       { name: 'image_url', type: 'image', label: 'Upload close-up photo' },
       { name: 'prompt', type: 'text', label: 'ASMR theme', placeholder: 'e.g. satisfying slime, soap cutting' },
       { name: 'name', type: 'select', label: 'Motion', options: ['Dolly In', 'Crash Zoom In', 'Focus Shift', 'Zoom In'] },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['9:16', '16:9', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { resolution: '720p', duration: 5 },
   },
@@ -467,6 +513,8 @@ export const templates = [
       { name: 'image_url', type: 'image', label: 'Upload product image' },
       { name: 'prompt', type: 'text', label: 'Product name', placeholder: 'e.g. premium headphones' },
       { name: 'name', type: 'select', label: 'Reveal Style', options: ['Crash Zoom In', 'Dolly In', 'Dolly Zoom In', 'Zoom In'] },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['9:16', '16:9', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { resolution: '720p', duration: 5 },
   },
@@ -482,6 +530,9 @@ export const templates = [
     aspectRatio: '16:9',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload a building photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. apocalyptic destruction scene' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Building Explosion' },
   },
@@ -497,6 +548,9 @@ export const templates = [
     aspectRatio: '16:9',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload a car photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. action movie explosion' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Car Explosion' },
   },
@@ -512,6 +566,9 @@ export const templates = [
     aspectRatio: '16:9',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. heroic disintegration' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Disintegration' },
   },
@@ -527,6 +584,9 @@ export const templates = [
     aspectRatio: '16:9',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. supercharged electrical storm' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Electricity' },
   },
@@ -542,6 +602,9 @@ export const templates = [
     aspectRatio: '16:9',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload a landscape photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. apocalyptic tornado destruction' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Tornado' },
   },
@@ -558,6 +621,8 @@ export const templates = [
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. fierce dragon warrior' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Fire', resolution: '720p', duration: 5 },
   },
@@ -587,6 +652,9 @@ export const templates = [
     aspectRatio: '16:9',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. professional headshot style' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Gender Swap' },
   },
@@ -618,6 +686,8 @@ export const templates = [
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Memory style', placeholder: 'e.g. nostalgic summer day' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Younger Self Selfie', resolution: '720p', duration: 5 },
   },
@@ -633,6 +703,9 @@ export const templates = [
     aspectRatio: '9:16',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. high fashion runway walk' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['9:16', '16:9', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Fashion Stride' },
   },
@@ -649,6 +722,8 @@ export const templates = [
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Style', placeholder: 'e.g. red carpet glamour' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Glamor', resolution: '720p', duration: 5 },
   },
@@ -663,6 +738,7 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. art deco style, jazz age aesthetic' },
     ],
     defaultParams: { name: '1920s Decade' },
   },
@@ -677,6 +753,7 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. vintage diner, rockabilly style' },
     ],
     defaultParams: { name: '1950s Decade' },
   },
@@ -691,6 +768,7 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. disco aesthetic, hippie vibe' },
     ],
     defaultParams: { name: '1970s Decade' },
   },
@@ -705,6 +783,7 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. synthwave, neon lights, Miami Vice style' },
     ],
     defaultParams: { name: '1980s Decade' },
   },
@@ -721,6 +800,8 @@ export const templates = [
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload landscape or scene' },
       { name: 'prompt', type: 'text', label: 'Flight path', placeholder: 'e.g. through a forest canopy' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'FPV Drone Cam', resolution: '720p', duration: 5 },
   },
@@ -737,6 +818,8 @@ export const templates = [
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Scene description', placeholder: 'e.g. dramatic hallway reveal' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Dolly Zoom In', resolution: '720p', duration: 5 },
   },
@@ -753,6 +836,8 @@ export const templates = [
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload car or street photo' },
       { name: 'prompt', type: 'text', label: 'Chase description', placeholder: 'e.g. high speed through city streets' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Car Chase', resolution: '720p', duration: 5 },
   },
@@ -769,6 +854,8 @@ export const templates = [
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
       { name: 'prompt', type: 'text', label: 'Action', placeholder: 'e.g. mid-air jump kick' },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', options: ['16:9', '9:16', '1:1', '4:3', '3:4'] },
+      { name: 'duration', type: 'select', label: 'Duration', options: ['5', '8', '10'] },
     ],
     defaultParams: { name: 'Matrix Shot', resolution: '720p', duration: 5 },
   },
@@ -783,6 +870,7 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. collectible toy style, detailed paint finish' },
     ],
     defaultParams: { name: '3D Figurine' },
   },
@@ -797,6 +885,7 @@ export const templates = [
     modelType: 'i2i',
     inputs: [
       { name: 'image_url', type: 'image', label: 'Upload your photo' },
+      { name: 'prompt', type: 'text', label: 'Description', placeholder: 'e.g. magical crystal ball, winter snow scene' },
     ],
     defaultParams: { name: 'Glass Ball' },
   },

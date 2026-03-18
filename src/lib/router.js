@@ -13,6 +13,11 @@ const ROUTE_MAP = {
   'Templates': 'templates',
   'Assist': 'assist',
   'Community': 'community',
+  'Audio': 'audio',
+  'Avatar': 'avatar',
+  'Training': 'training',
+  'Video Tools': 'videotools',
+  'Chat': 'chat',
 };
 
 export function getRouteForItem(item) {
@@ -36,6 +41,11 @@ const pageLoaders = {
   assist: () => import('../components/AssistPage.js').then(m => m.AssistPage()),
   community: () => import('../components/CommunityPage.js').then(m => m.CommunityPage()),
   storyboard: () => import('../components/StoryboardStudio.js').then(m => m.StoryboardStudio()),
+  audio: () => import('../components/AudioStudio.js').then(m => m.AudioStudio()),
+  avatar: () => import('../components/AvatarStudio.js').then(m => m.AvatarStudio()),
+  training: () => import('../components/TrainingStudio.js').then(m => m.TrainingStudio()),
+  videotools: () => import('../components/VideoToolsStudio.js').then(m => m.VideoToolsStudio()),
+  chat: () => import('../components/ChatStudio.js').then(m => m.ChatStudio()),
 };
 
 let currentPage = null;

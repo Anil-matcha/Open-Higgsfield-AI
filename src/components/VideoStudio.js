@@ -1,4 +1,4 @@
-import { muapi } from '../lib/muapi.js';
+showimport { muapi } from '../lib/muapi.js';
 import { t2vModels, getAspectRatiosForVideoModel, getDurationsForModel, getResolutionsForVideoModel, i2vModels, getAspectRatiosForI2VModel, getDurationsForI2VModel, getResolutionsForI2VModel, v2vModels } from '../lib/models.js';
 import { AuthModal } from './AuthModal.js';
 import { createUploadPicker } from './UploadPicker.js';
@@ -24,6 +24,11 @@ export function VideoStudio() {
     let imageMode = false; // false = t2v models, true = i2v models
     let v2vMode = false;   // true = video-to-video tools mode
     let uploadedVideoUrl = null;
+    
+    // Advanced parameters state
+    let negativePrompt = '';
+    let seed = -1;
+    let showAdvanced = false;
 
     const getCurrentModels = () => v2vMode ? v2vModels : (imageMode ? i2vModels : t2vModels);
     const getCurrentAspectRatios = (id) => imageMode ? getAspectRatiosForI2VModel(id) : getAspectRatiosForVideoModel(id);
@@ -281,6 +286,12 @@ export function VideoStudio() {
     controlsLeft.appendChild(durationBtn);
     controlsLeft.appendChild(resolutionBtn);
     controlsLeft.appendChild(qualityBtn);
+    
+    // Advanced options toggle button
+    const advancedBtn = createControlBtn(`
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60 text-secondary"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 001.82-.33 1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-1.82.33A1.65 1.65 0 0019.4 9a1.65 1.65 0 00-1.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    `, 'Advanced', 'v-advanced-btn');
+    controlsLeft.appendChild(advancedBtn);
 
     // Initial visibility (t2v mode)
     const initDurations = getDurationsForModel(defaultModel.id);
@@ -302,6 +313,76 @@ export function VideoStudio() {
     const inlineInstructions = createInlineInstructions('video');
     inlineInstructions.classList.add('max-w-4xl', 'mt-8');
     container.appendChild(inlineInstructions);
+
+    // ==========================================
+    // ADVANCED OPTIONS PANEL
+    // ==========================================
+    const advancedPanel = document.createElement('div');
+    advancedPanel.className = 'w-full max-w-4xl mt-6 animate-fade-in-up hidden';
+    advancedPanel.id = 'v-advanced-panel';
+    advancedPanel.innerHTML = `
+        <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-5 flex flex-col gap-4">
+            <div class="flex items-center justify-between pb-3 border-b border-white/5">
+                <h3 class="text-sm font-bold text-white">Advanced Options</h3>
+                <button id="v-close-adv-btn" class="text-white/40 hover:text-white transition-colors">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <!-- Negative Prompt -->
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-bold text-secondary uppercase tracking-wider">Negative Prompt</label>
+                <input type="text" id="v-negative-prompt-input" 
+                    placeholder="What to exclude from the video (e.g., blurry, distorted, watermark)"
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted focus:outline-none focus:border-primary/50 transition-colors">
+            </div>
+            
+            <!-- Seed -->
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-secondary uppercase tracking-wider">Seed</label>
+                    <button id="v-randomize-seed-btn" class="text-xs font-bold text-primary hover:text-primary/80 transition-colors">Randomize</button>
+                </div>
+                <input type="number" id="v-seed-input" 
+                    placeholder="-1 for random"
+                    value="-1"
+                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted focus:outline-none focus:border-primary/50 transition-colors">
+            </div>
+        </div>
+    `;
+    container.appendChild(advancedPanel);
+
+    // Advanced panel toggle logic
+    const toggleAdvanced = () => {
+        showAdvanced = !showAdvanced;
+        advancedPanel.classList.toggle('hidden', !showAdvanced);
+        document.getElementById('v-advanced-btn-label').textContent = showAdvanced ? 'Less' : 'Advanced';
+    };
+    
+    // Add advanced panel to container first
+    container.appendChild(advancedPanel);
+    
+    // Now set up event handlers after elements are in DOM
+    advancedBtn.onclick = toggleAdvanced;
+    const vCloseAdvBtn = advancedPanel.querySelector('#v-close-adv-btn');
+    if (vCloseAdvBtn) vCloseAdvBtn.onclick = toggleAdvanced;
+    
+    // Negative prompt
+    const vNegPromptInput = advancedPanel.querySelector('#v-negative-prompt-input');
+    if (vNegPromptInput) vNegPromptInput.oninput = (e) => { negativePrompt = e.target.value; };
+    
+    // Seed input
+    const vSeedInput = advancedPanel.querySelector('#v-seed-input');
+    if (vSeedInput) vSeedInput.oninput = (e) => { seed = parseInt(e.target.value) || -1; };
+    
+    // Randomize seed button
+    const vRandSeedBtn = advancedPanel.querySelector('#v-randomize-seed-btn');
+    if (vRandSeedBtn) {
+        vRandSeedBtn.onclick = () => {
+            seed = Math.floor(Math.random() * 999999999);
+            if (vSeedInput) vSeedInput.value = seed;
+        };
+    }
 
     // ==========================================
     // 3. DROPDOWNS
@@ -879,6 +960,8 @@ export function VideoStudio() {
                     image_url: uploadedImageUrl,
                 };
                 if (prompt) i2vParams.prompt = prompt;
+                if (negativePrompt) i2vParams.negative_prompt = negativePrompt;
+                if (seed && seed !== -1) i2vParams.seed = seed;
                 i2vParams.aspect_ratio = selectedAr;
                 const durations = getCurrentDurations(selectedModel);
                 if (durations.length > 0) i2vParams.duration = selectedDuration;
@@ -911,6 +994,8 @@ export function VideoStudio() {
             const params = { model: selectedModel };
 
             if (prompt) params.prompt = prompt;
+            if (negativePrompt) params.negative_prompt = negativePrompt;
+            if (seed && seed !== -1) params.seed = seed;
 
             // Extend mode: pass stored request_id, skip aspect_ratio
             if (isExtendMode) {

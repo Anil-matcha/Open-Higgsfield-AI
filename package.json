@@ -29,6 +29,7 @@
     "mac": {
       "category": "public.app-category.graphics-design",
       "icon": "public/banner.png",
+      "gatekeeperAssess": false,
       "target": [
         {
           "target": "dmg",

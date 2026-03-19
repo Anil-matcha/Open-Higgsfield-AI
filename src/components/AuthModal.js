@@ -1,3 +1,5 @@
+import { apiKeyManager } from '../lib/apiKeyManager.js';
+
 export function AuthModal(onSuccess) {
     const existing = document.querySelector('[data-auth-modal]');
     if (existing) existing.remove();
@@ -35,6 +37,7 @@ export function AuthModal(onSuccess) {
                     id="muapi-key-input"
                     placeholder="sk-..."
                     class="w-full bg-black/40 border border-white/5 rounded-2xl px-5 py-4 text-white placeholder:text-muted focus:outline-none focus:border-primary/50 transition-colors shadow-inner"
+                    autocomplete="off"
                 >
             </div>
 
@@ -47,6 +50,10 @@ export function AuthModal(onSuccess) {
                 </a>
             </div>
         </div>
+        
+        <p class="text-[10px] text-muted/50 mt-4 text-center">
+            Your API key is stored securely and never shared.
+        </p>
     `;
 
     overlay.appendChild(modal);
@@ -57,12 +64,43 @@ export function AuthModal(onSuccess) {
     const input = modal.querySelector('#muapi-key-input');
     const btn = modal.querySelector('#save-key-btn');
 
-    btn.onclick = () => {
+    // Focus input on open
+    setTimeout(() => input.focus(), 100);
+
+    // Handle Enter key
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            btn.click();
+        }
+    });
+
+    btn.onclick = async () => {
         const key = input.value.trim();
         if (key) {
-            localStorage.setItem('muapi_key', key);
-            removeModal();
-            if (onSuccess) onSuccess();
+            if (key.length < 10) {
+                input.classList.add('border-red-500/50');
+                setTimeout(() => input.classList.remove('border-red-500/50'), 2000);
+                return;
+            }
+            
+            try {
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+                
+                // Use the secure ApiKeyManager
+                await apiKeyManager.setKey(key, true);
+                
+                removeModal();
+                if (onSuccess) onSuccess();
+                
+                console.log('[AuthModal] API key saved securely');
+            } catch (error) {
+                console.error('[AuthModal] Failed to save key:', error);
+                btn.disabled = false;
+                btn.textContent = 'Initialize Studio';
+                input.classList.add('border-red-500/50');
+                setTimeout(() => input.classList.remove('border-red-500/50'), 2000);
+            }
         } else {
             input.classList.add('border-red-500/50');
             setTimeout(() => input.classList.remove('border-red-500/50'), 2000);
@@ -72,6 +110,15 @@ export function AuthModal(onSuccess) {
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) removeModal();
     });
+
+    // Handle escape key
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            removeModal();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
 
     return overlay;
 }

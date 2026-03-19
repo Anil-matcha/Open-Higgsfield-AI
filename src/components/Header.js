@@ -52,40 +52,59 @@ export function Header(navigate) {
   mobileMenuBtn.className = 'lg:hidden p-2 text-secondary hover:text-white transition-colors';
   mobileMenuBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
 
-  const mobileMenu = document.createElement('div');
-  mobileMenu.className = 'lg:hidden fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center gap-4 opacity-0 pointer-events-none transition-opacity duration-300';
+  // Use singleton pattern for mobile menu to prevent memory leaks
+  let mobileMenu = document.querySelector('[data-mobile-menu]');
+  let isMobileMenuOwnedByThisHeader = false;
+  
+  if (!mobileMenu) {
+    mobileMenu = document.createElement('div');
+    mobileMenu.className = 'lg:hidden fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center gap-4 opacity-0 pointer-events-none transition-opacity duration-300';
+    mobileMenu.setAttribute('data-mobile-menu', '');
+    document.body.appendChild(mobileMenu);
+    isMobileMenuOwnedByThisHeader = true;
+  }
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'absolute top-4 right-4 p-2 text-white';
   closeBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-  closeBtn.onclick = () => {
-    mobileMenu.classList.add('opacity-0', 'pointer-events-none');
-    mobileMenu.classList.remove('opacity-100', 'pointer-events-auto');
-  };
-  mobileMenu.appendChild(closeBtn);
-
+  closeBtn.onclick = () => closeMobileMenu();
+  
+  const menuContent = document.createElement('div');
+  menuContent.className = 'flex flex-col items-center justify-center gap-4';
+  
+  // Store link elements for cleanup
+  const mobileLinkElements = [];
+  
   items.forEach(item => {
     const link = document.createElement('a');
     link.textContent = item;
     link.className = 'text-xl font-bold text-secondary hover:text-white transition-colors cursor-pointer';
     link.onclick = () => {
+      closeMobileMenu();
       navigate(getRouteForItem(item));
-      mobileMenu.classList.add('opacity-0', 'pointer-events-none');
-      mobileMenu.classList.remove('opacity-100', 'pointer-events-auto');
     };
-    mobileMenu.appendChild(link);
+    menuContent.appendChild(link);
+    mobileLinkElements.push(link);
   });
 
-  mobileMenuBtn.onclick = () => {
+  mobileMenu.appendChild(closeBtn);
+  mobileMenu.appendChild(menuContent);
+
+  const closeMobileMenu = () => {
+    mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+    mobileMenu.classList.remove('opacity-100', 'pointer-events-auto');
+  };
+
+  const openMobileMenu = () => {
     mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
     mobileMenu.classList.add('opacity-100', 'pointer-events-auto');
   };
 
-  const existingMobileMenu = document.querySelector('[data-mobile-menu]');
-  if (existingMobileMenu) existingMobileMenu.remove();
-  mobileMenu.setAttribute('data-mobile-menu', '');
-  document.body.appendChild(mobileMenu);
+  mobileMenuBtn.onclick = openMobileMenu;
 
+  // Close mobile menu on route changes
+  const handleRouteChange = () => closeMobileMenu();
+  
   const rightPart = document.createElement('div');
   rightPart.className = 'flex items-center gap-3';
 
@@ -116,7 +135,16 @@ export function Header(navigate) {
         el.classList.add('text-secondary');
       }
     });
+    // Close mobile menu on navigation
+    closeMobileMenu();
   });
+
+  // Return cleanup function for proper memory management
+  header.cleanup = () => {
+    header.removeEventListener('route-changed', handleRouteChange);
+    // Note: We don't remove the mobile menu from body here because
+    // it may be shared. The main.js navigate wrapper handles cleanup.
+  };
 
   return header;
 }

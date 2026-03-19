@@ -1,16 +1,66 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://your-production-domain.com", // Replace with actual domain
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
+
+// Rate limiting - simple in-memory store (use Redis for multi-instance deployments)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_MAX = 100; // requests per window
+const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
+
+function checkRateLimit(clientId: string): boolean {
+  const now = Date.now();
+  const record = rateLimitStore.get(clientId);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitStore.set(clientId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT_MAX) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
 
 interface GenerateRequest {
   endpoint: string;
   params: Record<string, any>;
   generationType: 'image' | 'video' | 'i2i' | 'i2v' | 'v2v';
   studioType?: string;
+}
+
+function validateEndpoint(endpoint: string): boolean {
+  // Only allow specific endpoints to prevent SSRF
+  const allowedPatterns = [
+    /^predictions(\/.*)?$/,
+    /^image-generation(\/.*)?$/,
+    /^video-generation(\/.*)?$/,
+    /^image-to-image(\/.*)?$/,
+    /^image-to-video(\/.*)?$/,
+    /^video-to-video(\/.*)?$/,
+  ];
+  return allowedPatterns.some(pattern => pattern.test(endpoint));
+}
+
+function getClientId(req: Request): string {
+  // Use API key or IP as client identifier
+  const apiKey = req.headers.get('x-api-key');
+  if (apiKey) {
+    // Hash the API key for privacy
+    let hash = 0;
+    for (let i = 0; i < apiKey.length; i++) {
+      hash = ((hash << 5) - hash) + apiKey.charCodeAt(i);
+      hash |= 0;
+    }
+    return `key_${Math.abs(hash).toString(36)}`;
+  }
+  return `ip_${req.headers.get('cf-connecting-ip') || 'unknown'}`;
 }
 
 Deno.serve(async (req: Request) => {
@@ -21,9 +71,43 @@ Deno.serve(async (req: Request) => {
     });
   }
 
+  // Rate limiting
+  const clientId = getClientId(req);
+  if (!checkRateLimit(clientId)) {
+    return new Response(
+      JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+      {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': '60' }
+      }
+    );
+  }
+
   try {
     const body: GenerateRequest = await req.json();
     const { endpoint, params, generationType, studioType } = body;
+
+    // Validate endpoint to prevent SSRF
+    if (!endpoint || typeof endpoint !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Invalid endpoint' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    if (!validateEndpoint(endpoint)) {
+      console.error(`[muapi-proxy] Blocked invalid endpoint: ${endpoint}`);
+      return new Response(
+        JSON.stringify({ error: 'Invalid endpoint' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
 
     const muapiKey = Deno.env.get('MUAPI_API_KEY');
     if (!muapiKey) {

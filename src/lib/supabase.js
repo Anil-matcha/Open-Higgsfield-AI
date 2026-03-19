@@ -3,7 +3,51 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Validate environment variables at startup
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('[Supabase] Missing required environment variables: VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY');
+  // Provide a graceful degradation - still export client but log warning
+}
+
+// Create client with error handling
+let supabase;
+try {
+  supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseAnonKey || 'placeholder', {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+    global: {
+      headers: {
+        'X-Client-Info': 'open-higgsfield-ai'
+      }
+    }
+  });
+} catch (error) {
+  console.error('[Supabase] Failed to initialize client:', error);
+  // Return a mock client for graceful degradation
+  supabase = {
+    storage: {
+      from: () => ({
+        upload: () => Promise.reject(new Error('Supabase not configured')),
+        getPublicUrl: () => ({ data: { publicUrl: null } })
+      })
+    },
+    auth: {
+      getSession: () => Promise.resolve({ data: { session: null } })
+    }
+  };
+}
+
+export { supabase };
+
+export function isSupabaseConfigured() {
+  return !!(supabaseUrl && supabaseAnonKey);
+}
+
+export function getSupabaseUrl() {
+  return supabaseUrl || '';
+}
 
 export function getUserKey() {
   let key = localStorage.getItem('muapi_key');

@@ -1,0 +1,37 @@
+{
+  "name": "Open Higgsfield AI",
+  "short_name": "Higgsfield",
+  "description": "Free, open-source AI image and video generation studio with 20+ models",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["graphics", "photo", "video", "entertainment"],
+  "shortcuts": [
+    {
+      "name": "Create Image",
+      "url": "/?studio=image",
+      "description": "Open Image Studio"
+    },
+    {
+      "name": "Create Video",
+      "url": "/?studio=video",
+      "description": "Open Video Studio"
+    }
+  ]
+}

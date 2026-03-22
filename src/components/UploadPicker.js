@@ -1,4 +1,5 @@
-import { muapi } from '../lib/muapi.js';
+import { api } from '../lib/providerRouter.js';
+import { getProviderApiKey } from '../lib/providerConfig.js';
 import { AuthModal } from './AuthModal.js';
 import { getUploadHistory, saveUpload, removeUpload, generateThumbnail } from '../lib/uploadHistory.js';
 
@@ -318,7 +319,7 @@ export function createUploadPicker({ anchorContainer, onSelect, onClear, maxImag
         const files = Array.from(e.target.files);
         if (!files.length) return;
 
-        const apiKey = localStorage.getItem('muapi_key');
+        const apiKey = getProviderApiKey();
         if (!apiKey) {
             AuthModal(() => fileInput.click());
             return;
@@ -331,7 +332,7 @@ export function createUploadPicker({ anchorContainer, onSelect, onClear, maxImag
                 // Single mode: upload first file only, replace selection
                 const file = files[0];
                 const [uploadedUrl, thumbnail] = await Promise.all([
-                    muapi.uploadFile(file),
+                    api.uploadFile(file),
                     generateThumbnail(file)
                 ]);
                 const entry = { id: Date.now().toString(), name: file.name, uploadedUrl, thumbnail, timestamp: new Date().toISOString() };
@@ -347,7 +348,7 @@ export function createUploadPicker({ anchorContainer, onSelect, onClear, maxImag
                 // Upload all in parallel
                 const results = await Promise.all(toUpload.map(async (file) => {
                     const [uploadedUrl, thumbnail] = await Promise.all([
-                        muapi.uploadFile(file),
+                        api.uploadFile(file),
                         generateThumbnail(file)
                     ]);
                     return { id: Date.now().toString() + Math.random(), name: file.name, uploadedUrl, thumbnail, timestamp: new Date().toISOString() };

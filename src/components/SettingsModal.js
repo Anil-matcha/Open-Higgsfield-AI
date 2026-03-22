@@ -1,47 +1,57 @@
+import { getActiveProvider, getProviders, getProviderApiKey, setActiveProvider } from '../lib/providerConfig.js';
+
 export function SettingsModal(onClose) {
     const overlay = document.createElement('div');
     overlay.className = 'fixed inset-0 bg-black/80 flex items-center justify-center z-50';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.right = '0';
-    overlay.style.bottom = '0';
-    overlay.style.backgroundColor = 'rgba(0,0,0,0.8)';
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    overlay.style.zIndex = '100';
 
     const modal = document.createElement('div');
     modal.className = 'bg-card p-6 rounded-xl border border-border-color w-96 glass';
-    modal.style.background = 'var(--bg-card)';
-    modal.style.padding = '1.5rem';
-    modal.style.borderRadius = 'var(--border-radius-xl)';
-    modal.style.border = '1px solid var(--border-color)';
-    modal.style.width = '24rem';
 
     const title = document.createElement('h2');
     title.textContent = 'Settings';
     title.className = 'text-xl font-bold mb-4';
-    title.style.marginBottom = '1rem';
 
-    const label = document.createElement('label');
-    label.textContent = 'Muapi API Key';
-    label.className = 'block text-sm text-secondary mb-2';
+    const providerLabel = document.createElement('label');
+    providerLabel.textContent = 'Active Provider';
+    providerLabel.className = 'block text-sm text-secondary mb-2';
 
-    const input = document.createElement('input');
-    input.type = 'password';
-    input.className = 'w-full mb-4 p-2 rounded bg-input border border-border-color';
-    input.value = localStorage.getItem('muapi_key') || '';
-    input.placeholder = 'Enter your Muapi API key...';
-    input.style.width = '100%';
-    input.style.marginBottom = '1rem';
+    const providerSelect = document.createElement('select');
+    providerSelect.className = 'w-full mb-4 p-2 rounded bg-input border border-border-color';
+    const activeProvider = getActiveProvider();
+    getProviders().forEach((p) => {
+        const option = document.createElement('option');
+        option.value = p.id;
+        option.textContent = p.name;
+        if (p.id === activeProvider) option.selected = true;
+        providerSelect.appendChild(option);
+    });
+
+    const muapiLabel = document.createElement('label');
+    muapiLabel.textContent = 'Muapi API Key';
+    muapiLabel.className = 'block text-sm text-secondary mb-2';
+
+    const muapiInput = document.createElement('input');
+    muapiInput.type = 'password';
+    muapiInput.className = 'w-full mb-4 p-2 rounded bg-input border border-border-color';
+    muapiInput.value = getProviderApiKey('muapi');
+    muapiInput.placeholder = 'Enter your Muapi API key...';
+
+    const novitaLabel = document.createElement('label');
+    novitaLabel.textContent = 'Novita API Key';
+    novitaLabel.className = 'block text-sm text-secondary mb-2';
+
+    const novitaInput = document.createElement('input');
+    novitaInput.type = 'password';
+    novitaInput.className = 'w-full mb-4 p-2 rounded bg-input border border-border-color';
+    novitaInput.value = getProviderApiKey('novita');
+    novitaInput.placeholder = 'Enter your Novita API key...';
+
+    const help = document.createElement('p');
+    help.className = 'text-xs text-secondary mb-4';
+    help.textContent = 'Default provider is Muapi. Switching provider keeps both keys in local storage.';
 
     const btnContainer = document.createElement('div');
     btnContainer.className = 'flex justify-end gap-2';
-    btnContainer.style.display = 'flex';
-    btnContainer.style.justifyContent = 'flex-end';
-    btnContainer.style.gap = '0.5rem';
 
     const cancelBtn = document.createElement('button');
     cancelBtn.textContent = 'Cancel';
@@ -54,25 +64,35 @@ export function SettingsModal(onClose) {
     const saveBtn = document.createElement('button');
     saveBtn.textContent = 'Save';
     saveBtn.className = 'px-4 py-2 rounded bg-primary text-black font-medium';
-    saveBtn.style.backgroundColor = 'var(--color-primary)';
-    saveBtn.style.color = 'black';
-    saveBtn.style.fontWeight = '500';
 
     saveBtn.onclick = () => {
-        const key = input.value.trim();
-        if (key) {
-            localStorage.setItem('muapi_key', key);
-            alert('API Key saved!');
-            document.body.removeChild(overlay);
-            if (onClose) onClose();
-        } else {
-            alert('Please enter a valid key');
+        const selectedProvider = providerSelect.value;
+        const muapiKey = muapiInput.value.trim();
+        const novitaKey = novitaInput.value.trim();
+
+        if (muapiKey) localStorage.setItem('muapi_key', muapiKey);
+        if (novitaKey) localStorage.setItem('novita_api_key', novitaKey);
+
+        const selectedKey = selectedProvider === 'novita' ? novitaKey || localStorage.getItem('novita_api_key') : muapiKey || localStorage.getItem('muapi_key');
+        if (!selectedKey) {
+            alert(`Please enter a valid ${selectedProvider === 'novita' ? 'Novita' : 'Muapi'} API key.`);
+            return;
         }
+
+        setActiveProvider(selectedProvider);
+        alert('Settings saved!');
+        document.body.removeChild(overlay);
+        if (onClose) onClose();
     };
 
     modal.appendChild(title);
-    modal.appendChild(label);
-    modal.appendChild(input);
+    modal.appendChild(providerLabel);
+    modal.appendChild(providerSelect);
+    modal.appendChild(muapiLabel);
+    modal.appendChild(muapiInput);
+    modal.appendChild(novitaLabel);
+    modal.appendChild(novitaInput);
+    modal.appendChild(help);
 
     btnContainer.appendChild(cancelBtn);
     btnContainer.appendChild(saveBtn);
@@ -80,7 +100,6 @@ export function SettingsModal(onClose) {
 
     overlay.appendChild(modal);
 
-    // Close on outside click
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
             document.body.removeChild(overlay);

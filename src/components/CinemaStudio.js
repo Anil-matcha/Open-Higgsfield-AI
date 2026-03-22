@@ -1,5 +1,6 @@
 
-import { muapi } from '../lib/muapi.js';
+import { api } from '../lib/providerRouter.js';
+import { getProviderApiKey } from '../lib/providerConfig.js';
 import { CameraControls } from './CameraControls.js';
 import { buildNanoBananaPrompt, CAMERA_MAP, LENS_MAP } from '../lib/promptUtils.js';
 import { AuthModal } from './AuthModal.js';
@@ -417,7 +418,7 @@ export function CinemaStudio() {
         const basePrompt = textarea.value.trim();
         if (!basePrompt) return;
 
-        const apiKey = localStorage.getItem('muapi_key');
+        const apiKey = getProviderApiKey();
         if (!apiKey) {
             AuthModal(() => generateBtn.click());
             return;
@@ -436,7 +437,7 @@ export function CinemaStudio() {
         );
 
         try {
-            const res = await muapi.generateImage({
+            const res = await api.generateImage({
                 model: 'nano-banana-pro',
                 prompt: finalPrompt,
                 aspect_ratio: currentSettings.aspect_ratio,

@@ -87,14 +87,14 @@ try {
   app.appendChild(headerEl);
 
   const body = document.createElement('div');
-  body.className = 'flex flex-1 overflow-hidden';
+  body.className = 'flex flex-1';
 
   const sidebar = Sidebar((page) => navigate(page));
   body.appendChild(sidebar);
 
   const contentArea = document.createElement('main');
   contentArea.id = 'content-area';
-  contentArea.className = 'flex-1 relative w-full overflow-hidden flex flex-col bg-app-bg';
+  contentArea.className = 'flex-1 relative w-full flex flex-col bg-app-bg';
   body.appendChild(contentArea);
 
   app.appendChild(body);

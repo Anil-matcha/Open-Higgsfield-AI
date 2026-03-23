@@ -7,14 +7,12 @@
   flex-direction: column;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
   background: var(--bg-app);
 }
 
 main {
   flex: 1;
   position: relative;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
 }

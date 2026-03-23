@@ -22,7 +22,7 @@
 
 @layer base {
     body {
-        @apply bg-app-bg text-white font-sans antialiased h-screen overflow-hidden;
+        @apply bg-app-bg text-white font-sans antialiased h-screen;
     }
 
     /* Custom Scrollbar Refinement */

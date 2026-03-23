@@ -13,6 +13,8 @@ const ROUTE_MAP = {
   'Templates': 'templates',
   'Assist': 'assist',
   'Community': 'community',
+  'Avatar': 'avatar',
+  'Audio': 'audio',
 };
 
 export function getRouteForItem(item) {
@@ -33,6 +35,8 @@ const pageLoaders = {
   influencer: () => import('../components/InfluencerStudio.js').then(m => m.InfluencerStudio()),
   commercial: () => import('../components/CommercialStudio.js').then(m => m.CommercialStudio()),
   explore: () => import('../components/ExplorePage.js').then(m => m.ExplorePage()),
+  avatar: () => import('../components/AvatarStudio.js').then(m => m.AvatarStudio()),
+  audio: () => import('../components/AudioStudio.js').then(m => m.AudioStudio()),
 
   assist: () => import('../components/AssistPage.js').then(m => m.AssistPage()),
   community: () => import('../components/CommunityPage.js').then(m => m.CommunityPage()),

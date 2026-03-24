@@ -8015,6 +8015,117 @@ export const v2vModels = [
 
 export const getV2VModelById = (id) => v2vModels.find(m => m.id === id);
 
+// ─── LipSync / Speech-to-Video models ────────────────────────────────────────
+export const lipsyncModels = [
+  {
+    "id": "infinitetalk-image-to-video",
+    "name": "Infinite Talk",
+    "endpoint": "infinitetalk-image-to-video",
+    "family": "infinitetalk",
+    "category": "image",
+    "hasPrompt": true,
+    "description": "Animate a portrait image into a talking video driven by audio.",
+    "inputs": {
+      "resolution": { "type": "string", "title": "Resolution", "name": "resolution", "enum": ["480p", "720p"], "default": "480p" }
+    }
+  },
+  {
+    "id": "wan2.2-speech-to-video",
+    "name": "Wan 2.2 Speech to Video",
+    "endpoint": "wan2.2-speech-to-video",
+    "family": "wan",
+    "category": "image",
+    "hasPrompt": true,
+    "description": "Generate a talking portrait video from an image and audio using Wan 2.2.",
+    "inputs": {
+      "resolution": { "type": "string", "title": "Resolution", "name": "resolution", "enum": ["480p", "720p"], "default": "480p" }
+    }
+  },
+  {
+    "id": "ltx-2.3-lipsync",
+    "name": "LTX 2.3 Lipsync",
+    "endpoint": "ltx-2.3-lipsync",
+    "family": "ltx",
+    "category": "image",
+    "hasPrompt": true,
+    "hasSeed": true,
+    "description": "High-quality lipsync from portrait image and audio using LTX 2.3.",
+    "inputs": {
+      "resolution": { "type": "string", "title": "Resolution", "name": "resolution", "enum": ["480p", "720p", "1080p"], "default": "720p" }
+    }
+  },
+  {
+    "id": "ltx-2-19b-lipsync",
+    "name": "LTX 2 19B Lipsync",
+    "endpoint": "ltx-2-19b-lipsync",
+    "family": "ltx",
+    "category": "image",
+    "hasPrompt": true,
+    "description": "Lipsync from portrait image and audio using LTX 2 19B model.",
+    "inputs": {
+      "resolution": { "type": "string", "title": "Resolution", "name": "resolution", "enum": ["480p", "720p", "1080p"], "default": "720p" }
+    }
+  },
+  {
+    "id": "sync-lipsync",
+    "name": "Sync Lipsync",
+    "endpoint": "sync-lipsync",
+    "family": "lipsync",
+    "category": "video",
+    "hasPrompt": false,
+    "description": "Generate realistic lipsync animations from audio using Sync's advanced algorithms."
+  },
+  {
+    "id": "latent-sync",
+    "name": "LatentSync",
+    "endpoint": "latentsync-video",
+    "family": "lipsync",
+    "category": "video",
+    "hasPrompt": false,
+    "description": "Video-to-video lipsync using LatentSync for high-quality audio-driven lip animations."
+  },
+  {
+    "id": "creatify-lipsync",
+    "name": "Creatify Lipsync",
+    "endpoint": "creatify-lipsync",
+    "family": "lipsync",
+    "category": "video",
+    "hasPrompt": false,
+    "description": "Realistic lipsync video optimized for speed, quality, and consistency by Creatify."
+  },
+  {
+    "id": "veed-lipsync",
+    "name": "Veed Lipsync",
+    "endpoint": "veed-lipsync",
+    "family": "lipsync",
+    "category": "video",
+    "hasPrompt": false,
+    "description": "Generate realistic lipsync from any audio using VEED's latest model."
+  },
+  {
+    "id": "infinitetalk-video-to-video",
+    "name": "Infinite Talk V2V",
+    "endpoint": "infinitetalk-video-to-video",
+    "family": "infinitetalk",
+    "category": "video",
+    "hasPrompt": true,
+    "description": "Apply audio-driven lipsync to an existing video using Infinite Talk.",
+    "inputs": {
+      "resolution": { "type": "string", "title": "Resolution", "name": "resolution", "enum": ["480p", "720p"], "default": "480p" }
+    }
+  }
+];
+
+export const getLipSyncModelById = (id) => lipsyncModels.find(m => m.id === id);
+
+export const getResolutionsForLipSyncModel = (id) => {
+  const model = lipsyncModels.find(m => m.id === id);
+  return model?.inputs?.resolution?.enum || [];
+};
+
+export const imageLipSyncModels = lipsyncModels.filter(m => m.category === 'image');
+export const videoLipSyncModels = lipsyncModels.filter(m => m.category === 'video');
+
 // ─── Audio models (Text-to-Audio, Music, Speech) ─────────────────────────────────
 export const audioModels = [
   {

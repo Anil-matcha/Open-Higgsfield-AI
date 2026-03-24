@@ -1,4 +1,4 @@
-of the export const TEMPLATE_CATEGORIES = {
+export const TEMPLATE_CATEGORIES = {
   SOCIAL: 'Social Media',
   STYLE: 'Style Transfer',
   ENTERTAINMENT: 'Entertainment',

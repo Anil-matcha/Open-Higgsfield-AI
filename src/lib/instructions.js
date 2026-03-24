@@ -151,6 +151,51 @@ const STUDIO_INSTRUCTIONS = {
       'Filter by category to quickly find the right template for your project',
     ],
   },
+  training: {
+    title: 'Training Studio',
+    steps: [
+      { number: 1, heading: 'Upload training images', description: 'Upload 10-20 clear, high-quality images of the subject you want to train on. Use diverse angles, lighting, and backgrounds.' },
+      { number: 2, heading: 'Configure training settings', description: 'Set the number of epochs (training rounds). More epochs create better results but take longer. Start with 10-15 for testing.' },
+      { number: 3, heading: 'Start training', description: 'Click Train to begin the LoRA training process. This typically takes 5-15 minutes depending on image count and settings.' },
+      { number: 4, heading: 'Use your trained model', description: 'Once trained, use the LoRA with text-to-image or image-to-image to generate content featuring your custom model.' },
+    ],
+    quickTips: [
+      'Use images with consistent subject (same person, object, or style)',
+      'Include a variety of angles and expressions for best results',
+      'Avoid images with multiple subjects or heavy watermarks',
+      'Start with lower epochs to test, then increase for final training',
+    ],
+  },
+  'video-tools': {
+    title: 'Video Tools',
+    steps: [
+      { number: 1, heading: 'Upload your video', description: 'Select a video file (MP4, WebM) to process. Videos should be under 30 seconds for best results.' },
+      { number: 2, heading: 'Choose a tool', description: 'Select from upscaling, interpolation, stabilization, color correction, or other enhancement tools.' },
+      { number: 3, heading: 'Configure options', description: 'Set output quality, resolution, and other parameters specific to your chosen tool.' },
+      { number: 4, heading: 'Process and download', description: 'The AI processes your video with the selected enhancements. Download when complete.' },
+    ],
+    quickTips: [
+      'Upscale from 480p to 720p for significant quality improvement',
+      'Video stabilization works best with shaky handheld footage',
+      'Frame interpolation smooths choppy footage to higher fps',
+      'Higher output resolutions take longer to process',
+    ],
+  },
+  chat: {
+    title: 'Chat Studio',
+    steps: [
+      { number: 1, heading: 'Choose an LLM model', description: 'Select from available language models in the sidebar. Different models have varying capabilities and response styles.' },
+      { number: 2, heading: 'Start a conversation', description: 'Type your message or prompt in the input field. Be specific about what you want to achieve with clear instructions.' },
+      { number: 3, heading: 'Iterate and refine', description: 'Continue the conversation to refine outputs. Use follow-up prompts to guide the AI toward your desired result.' },
+      { number: 4, heading: 'Save your work', description: 'Export conversations or copy specific responses for use in other projects.' },
+    ],
+    quickTips: [
+      'Be specific with instructions for better results',
+      'Use system prompts to set the AI\'s persona or tone',
+      'Break complex tasks into multiple messages',
+      'Context helps the AI understand your needs better',
+    ],
+  },
 };
 
 let cachedInstructions = null;

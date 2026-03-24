@@ -126,6 +126,7 @@ export function Header(navigate) {
     }
 
     menu.appendChild(link);
+  });
 
   leftPart.appendChild(logoContainer);
   leftPart.appendChild(menu);

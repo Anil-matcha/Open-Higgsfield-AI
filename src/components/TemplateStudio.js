@@ -1,4 +1,4 @@
-plicationimport { getTemplateById } from '../lib/templates.js';
+import { getTemplateById } from '../lib/templates.js';
 import { getTemplateThumbnail } from '../lib/thumbnails.js';
 import { muapi } from '../lib/muapi.js';
 import { AuthModal } from './AuthModal.js';

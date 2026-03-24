@@ -1,5 +1,6 @@
 
 import { muapi } from '../lib/muapi.js';
+import { createSafeImage } from '../lib/security.js';
 import { CameraControls } from './CameraControls.js';
 import { buildNanoBananaPrompt, CAMERA_MAP, LENS_MAP } from '../lib/promptUtils.js';
 import { AuthModal } from './AuthModal.js';
@@ -321,12 +322,19 @@ export function CinemaStudio() {
             const thumb = document.createElement('div');
             thumb.className = `relative group/thumb cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-300 aspect-square ${idx === 0 ? 'border-[#d9ff00] shadow-glow-sm' : 'border-white/10 hover:border-white/30'}`;
 
-            thumb.innerHTML = `
-                <img src="${entry.url}" class="w-full h-full object-cover opacity-80 group-hover/thumb:opacity-100 transition-opacity">
-                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
-                    <span class="text-[8px] font-bold text-white uppercase">Load</span>
-                </div>
-            `;
+            // Safe image creation - prevents XSS from user-provided URLs
+            const img = createSafeImage(entry.url, 'Generated image', 'w-full h-full object-cover opacity-80 group-hover/thumb:opacity-100 transition-opacity');
+            thumb.appendChild(img);
+
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'absolute inset-0 bg-black/50 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center';
+            
+            const loadText = document.createElement('span');
+            loadText.className = 'text-[8px] font-bold text-white uppercase';
+            loadText.textContent = 'Load';
+            overlay.appendChild(loadText);
+            thumb.appendChild(overlay);
 
             thumb.onclick = () => loadHistoryItem(entry, thumb);
             historyList.appendChild(thumb);

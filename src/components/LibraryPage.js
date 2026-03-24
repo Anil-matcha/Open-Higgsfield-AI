@@ -1,4 +1,5 @@
 import { getPageThumbnail, createThumbnailImg } from '../lib/thumbnails.js';
+import { createSafeImage, createSafeVideo, safeSetText } from '../lib/security.js';
 
 export function LibraryPage() {
   const container = document.createElement('div');
@@ -113,21 +114,36 @@ export function LibraryPage() {
       const card = document.createElement('div');
       card.className = 'relative group cursor-pointer rounded-xl overflow-hidden border border-white/5 hover:border-white/20 transition-all aspect-square bg-white/[0.02]';
 
+      // Safe media creation - prevents XSS from user-provided URLs
       if (item.type === 'video') {
-        card.innerHTML = `
-          <video src="${item.url}" class="w-full h-full object-cover" muted></video>
-          <div class="absolute top-2 right-2 bg-blue-500/80 px-1.5 py-0.5 rounded text-[9px] font-bold text-white">VIDEO</div>
-        `;
+        const video = createSafeVideo(item.url, 'w-full h-full object-cover');
+        card.appendChild(video);
+        
+        // Badge for video
+        const badge = document.createElement('div');
+        badge.className = 'absolute top-2 right-2 bg-blue-500/80 px-1.5 py-0.5 rounded text-[9px] font-bold text-white';
+        badge.textContent = 'VIDEO';
+        card.appendChild(badge);
       } else {
-        card.innerHTML = `<img src="${item.url}" class="w-full h-full object-cover" loading="lazy">`;
+        const img = createSafeImage(item.url, 'Generated image', 'w-full h-full object-cover');
+        img.loading = 'lazy';
+        card.appendChild(img);
       }
 
+      // Safe overlay content
       const overlay = document.createElement('div');
       overlay.className = 'absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3';
-      overlay.innerHTML = `
-        <div class="text-[10px] text-white/80 truncate">${item.prompt || item.template || 'Generated'}</div>
-        <div class="text-[9px] text-white/40 mt-0.5">${item.model || ''}</div>
-      `;
+      
+      const promptText = document.createElement('div');
+      promptText.className = 'text-[10px] text-white/80 truncate';
+      promptText.textContent = item.prompt || item.template || 'Generated';
+      overlay.appendChild(promptText);
+      
+      const modelText = document.createElement('div');
+      modelText.className = 'text-[9px] text-white/40 mt-0.5';
+      modelText.textContent = item.model || '';
+      overlay.appendChild(modelText);
+      
       card.appendChild(overlay);
 
       card.onclick = () => showPreview(item);
@@ -167,10 +183,17 @@ export function LibraryPage() {
 
     const info = document.createElement('div');
     info.className = 'mt-4 text-center';
-    info.innerHTML = `
-      <div class="text-sm text-white mb-1">${item.prompt || 'Generated'}</div>
-      <div class="text-xs text-muted">${item.model || ''} ${item.template ? '/ ' + item.template : ''}</div>
-    `;
+    
+    const promptEl = document.createElement('div');
+    promptEl.className = 'text-sm text-white mb-1';
+    promptEl.textContent = item.prompt || 'Generated';
+    info.appendChild(promptEl);
+    
+    const modelEl = document.createElement('div');
+    modelEl.className = 'text-xs text-muted';
+    modelEl.textContent = item.model ? (item.template ? `${item.model} / ${item.template}` : item.model) : '';
+    info.appendChild(modelEl);
+    
     wrapper.appendChild(info);
 
     const dlBtn = document.createElement('a');

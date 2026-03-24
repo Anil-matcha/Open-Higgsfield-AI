@@ -37,6 +37,10 @@ const pageLoaders = {
   explore: () => import('../components/ExplorePage.js').then(m => m.ExplorePage()),
   avatar: () => import('../components/AvatarStudio.js').then(m => m.AvatarStudio()),
   audio: () => import('../components/AudioStudio.js').then(m => m.AudioStudio()),
+  training: () => import('../components/TrainingStudio.js').then(m => m.TrainingStudio()),
+  videotools: () => import('../components/VideoToolsStudio.js').then(m => m.VideoToolsStudio()),
+  chat: () => import('../components/ChatStudio.js').then(m => m.ChatStudio()),
+  lipsync: () => import('../components/LipSyncStudio.js').then(m => m.LipSyncStudio()),
 
   assist: () => import('../components/AssistPage.js').then(m => m.AssistPage()),
   community: () => import('../components/CommunityPage.js').then(m => m.CommunityPage()),

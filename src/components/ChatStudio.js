@@ -2,6 +2,7 @@ import { muapi } from '../lib/muapi.js';
 import { textModels } from '../lib/models.js';
 import { AuthModal } from './AuthModal.js';
 import { createHeroSection } from '../lib/thumbnails.js';
+import { createInlineInstructions } from './InlineInstructions.js';
 
 export function ChatStudio() {
   const container = document.createElement('div');
@@ -23,6 +24,11 @@ export function ChatStudio() {
     header.appendChild(chatBanner);
   }
   container.appendChild(header);
+
+  // Instructions
+  const inlineInstructions = createInlineInstructions('chat');
+  inlineInstructions.classList.add('max-w-2xl', 'mt-6', 'mb-8');
+  container.appendChild(inlineInstructions);
 
   // Model selector
   const modelRow = document.createElement('div');

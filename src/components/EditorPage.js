@@ -1,6 +1,7 @@
 import { navigate } from '../lib/router.js';
 import { showToast } from '../lib/loading.js';
 import { getSupabaseUrl } from '../lib/supabase.js';
+import { escapeHtml } from '../lib/security.js';
 
 const TRANSITIONS = [
     { id: 'fade', name: 'Fade', icon: '◐', duration: 0.5 },
@@ -855,10 +856,10 @@ export function EditorPage() {
             clipsListEl.innerHTML = clips.map(clip => `
                 <div class="flex items-center justify-between p-2 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10">
                     <div>
-                        <span class="text-xs text-white">${clip.time}</span>
-                        <span class="text-[10px] text-secondary ml-2">${clip.type}</span>
+                        <span class="text-xs text-white">${escapeHtml(clip.time)}</span>
+                        <span class="text-[10px] text-secondary ml-2">${escapeHtml(clip.type)}</span>
                     </div>
-                    <span class="text-xs text-primary">${clip.confidence}</span>
+                    <span class="text-xs text-primary">${escapeHtml(clip.confidence)}</span>
                 </div>
             `).join('');
             
@@ -885,10 +886,10 @@ export function EditorPage() {
             clipsListEl.innerHTML = detectedClips.map(clip => `
                 <div class="flex items-center justify-between p-2 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10">
                     <div>
-                        <span class="text-xs text-white">${clip.time}</span>
-                        <span class="text-[10px] text-secondary ml-2">${clip.type}</span>
+                        <span class="text-xs text-white">${escapeHtml(clip.time)}</span>
+                        <span class="text-[10px] text-secondary ml-2">${escapeHtml(clip.type)}</span>
                     </div>
-                    <span class="text-xs text-primary">${clip.confidence}</span>
+                    <span class="text-xs text-primary">${escapeHtml(clip.confidence)}</span>
                 </div>
             `).join('');
             
@@ -940,10 +941,10 @@ export function EditorPage() {
             tagsListEl.innerHTML = tags.map(tag => `
                 <div class="flex items-center justify-between p-2 bg-white/5 rounded-lg">
                     <div class="flex items-center gap-2">
-                        <span class="text-lg">${tag.icon}</span>
-                        <span class="text-sm text-white">${tag.name}</span>
+                        <span class="text-lg">${escapeHtml(tag.icon || '')}</span>
+                        <span class="text-sm text-white">${escapeHtml(tag.name || '')}</span>
                     </div>
-                    <span class="text-xs text-primary">${tag.count} detected</span>
+                    <span class="text-xs text-primary">${escapeHtml(String(tag.count || 0))} detected</span>
                 </div>
             `).join('');
             
@@ -964,10 +965,10 @@ export function EditorPage() {
             tagsListEl.innerHTML = AI_TAGS.map(tag => `
                 <div class="flex items-center justify-between p-2 bg-white/5 rounded-lg">
                     <div class="flex items-center gap-2">
-                        <span class="text-lg">${tag.icon}</span>
-                        <span class="text-sm text-white">${tag.name}</span>
+                        <span class="text-lg">${escapeHtml(tag.icon || '')}</span>
+                        <span class="text-sm text-white">${escapeHtml(tag.name || '')}</span>
                     </div>
-                    <span class="text-xs text-primary">${tag.count} detected</span>
+                    <span class="text-xs text-primary">${escapeHtml(String(tag.count || 0))} detected</span>
                 </div>
             `).join('');
             

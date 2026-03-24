@@ -1,4 +1,5 @@
 import { muapi } from '../lib/muapi.js';
+import { createSafeImage } from '../lib/security.js';
 import {
     t2iModels, getAspectRatiosForModel, getResolutionsForModel, getQualityFieldForModel,
     i2iModels, getAspectRatiosForI2IModel, getResolutionsForI2IModel, getQualityFieldForI2IModel,
@@ -717,14 +718,20 @@ export function ImageStudio() {
             const thumb = document.createElement('div');
             thumb.className = `relative group/thumb cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-300 ${idx === 0 ? 'border-primary shadow-glow' : 'border-white/10 hover:border-white/30'}`;
 
-            thumb.innerHTML = `
-                <img src="${entry.url}" alt="${entry.prompt?.substring(0, 30) || 'Generated'}" class="w-full aspect-square object-cover">
-                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                    <button class="hist-download p-1.5 bg-primary rounded-lg text-black hover:scale-110 transition-transform" title="Download">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                    </button>
-                </div>
-            `;
+            // Safe image creation - prevents XSS from user-provided URLs
+            const img = createSafeImage(entry.url, entry.prompt?.substring(0, 30) || 'Generated', 'w-full aspect-square object-cover');
+            thumb.appendChild(img);
+
+            // Create overlay with download button
+            const overlay = document.createElement('div');
+            overlay.className = 'absolute inset-0 bg-black/60 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center gap-1';
+            
+            const downloadBtn = document.createElement('button');
+            downloadBtn.className = 'hist-download p-1.5 bg-primary rounded-lg text-black hover:scale-110 transition-transform';
+            downloadBtn.title = 'Download';
+            downloadBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>';
+            overlay.appendChild(downloadBtn);
+            thumb.appendChild(overlay);
 
             thumb.onclick = (e) => {
                 if (e.target.closest('.hist-download')) {

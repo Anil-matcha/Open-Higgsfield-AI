@@ -1,5 +1,6 @@
 import { navigate } from '../lib/router.js';
 import { showToast } from '../lib/loading.js';
+import { escapeHtml } from '../lib/security.js';
 
 const DIRECTOR_AGENTS = [
     { id: 'summarizer', name: 'Video Summarizer', icon: '📝', description: 'Summarize video content', category: 'analysis' },
@@ -458,10 +459,13 @@ export function DirectorPage() {
         
         activeEl.innerHTML = Array.from(activeAgents).map(agentId => {
             const agent = DIRECTOR_AGENTS.find(a => a.id === agentId);
+            // Use escapeHtml to prevent XSS from agent IDs
+            const safeName = escapeHtml(agent?.name || agentId);
+            const safeIcon = escapeHtml(agent?.icon || '🤖');
             return `
                 <div class="p-2 bg-white/5 rounded-lg flex items-center gap-2">
-                    <span class="text-lg">${agent?.icon || '🤖'}</span>
-                    <span class="text-xs text-white flex-1">${agent?.name || agentId}</span>
+                    <span class="text-lg">${safeIcon}</span>
+                    <span class="text-xs text-white flex-1">${safeName}</span>
                     <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
                 </div>
             `;

@@ -210,6 +210,7 @@ export function CinemaStudio() {
     // Camera Builder Toggle Button
     const cameraBuilderBtn = document.createElement('button');
     cameraBuilderBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-white/50 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded-lg border border-white/5';
+    cameraBuilderBtn.setAttribute('data-tooltip', 'Quick camera builder');
     cameraBuilderBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg> Builder`;
     settingsToolbar.appendChild(cameraBuilderBtn);
 
@@ -225,6 +226,7 @@ export function CinemaStudio() {
     const summaryCard = document.createElement('button');
     // Removed 'hidden' class, added 'flex' and refined width constraints for mobile
     summaryCard.className = 'flex flex-col items-start justify-center px-4 py-2 bg-[#2a2a2a] rounded-xl border border-white/5 hover:border-white/20 transition-colors text-left flex-1 min-w-[100px] md:min-w-[140px] max-w-[240px] h-[56px] relative group overflow-hidden';
+    summaryCard.setAttribute('data-tooltip', 'Open camera settings');
 
     // Dot indicator
     const dot = document.createElement('div');
@@ -256,6 +258,7 @@ export function CinemaStudio() {
     // Generate Button
     const generateBtn = document.createElement('button');
     generateBtn.className = 'h-[56px] px-8 bg-[#d9ff00] text-black rounded-xl font-black text-xs uppercase hover:bg-white transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed';
+    generateBtn.setAttribute('data-tooltip', 'Generate cinema shot');
     generateBtn.innerHTML = `GENERATE ✨`;
 
     rightGroup.appendChild(summaryCard);

@@ -150,10 +150,11 @@ export function ImageStudio() {
     const controlsLeft = document.createElement('div');
     controlsLeft.className = 'flex items-center gap-1.5 md:gap-2.5 relative overflow-x-auto no-scrollbar pb-1 md:pb-0';
 
-    const createControlBtn = (icon, label, id) => {
+    const createControlBtn = (icon, label, id, tooltip) => {
         const btn = document.createElement('button');
         btn.id = id;
         btn.className = 'flex items-center gap-1.5 md:gap-2.5 px-3 md:px-4 py-2 md:py-2.5 bg-white/5 hover:bg-white/10 rounded-xl md:rounded-2xl transition-all border border-white/5 group whitespace-nowrap';
+        if (tooltip) btn.setAttribute('data-tooltip', tooltip);
         btn.innerHTML = `
             ${icon}
             <span id="${id}-label" class="text-xs font-bold text-white group-hover:text-primary transition-colors">${label}</span>
@@ -166,15 +167,15 @@ export function ImageStudio() {
         <div class="w-5 h-5 bg-primary rounded-md flex items-center justify-center shadow-lg shadow-primary/20">
             <span class="text-[10px] font-black text-black">G</span>
         </div>
-    `, selectedModelName, 'model-btn');
+    `, selectedModelName, 'model-btn', 'Select AI generation model');
 
     const arBtn = createControlBtn(`
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60 text-secondary"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
-    `, selectedAr, 'ar-btn');
+    `, selectedAr, 'ar-btn', 'Change aspect ratio');
 
     const qualityBtn = createControlBtn(`
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60 text-secondary"><path d="M6 2L3 6v15a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z"/></svg>
-    `, '720p', 'quality-btn');
+    `, '720p', 'quality-btn', 'Set output quality');
 
     controlsLeft.appendChild(modelBtn);
     controlsLeft.appendChild(arBtn);
@@ -183,13 +184,13 @@ export function ImageStudio() {
     // Advanced options toggle button
     const advancedBtn = createControlBtn(`
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60 text-secondary"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 001.82-.33 1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-1.82.33A1.65 1.65 0 0019.4 9a1.65 1.65 0 00-1.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-    `, 'Advanced', 'advanced-btn');
+    `, 'Advanced', 'advanced-btn', 'Show advanced options');
     controlsLeft.appendChild(advancedBtn);
     
     // Quick Tools toggle button
     const toolsBtn = createControlBtn(`
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60 text-secondary"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-    `, 'Tools', 'tools-btn');
+    `, 'Tools', 'tools-btn', 'Quick starters & prompt enhancer');
     controlsLeft.appendChild(toolsBtn);
     // Show quality button if the default model has quality/resolution options
     const _initResolutions = getResolutionsForModel(defaultModel.id);
@@ -201,6 +202,7 @@ export function ImageStudio() {
 
     const generateBtn = document.createElement('button');
     generateBtn.className = 'bg-primary text-black px-6 md:px-8 py-3 md:py-3.5 rounded-xl md:rounded-[1.5rem] font-black text-sm md:text-base hover:shadow-glow hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2.5 w-full sm:w-auto shadow-lg';
+    generateBtn.setAttribute('data-tooltip', 'Generate AI image from prompt');
     generateBtn.innerHTML = `Generate ✨`;
 
     bottomRow.appendChild(controlsLeft);

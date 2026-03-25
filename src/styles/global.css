@@ -140,3 +140,113 @@
         animation: none;
     }
 }
+
+/* ========================
+   TOOLTIP SYSTEM
+   ======================== */
+
+/* Base tooltip container */
+[data-tooltip] {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tooltip arrow */
+[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    border: 6px solid transparent;
+    border-top-color: #1a1a1a;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    z-index: 9999;
+}
+
+/* Tooltip body */
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    padding: 8px 14px;
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    z-index: 9999;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+}
+
+/* Show tooltip on hover */
+[data-tooltip]:hover::before,
+[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-6px);
+}
+
+/* Tooltip positioning variants */
+[data-tooltip-bottom]::before {
+    bottom: auto;
+    top: 100%;
+    border-top-color: transparent;
+    border-bottom-color: #1a1a1a;
+    transform: translateX(-50%) translateY(-8px);
+}
+
+[data-tooltip-bottom]::after {
+    bottom: auto;
+    top: 100%;
+    transform: translateX(-50%) translateY(-12px);
+}
+
+[data-tooltip-bottom]:hover::before,
+[data-tooltip-bottom]:hover::after {
+    transform: translateX(-50%) translateY(6px);
+}
+
+/* Tooltip for left-aligned elements */
+[data-tooltip-left]::before {
+    left: 0;
+    transform: translateX(-100%) translateY(-50%);
+}
+
+[data-tooltip-left]::after {
+    left: 0;
+    transform: translateX(calc(-100% - 10px)) translateY(-50%);
+}
+
+[data-tooltip-left]:hover::before,
+[data-tooltip-left]:hover::after {
+    transform: translateX(calc(-100% - 6px)) translateY(-50%);
+}
+
+/* Tooltip for right-aligned elements */
+[data-tooltip-right]::before {
+    left: auto;
+    right: 0;
+    transform: translateX(100%) translateY(-50%);
+}
+
+[data-tooltip-right]::after {
+    left: auto;
+    right: 0;
+    transform: translateX(calc(100% + 10px)) translateY(-50%);
+}
+
+[data-tooltip-right]:hover::before,
+[data-tooltip-right]:hover::after {
+    transform: translateX(calc(100% + 6px)) translateY(-50%);
+}

@@ -259,10 +259,11 @@ export function VideoStudio() {
     const controlsLeft = document.createElement('div');
     controlsLeft.className = 'flex items-center gap-1.5 md:gap-2.5 relative overflow-x-auto no-scrollbar pb-1 md:pb-0';
 
-    const createControlBtn = (icon, label, id) => {
+    const createControlBtn = (icon, label, id, tooltip) => {
         const btn = document.createElement('button');
         btn.id = id;
         btn.className = 'flex items-center gap-1.5 md:gap-2.5 px-3 md:px-4 py-2 md:py-2.5 bg-white/5 hover:bg-white/10 rounded-xl md:rounded-2xl transition-all border border-white/5 group whitespace-nowrap';
+        if (tooltip) btn.setAttribute('data-tooltip', tooltip);
         btn.innerHTML = `
             ${icon}
             <span id="${id}-label" class="text-xs font-bold text-white group-hover:text-primary transition-colors">${label}</span>
@@ -275,23 +276,23 @@ export function VideoStudio() {
         <div class="w-5 h-5 bg-primary rounded-md flex items-center justify-center shadow-lg shadow-primary/20">
             <span class="text-[10px] font-black text-black">V</span>
         </div>
-    `, selectedModelName, 'v-model-btn');
+    `, selectedModelName, 'v-model-btn', 'Select AI video model');
 
     const arBtn = createControlBtn(`
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60 text-secondary"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
-    `, selectedAr, 'v-ar-btn');
+    `, selectedAr, 'v-ar-btn', 'Change aspect ratio');
 
     const durationBtn = createControlBtn(`
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60 text-secondary"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    `, `${selectedDuration}s`, 'v-duration-btn');
+    `, `${selectedDuration}s`, 'v-duration-btn', 'Set video duration');
 
     const resolutionBtn = createControlBtn(`
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60 text-secondary"><path d="M6 2L3 6v15a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z"/></svg>
-    `, selectedResolution || '720p', 'v-resolution-btn');
+    `, selectedResolution || '720p', 'v-resolution-btn', 'Set output resolution');
 
     const qualityBtn = createControlBtn(`
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60 text-secondary"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-    `, selectedQuality || 'basic', 'v-quality-btn');
+    `, selectedQuality || 'basic', 'v-quality-btn', 'Set output quality');
 
     controlsLeft.appendChild(modelBtn);
     controlsLeft.appendChild(arBtn);
@@ -302,7 +303,7 @@ export function VideoStudio() {
     // Advanced options toggle button
     const advancedBtn = createControlBtn(`
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60 text-secondary"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 001.82-.33 1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-1.82.33A1.65 1.65 0 0019.4 9a1.65 1.65 0 00-1.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-    `, 'Advanced', 'v-advanced-btn');
+    `, 'Advanced', 'v-advanced-btn', 'Show advanced options');
     controlsLeft.appendChild(advancedBtn);
 
     // Initial visibility (t2v mode)
@@ -314,6 +315,7 @@ export function VideoStudio() {
 
     const generateBtn = document.createElement('button');
     generateBtn.className = 'bg-primary text-black px-6 md:px-8 py-3 md:py-3.5 rounded-xl md:rounded-[1.5rem] font-black text-sm md:text-base hover:shadow-glow hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2.5 w-full sm:w-auto shadow-lg';
+    generateBtn.setAttribute('data-tooltip', 'Generate AI video from prompt');
     generateBtn.innerHTML = `Generate ✨`;
 
     bottomRow.appendChild(controlsLeft);

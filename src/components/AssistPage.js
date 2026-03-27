@@ -35,7 +35,7 @@ export function AssistPage() {
   enhanceSection.innerHTML = '<h2 class="text-lg font-bold text-white mb-4">Prompt Enhancer</h2>';
 
   const enhanceCard = document.createElement('div');
-  enhanceCard.className = 'bg-white/[0.03] border border-white/5 rounded-xl p-5';
+  enhanceCard.className = 'bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-xl p-5';
 
   const baseInput = document.createElement('textarea');
   baseInput.className = 'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder:text-muted focus:outline-none focus:border-primary/50 transition-colors resize-none mb-4';
@@ -128,7 +128,7 @@ export function AssistPage() {
   quickGrid.className = 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3';
   QUICK_PROMPTS.forEach(q => {
     const card = document.createElement('div');
-    card.className = 'bg-white/[0.03] border border-white/5 rounded-xl p-4 cursor-pointer hover:bg-white/[0.06] hover:border-white/10 transition-all group';
+    card.className = 'bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-xl p-4 cursor-pointer hover:bg-white/[0.06] hover:border-white/10 transition-all group';
     card.innerHTML = `
       <div class="text-sm font-bold text-white group-hover:text-primary transition-colors mb-1">${q.label}</div>
       <div class="text-xs text-muted line-clamp-2">${q.prompt}</div>
@@ -151,7 +151,7 @@ export function AssistPage() {
   `;
 
   const cineCard = document.createElement('div');
-  cineCard.className = 'bg-white/[0.03] border border-white/5 rounded-xl p-5';
+  cineCard.className = 'bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-xl p-5';
 
   const cinePrompt = document.createElement('input');
   cinePrompt.type = 'text';

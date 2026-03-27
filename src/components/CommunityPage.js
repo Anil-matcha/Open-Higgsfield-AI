@@ -41,7 +41,7 @@ export function CommunityPage() {
   links.forEach(link => {
     const card = document.createElement('a');
     card.href = link.href;
-    card.className = 'bg-white/[0.03] border border-white/5 rounded-xl p-5 flex items-start gap-4 hover:bg-white/[0.06] hover:border-white/10 transition-all group';
+    card.className = 'bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-xl p-5 flex items-start gap-4 hover:bg-white/[0.06] hover:border-white/10 transition-all group';
     card.innerHTML = `
       <div class="w-12 h-12 rounded-xl ${link.color} border border-white/10 flex items-center justify-center shrink-0">${link.icon}</div>
       <div>
@@ -59,19 +59,19 @@ export function CommunityPage() {
   statsSection.innerHTML = `
     <h2 class="text-lg font-bold text-white mb-4">Platform Stats</h2>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <div class="bg-white/[0.03] border border-white/5 rounded-xl p-4 text-center">
+      <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-xl p-4 text-center">
         <div class="text-2xl font-black text-primary">52</div>
         <div class="text-xs text-muted mt-1">Template Apps</div>
       </div>
-      <div class="bg-white/[0.03] border border-white/5 rounded-xl p-4 text-center">
+      <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-xl p-4 text-center">
         <div class="text-2xl font-black text-primary">350+</div>
         <div class="text-xs text-muted mt-1">Visual Effects</div>
       </div>
-      <div class="bg-white/[0.03] border border-white/5 rounded-xl p-4 text-center">
+      <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-xl p-4 text-center">
         <div class="text-2xl font-black text-primary">225+</div>
         <div class="text-xs text-muted mt-1">AI Models</div>
       </div>
-      <div class="bg-white/[0.03] border border-white/5 rounded-xl p-4 text-center">
+      <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-xl p-4 text-center">
         <div class="text-2xl font-black text-primary">9</div>
         <div class="text-xs text-muted mt-1">Editing Tools</div>
       </div>

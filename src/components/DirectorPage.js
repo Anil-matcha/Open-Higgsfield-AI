@@ -64,7 +64,7 @@ export function DirectorPage() {
                     </svg>
                 </button>
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                             <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                             <path d="M2 17l10 5 10-5"/>
@@ -81,7 +81,7 @@ export function DirectorPage() {
                 <button id="clear-chat-btn" class="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-secondary text-sm rounded-lg transition-colors">
                     Clear Chat
                 </button>
-                <span class="px-3 py-1 bg-blue-600/20 text-blue-400 text-xs font-bold rounded-full flex items-center gap-2">
+                <span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full flex items-center gap-2">
                     <span class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
                     REASONING ENGINE
                 </span>
@@ -181,7 +181,7 @@ export function DirectorPage() {
                     <!-- Chat Messages -->
                     <div id="chat-messages" class="flex-1 overflow-auto space-y-3 mb-4 min-h-[180px] max-h-[280px]">
                         <div class="chat-message flex gap-3">
-                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">AI</div>
+                            <div class="w-8 h-8 bg-primary/20 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">AI</div>
                             <div class="bg-white/10 rounded-2xl rounded-tl-sm p-3 max-w-[85%]">
                                 <p class="text-sm text-white">Hello! I'm Director, your AI video assistant with ${DIRECTOR_AGENTS.length}+ specialized agents.</p>
                                 <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
@@ -211,7 +211,7 @@ export function DirectorPage() {
                             placeholder="Type your command (e.g., 'Create a short clip of the best moment')"
                             class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-muted focus:outline-none focus:border-primary/50"
                         >
-                        <button id="send-command-btn" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:scale-105 transition-transform flex items-center gap-2">
+                        <button id="send-command-btn" class="px-6 py-3 bg-primary text-black text-white font-bold rounded-xl hover:scale-105 transition-transform flex items-center gap-2">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="22" y1="2" x2="11" y2="13"/>
                                 <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -252,7 +252,7 @@ export function DirectorPage() {
                 <h3 class="font-bold text-white mb-3 text-sm uppercase tracking-wider">QUICK ACTIONS</h3>
                 <div class="space-y-2">
                     <button class="action-btn w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-left flex items-center gap-3 transition-colors cursor-pointer" data-action="summarize">
-                        <div class="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">📝</div>
+                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">📝</div>
                         <div>
                             <div class="font-bold text-white text-sm">Summarize</div>
                             <div class="text-xs text-secondary">Generate video summary</div>
@@ -260,7 +260,7 @@ export function DirectorPage() {
                     </button>
                     
                     <button class="action-btn w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-left flex items-center gap-3 transition-colors cursor-pointer" data-action="highlights">
-                        <div class="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">⚡</div>
+                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">⚡</div>
                         <div>
                             <div class="font-bold text-white text-sm">Extract Highlights</div>
                             <div class="text-xs text-secondary">Find best moments</div>
@@ -268,7 +268,7 @@ export function DirectorPage() {
                     </button>
                     
                     <button class="action-btn w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-left flex items-center gap-3 transition-colors cursor-pointer" data-action="scenes">
-                        <div class="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">🎬</div>
+                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">🎬</div>
                         <div>
                             <div class="font-bold text-white text-sm">Detect Scenes</div>
                             <div class="text-xs text-secondary">Identify boundaries</div>
@@ -276,7 +276,7 @@ export function DirectorPage() {
                     </button>
                     
                     <button class="action-btn w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-left flex items-center gap-3 transition-colors cursor-pointer" data-action="subtitles">
-                        <div class="w-8 h-8 bg-orange-600/20 rounded-lg flex items-center justify-center">💬</div>
+                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">💬</div>
                         <div>
                             <div class="font-bold text-white text-sm">Add Subtitles</div>
                             <div class="text-xs text-secondary">Auto-generate captions</div>
@@ -284,7 +284,7 @@ export function DirectorPage() {
                     </button>
                     
                     <button class="action-btn w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-left flex items-center gap-3 transition-colors cursor-pointer" data-action="dubbing">
-                        <div class="w-8 h-8 bg-pink-600/20 rounded-lg flex items-center justify-center">🎤</div>
+                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">🎤</div>
                         <div>
                             <div class="font-bold text-white text-sm">Dub Video</div>
                             <div class="text-xs text-secondary">Translate audio</div>
@@ -292,7 +292,7 @@ export function DirectorPage() {
                     </button>
                     
                     <button class="action-btn w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-left flex items-center gap-3 transition-colors cursor-pointer" data-action="broll">
-                        <div class="w-8 h-8 bg-cyan-600/20 rounded-lg flex items-center justify-center">🎞️</div>
+                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">🎞️</div>
                         <div>
                             <div class="font-bold text-white text-sm">Add B-Roll</div>
                             <div class="text-xs text-secondary">Overlay footage</div>
@@ -300,7 +300,7 @@ export function DirectorPage() {
                     </button>
                     
                     <button class="action-btn w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-left flex items-center gap-3 transition-colors cursor-pointer" data-action="voiceover">
-                        <div class="w-8 h-8 bg-red-600/20 rounded-lg flex items-center justify-center">🎙️</div>
+                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">🎙️</div>
                         <div>
                             <div class="font-bold text-white text-sm">Voiceover</div>
                             <div class="text-xs text-secondary">Add AI narration</div>
@@ -308,7 +308,7 @@ export function DirectorPage() {
                     </button>
                     
                     <button class="action-btn w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-left flex items-center gap-3 transition-colors cursor-pointer" data-action="shorts">
-                        <div class="w-8 h-8 bg-yellow-600/20 rounded-lg flex items-center justify-center">📱</div>
+                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">📱</div>
                         <div>
                             <div class="font-bold text-white text-sm">Create Shorts</div>
                             <div class="text-xs text-secondary">TikTok/Reels/Shorts</div>
@@ -316,7 +316,7 @@ export function DirectorPage() {
                     </button>
                     
                     <button class="action-btn w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-left flex items-center gap-3 transition-colors cursor-pointer" data-action="color">
-                        <div class="w-8 h-8 bg-teal-600/20 rounded-lg flex items-center justify-center">🎨</div>
+                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">🎨</div>
                         <div>
                             <div class="font-bold text-white text-sm">Color Correction</div>
                             <div class="text-xs text-secondary">Adjust colors</div>
@@ -324,7 +324,7 @@ export function DirectorPage() {
                     </button>
                     
                     <button class="action-btn w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl text-left flex items-center gap-3 transition-colors cursor-pointer" data-action="stabilize">
-                        <div class="w-8 h-8 bg-indigo-600/20 rounded-lg flex items-center justify-center">🪄</div>
+                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">🪄</div>
                         <div>
                             <div class="font-bold text-white text-sm">Stabilize</div>
                             <div class="text-xs text-secondary">Fix shaky footage</div>
@@ -374,7 +374,7 @@ export function DirectorPage() {
         const chatMessages = container.querySelector('#chat-messages');
         chatMessages.innerHTML = `
             <div class="chat-message flex gap-3">
-                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">AI</div>
+                <div class="w-8 h-8 bg-primary/20 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">AI</div>
                 <div class="bg-white/10 rounded-2xl rounded-tl-sm p-3 max-w-[85%]">
                     <p class="text-sm text-white">Chat cleared. How can I help you with your video?</p>
                 </div>
@@ -413,14 +413,14 @@ export function DirectorPage() {
             `;
         } else if (isAction) {
             msgDiv.innerHTML = `
-                <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">✓</div>
+                <div class="w-8 h-8 bg-primary/20 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">✓</div>
                 <div class="bg-green-500/20 rounded-2xl rounded-tr-sm p-3 max-w-[85%]">
                     <p class="text-sm text-white">${escapeHtml(text)}</p>
                     ${agents.length > 0 ? `
                         <div class="mt-2 pt-2 border-t border-white/10">
                             <p class="text-xs text-secondary">Agents activated:</p>
                             <div class="flex flex-wrap gap-1 mt-1">
-                                ${agents.map(a => `<span class="px-2 py-0.5 bg-green-600/20 text-green-400 text-xs rounded-full">${a}</span>`).join('')}
+                                ${agents.map(a => `<span class="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">${a}</span>`).join('')}
                             </div>
                         </div>
                     ` : ''}
@@ -428,14 +428,14 @@ export function DirectorPage() {
             `;
         } else {
             msgDiv.innerHTML = `
-                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">AI</div>
+                <div class="w-8 h-8 bg-primary/20 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">AI</div>
                 <div class="bg-white/10 rounded-2xl rounded-tl-sm p-3 max-w-[85%]">
                     <p class="text-sm text-white">${escapeHtml(text)}</p>
                     ${agents.length > 0 ? `
                         <div class="mt-2 pt-2 border-t border-white/10">
                             <p class="text-xs text-secondary">Agents activated:</p>
                             <div class="flex flex-wrap gap-1 mt-1">
-                                ${agents.map(a => `<span class="px-2 py-0.5 bg-blue-600/20 text-blue-400 text-xs rounded-full">${a}</span>`).join('')}
+                                ${agents.map(a => `<span class="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">${a}</span>`).join('')}
                             </div>
                         </div>
                     ` : ''}

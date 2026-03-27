@@ -16,7 +16,7 @@ export function VideoToolsStudio() {
   // Header with hero banner
   const header = document.createElement('div');
   header.className = 'mb-8 animate-fade-in-up text-center w-full max-w-xl';
-  const videoToolsBanner = createHeroSection('video-tools', 'h-36 md:h-48 mb-4');
+  const videoToolsBanner = createHeroSection('video-tools', 'h-32 md:h-44 mb-4');
   if (videoToolsBanner) {
     const bannerText = document.createElement('div');
     bannerText.className = 'absolute bottom-0 left-0 right-0 p-5 z-10';

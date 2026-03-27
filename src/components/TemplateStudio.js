@@ -42,7 +42,7 @@ export function TemplateStudio(templateId) {
   container.appendChild(header);
 
   const formCard = document.createElement('div');
-  formCard.className = 'w-full max-w-lg bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col gap-5 animate-fade-in-up';
+  formCard.className = 'w-full max-w-lg bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col gap-5 animate-fade-in-up';
   formCard.style.animationDelay = '0.15s';
 
   const formState = {};
@@ -179,7 +179,7 @@ export function TemplateStudio(templateId) {
     resultArea.innerHTML = '';
 
     const card = document.createElement('div');
-    card.className = 'bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 animate-fade-in-up';
+    card.className = 'bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 animate-fade-in-up';
 
     if (template.outputType === 'video') {
       const video = document.createElement('video');

@@ -29,7 +29,7 @@ export function CinemaStudio() {
     // ==========================================
     const heroSection = document.createElement('div');
     heroSection.className = 'flex flex-col items-center justify-center text-center px-4 animate-fade-in-up w-full max-w-4xl';
-    const cinemaBanner = createHeroSection('cinema', 'h-44 md:h-64 mb-6');
+    const cinemaBanner = createHeroSection('cinema', 'h-32 md:h-44 mb-6');
     if (cinemaBanner) {
         const bannerContent = document.createElement('div');
         bannerContent.className = 'absolute bottom-0 left-0 right-0 p-6 z-10 text-left';

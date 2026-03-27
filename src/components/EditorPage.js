@@ -76,7 +76,7 @@ export function EditorPage() {
                     </svg>
                 </button>
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                    <div class="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -89,7 +89,7 @@ export function EditorPage() {
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button id="toggle-chat-btn" class="px-3 py-1.5 bg-purple-600/20 text-purple-400 text-sm rounded-lg hover:bg-purple-600/30 transition-colors flex items-center gap-2">
+                <button id="toggle-chat-btn" class="px-3 py-1.5 bg-primary/10 text-primary text-sm rounded-lg hover:bg-primary/10 transition-colors flex items-center gap-2">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>
@@ -402,8 +402,8 @@ export function EditorPage() {
                             <div class="space-y-2">
                                 ${['Upbeat.mp3', 'Cinematic.mp3', 'Ambient.mp3', 'Acoustic.mp3'].map((f, i) => `
                                     <div class="flex items-center gap-2 p-2 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10">
-                                        <div class="w-8 h-8 bg-green-600/20 rounded flex items-center justify-center">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-green-400">
+                                        <div class="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-primary">
                                                 <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
                                             </svg>
                                         </div>
@@ -442,7 +442,7 @@ export function EditorPage() {
                             </div>
                         </div>
                         
-                        <button class="mt-4 w-full py-2 bg-green-600/20 text-green-400 font-bold rounded-lg hover:bg-green-600/30 transition-colors">
+                        <button class="mt-4 w-full py-2 bg-primary/10 text-primary font-bold rounded-lg hover:bg-primary/20 transition-colors">
                             + Add Audio Track
                         </button>
                     </div>
@@ -512,7 +512,7 @@ export function EditorPage() {
                             </div>
                         </div>
                         
-                        <button id="run-auto-clip" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:scale-[1.02] transition-transform">
+                        <button id="run-auto-clip" class="w-full py-3 bg-primary text-black text-white font-bold rounded-xl hover:scale-[1.02] transition-transform">
                             Run Auto-Clip
                         </button>
                         
@@ -569,7 +569,7 @@ export function EditorPage() {
                             </div>
                         </div>
                         
-                        <button id="run-ai-organize" class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl hover:scale-[1.02] transition-transform mb-4">
+                        <button id="run-ai-organize" class="w-full py-3 bg-primary text-black text-white font-bold rounded-xl hover:scale-[1.02] transition-transform mb-4">
                             Auto-Analyze & Organize
                         </button>
                         
@@ -611,7 +611,7 @@ export function EditorPage() {
                 <!-- Chat Header -->
                 <div class="p-4 border-b border-white/5 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                        <div class="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                             </svg>
@@ -643,7 +643,7 @@ export function EditorPage() {
                 <!-- Chat Messages -->
                 <div id="chat-messages" class="flex-1 overflow-auto p-4 space-y-3 min-h-[200px]">
                     <div class="flex gap-3">
-                        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">AI</div>
+                        <div class="w-8 h-8 bg-primary/20 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">AI</div>
                         <div class="bg-white/10 rounded-2xl rounded-tl-sm p-3 max-w-[85%]">
                             <p class="text-sm text-white">Hi! I'm your Frame Video Agent. I can help you edit your video with natural language commands.</p>
                             <p class="text-xs text-primary mt-2">Try commands like "Add a fade transition" or "Create a highlight reel"</p>
@@ -654,8 +654,8 @@ export function EditorPage() {
                 <!-- Processing Status -->
                 <div id="agent-processing" class="hidden p-3 border-t border-white/5">
                     <div class="flex items-center gap-2">
-                        <div class="animate-spin w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full"></div>
-                        <span id="agent-status-text" class="text-xs text-purple-400">Processing...</span>
+                        <div class="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full"></div>
+                        <span id="agent-status-text" class="text-xs text-primary">Processing...</span>
                     </div>
                 </div>
                 
@@ -666,9 +666,9 @@ export function EditorPage() {
                             type="text" 
                             id="agent-input" 
                             placeholder="Type a command..."
-                            class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-muted focus:outline-none focus:border-purple-500/50"
+                            class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-muted focus:outline-none focus:border-primary/50"
                         >
-                        <button id="agent-send-btn" class="px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:scale-105 transition-transform">
+                        <button id="agent-send-btn" class="px-3 py-2 bg-primary text-black text-white rounded-lg hover:scale-105 transition-transform">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                             </svg>
@@ -754,8 +754,8 @@ export function EditorPage() {
     // Audio buttons
     container.querySelectorAll('.audio-btn').forEach(btn => {
         btn.onclick = () => {
-            container.querySelectorAll('.audio-btn').forEach(b => b.classList.remove('bg-green-600/30'));
-            btn.classList.add('bg-green-600/30');
+            container.querySelectorAll('.audio-btn').forEach(b => b.classList.remove('bg-primary/20'));
+            btn.classList.add('bg-primary/20');
             selectedTool = 'audio';
             showToast(`Selected: ${btn.textContent.trim()} track`, 'info');
         };
@@ -1001,7 +1001,7 @@ export function EditorPage() {
             `;
         } else {
             msgDiv.innerHTML = `
-                <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">AI</div>
+                <div class="w-8 h-8 bg-primary/20 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold">AI</div>
                 <div class="bg-white/10 rounded-2xl rounded-tl-sm p-3 max-w-[85%]">
                     <p class="text-sm text-white">${escapeHtml(text)}</p>
                 </div>

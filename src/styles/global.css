@@ -40,9 +40,26 @@
 }
 
 @layer components {
-    .glass {
-        @apply bg-black/80 backdrop-blur-2xl border border-white/10 shadow-3xl;
-    }
+.glass {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Glass card - RenderPage design system */
+.glass-card {
+    background: rgba(17, 17, 17, 0.9);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card:hover {
+    background: rgba(34, 34, 34, 0.9);
+    border-color: rgba(217, 255, 0, 0.2);
+}
 
     .glass-panel {
         @apply bg-black/60 backdrop-blur-xl border border-white/5;

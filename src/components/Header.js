@@ -5,7 +5,7 @@ export function Header(navigate) {
   header.className = 'w-full flex flex-col z-50 sticky top-0';
 
   const navBar = document.createElement('div');
-  navBar.className = 'w-full h-14 bg-black flex items-center justify-between px-4 md:px-6 border-b border-white/5 backdrop-blur-md bg-opacity-95';
+  navBar.className = 'w-full h-14 bg-app-bg flex items-center justify-between px-4 md:px-6 border-b border-white/5 backdrop-blur-md';
 
   const leftPart = document.createElement('div');
   leftPart.className = 'flex items-center gap-6';
@@ -43,7 +43,7 @@ export function Header(navigate) {
 
   const createDropdown = (items, parent) => {
     const dropdown = document.createElement('div');
-    dropdown.className = 'absolute top-full left-0 mt-2 w-56 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-2';
+    dropdown.className = 'absolute top-full left-0 mt-2 w-56 bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-2';
     dropdown.innerHTML = items.map(d => `<a class="block px-4 py-2 text-sm text-secondary hover:text-white hover:bg-white/5 cursor-pointer">${d.label}</a>`).join('');
     items.forEach((d, i) => {
       dropdown.children[i].onclick = () => navigate(d.route);
@@ -75,7 +75,7 @@ export function Header(navigate) {
       link.onclick = () => navigate('text-to-image');
       
       const dropdown = document.createElement('div');
-      dropdown.className = 'absolute top-full left-0 mt-2 w-48 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50';
+      dropdown.className = 'absolute top-full left-0 mt-2 w-48 bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50';
       dropdown.innerHTML = imageDropdownItems.map(d => `<a class="block px-4 py-2 text-sm text-secondary hover:text-white hover:bg-white/5 cursor-pointer">${d.label}</a>`).join('');
       
       imageDropdownItems.forEach((d, i) => {
@@ -91,7 +91,7 @@ export function Header(navigate) {
       link.onclick = () => navigate('text-to-video');
       
       const dropdown = document.createElement('div');
-      dropdown.className = 'absolute top-full left-0 mt-2 w-48 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50';
+      dropdown.className = 'absolute top-full left-0 mt-2 w-48 bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50';
       dropdown.innerHTML = videoDropdownItems.map(d => `<a class="block px-4 py-2 text-sm text-secondary hover:text-white hover:bg-white/5 cursor-pointer">${d.label}</a>`).join('');
       
       videoDropdownItems.forEach((d, i) => {

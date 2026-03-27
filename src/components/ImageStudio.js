@@ -53,7 +53,7 @@ export function ImageStudio() {
     // ==========================================
     const hero = document.createElement('div');
     hero.className = 'flex flex-col items-center mb-10 md:mb-20 animate-fade-in-up transition-all duration-700 w-full max-w-4xl';
-    const heroBanner = createHeroSection('image', 'h-40 md:h-56 mb-6');
+    const heroBanner = createHeroSection('image', 'h-32 md:h-44 mb-6');
     if (heroBanner) {
         const heroContent = document.createElement('div');
         heroContent.className = 'absolute bottom-0 left-0 right-0 p-6 z-10';

@@ -127,7 +127,7 @@ function createTemplateSection(category, catTemplates) {
 
   catTemplates.forEach(t => {
     const card = document.createElement('div');
-    card.className = 'bg-white/[0.03] border border-white/5 rounded-xl cursor-pointer hover:bg-white/[0.06] hover:border-white/10 transition-all group overflow-hidden';
+    card.className = 'bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-xl cursor-pointer hover:bg-white/[0.06] hover:border-white/10 transition-all group overflow-hidden';
     card.dataset.searchable = `${t.name} ${t.description || ''} ${category} ${t.outputType}`;
     card.setAttribute('role', 'button');
     card.setAttribute('tabindex', '0');

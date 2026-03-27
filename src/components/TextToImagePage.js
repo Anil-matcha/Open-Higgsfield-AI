@@ -1,4 +1,5 @@
 import { navigate } from '../lib/router.js';
+import { createHeroSection } from '../lib/thumbnails.js';
 
 const TEXT_TO_IMAGE_MODELS = [
   { name: 'Flux Dev', description: 'High-quality text-to-image generation', category: 'Flux' },
@@ -45,195 +46,105 @@ const FEATURES = [
   { icon: '🌐', title: 'High Resolution', description: 'Generate images up to 4K resolution' },
 ];
 
-const LOGOS = ['Flux', 'OpenAI', 'Google', 'Midjourney', 'Stability AI', 'Meta'];
-
 export function TextToImagePage() {
   const container = document.createElement('div');
-  container.className = 'w-full min-h-full bg-black';
+  container.className = 'w-full h-full flex flex-col items-center bg-app-bg relative p-4 md:p-6 overflow-y-auto custom-scrollbar overflow-x-hidden';
 
-  container.innerHTML = `
-    <!-- Hero Section -->
-    <section class="relative overflow-hidden">
-      <!-- Background Effects -->
-      <div class="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20"></div>
-      <div class="absolute inset-0" style="background-image: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);"></div>
-      
-      <!-- Animated Grid -->
-      <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 50px 50px;"></div>
-      
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-        <!-- Badge -->
-        <div class="flex justify-center mb-8">
-          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
-            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-            <span class="text-sm text-gray-300">Powered by 50+ World-Class AI Models</span>
-          </div>
-        </div>
-        
-        <!-- Main Heading -->
-        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-center text-white tracking-tight mb-6">
-          <span class="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-            Text to Image
-          </span>
-        </h1>
-        
-        <!-- Subheading -->
-        <p class="text-xl sm:text-2xl text-gray-400 text-center max-w-3xl mx-auto mb-10">
-          Transform your ideas into stunning, professional-quality images with our cutting-edge AI generation models
-        </p>
-        
-        <!-- CTA Buttons -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-          <button class="start-btn group relative px-8 py-4 bg-white text-black font-bold rounded-full text-lg hover:bg-gray-100 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25">
-            <span class="relative z-10 flex items-center gap-2">
-              Start Creating Free
-              <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-            </span>
-          </button>
-          <button class="px-8 py-4 bg-white/5 text-white font-semibold rounded-full text-lg border border-white/10 hover:bg-white/10 transition-all backdrop-blur-sm">
-            View Documentation
-          </button>
-        </div>
-        
-        <!-- Preview Image Placeholder -->
-        <div class="relative max-w-4xl mx-auto">
-          <div class="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-2xl blur opacity-30"></div>
-          <div class="relative bg-gray-900 rounded-2xl overflow-hidden border border-white/10" style="aspect-ratio: 16/9;">
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div class="text-center">
-                <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                  <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-                <p class="text-gray-500 text-sm">AI Generated Preview</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <!-- Logos Section -->
-    <section class="py-12 border-y border-white/5 bg-white/[0.02]">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p class="text-center text-sm text-gray-500 mb-8">POWERED BY INDUSTRY-LEADING MODELS</p>
-        <div class="flex flex-wrap justify-center items-center gap-8 lg:gap-16 opacity-50">
-          ${LOGOS.map(logo => `<span class="text-xl font-bold text-gray-400">${logo}</span>`).join('')}
-        </div>
-      </div>
-    </section>
-    
+  // Hero Section
+  const hero = document.createElement('div');
+  hero.className = 'flex flex-col items-center mb-8 md:mb-12 animate-fade-in-up w-full max-w-5xl';
+  const heroBanner = createHeroSection('image', 'h-32 md:h-44 mb-4');
+  if (heroBanner) {
+    const heroContent = document.createElement('div');
+    heroContent.className = 'absolute bottom-0 left-0 right-0 p-6 z-10';
+    heroContent.innerHTML = `
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight mb-1">Text to Image</h1>
+      <p class="text-white/60 text-sm font-medium">Transform your ideas into stunning, professional-quality images with 27 AI models</p>
+      <button class="start-btn bg-primary text-black px-6 py-2.5 rounded-xl font-black text-sm hover:shadow-glow hover:scale-105 active:scale-95 transition-all mt-3">Start Creating Free</button>
+    `;
+    heroBanner.appendChild(heroContent);
+    hero.appendChild(heroBanner);
+  }
+  container.appendChild(hero);
+
+  // Main content wrapper
+  const contentWrapper = document.createElement('div');
+  contentWrapper.className = 'w-full max-w-5xl relative z-40 animate-fade-in-up';
+  contentWrapper.style.animationDelay = '0.1s';
+
+  contentWrapper.innerHTML = `
     <!-- Features Section -->
-    <section class="py-24">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-          <h2 class="text-3xl lg:text-4xl font-bold text-white mb-4">Why Choose Our Text to Image?</h2>
-          <p class="text-xl text-gray-400 max-w-2xl mx-auto">Everything you need to create stunning images at scale</p>
-        </div>
-        
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          ${FEATURES.map(f => `
-            <div class="group p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover:bg-white/[0.07]">
-              <div class="text-4xl mb-4">${f.icon}</div>
-              <h3 class="text-lg font-semibold text-white mb-2">${f.title}</h3>
-              <p class="text-gray-400 text-sm">${f.description}</p>
-            </div>
-          `).join('')}
-        </div>
+    <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-4 md:p-6 shadow-3xl mb-8">
+      <h2 class="text-xl font-bold text-white mb-2">Why Choose Our Text to Image?</h2>
+      <p class="text-sm text-secondary mb-6">Everything you need to create stunning images at scale</p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        ${FEATURES.map(f => `
+          <div class="bg-white/[0.03] border border-white/5 rounded-xl p-4 hover:border-primary/20 transition-all duration-300">
+            <div class="text-3xl mb-3">${f.icon}</div>
+            <h3 class="text-sm font-semibold text-white mb-1">${f.title}</h3>
+            <p class="text-xs text-muted">${f.description}</p>
+          </div>
+        `).join('')}
       </div>
-    </section>
-    
+    </div>
+
     <!-- Models Section -->
-    <section class="py-24 bg-white/[0.02]">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-          <h2 class="text-3xl lg:text-4xl font-bold text-white mb-4">Available Models</h2>
-          <p class="text-xl text-gray-400 max-w-2xl mx-auto">Choose from ${TEXT_TO_IMAGE_MODELS.length}+ powerful models</p>
-        </div>
-        
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          ${TEXT_TO_IMAGE_MODELS.map(m => `
-            <button class="model-card group p-4 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/50 transition-all duration-300 text-left hover:bg-white/[0.07]" data-model="${m.name}">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-semibold text-white group-hover:text-purple-400 transition-colors">${m.name}</span>
-                <span class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">${m.category}</span>
-              </div>
-              <p class="text-xs text-gray-500">${m.description}</p>
-            </button>
-          `).join('')}
-        </div>
-      </div>
-    </section>
-    
-    <!-- Example Prompts Section -->
-    <section class="py-24">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-          <h2 class="text-3xl lg:text-4xl font-bold text-white mb-4">Example Prompts</h2>
-          <p class="text-xl text-gray-400 max-w-2xl mx-auto">Get inspired by these creative prompts</p>
-        </div>
-        
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          ${EXAMPLE_PROMPTS.map((p, i) => `
-            <div class="prompt-card group p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 hover:border-purple-500/30 transition-all duration-300 cursor-pointer">
-              <div class="flex items-center justify-between mb-4">
-                <span class="text-xs font-medium px-3 py-1 rounded-full bg-purple-500/20 text-purple-300">${p.model}</span>
-                <button class="text-xs text-gray-500 hover:text-white transition-colors try-btn">Try this →</button>
-              </div>
-              <p class="text-gray-300 leading-relaxed">${p.prompt}</p>
+    <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-4 md:p-6 shadow-3xl mb-8">
+      <h2 class="text-xl font-bold text-white mb-2">Available Models</h2>
+      <p class="text-sm text-secondary mb-6">Choose from ${TEXT_TO_IMAGE_MODELS.length}+ powerful image generation models</p>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        ${TEXT_TO_IMAGE_MODELS.map(m => `
+          <button class="model-card bg-white/[0.03] border border-white/5 rounded-xl p-4 hover:border-primary/20 transition-all duration-300 text-left" data-model="${m.name}">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-sm font-semibold text-white">${m.name}</span>
+              <span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">${m.category}</span>
             </div>
-          `).join('')}
-        </div>
+            <p class="text-xs text-muted">${m.description}</p>
+          </button>
+        `).join('')}
       </div>
-    </section>
-    
+    </div>
+
+    <!-- Example Prompts Section -->
+    <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-4 md:p-6 shadow-3xl mb-8">
+      <h2 class="text-xl font-bold text-white mb-2">Example Prompts</h2>
+      <p class="text-sm text-secondary mb-6">Get inspired by these creative prompts to start generating</p>
+      <div class="grid md:grid-cols-2 gap-4">
+        ${EXAMPLE_PROMPTS.map((p, i) => `
+          <div class="prompt-card bg-white/[0.03] border border-white/5 rounded-xl p-4 hover:border-primary/20 cursor-pointer transition-all duration-300">
+            <div class="flex items-center justify-between mb-3">
+              <span class="bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full">${p.model}</span>
+              <button class="try-btn text-xs text-muted hover:text-white transition-colors">Try this →</button>
+            </div>
+            <p class="text-sm text-secondary leading-relaxed">${p.prompt}</p>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
     <!-- CTA Section -->
-    <section class="py-24">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-600 via-pink-600 to-blue-600 p-1">
-          <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
-          <div class="relative bg-black/40 backdrop-blur-xl rounded-3xl p-12 text-center">
-            <h2 class="text-3xl lg:text-4xl font-bold text-white mb-4">Ready to Create?</h2>
-            <p class="text-xl text-white/80 mb-8 max-w-xl mx-auto">Join thousands of creators generating amazing images with our AI platform</p>
-            <button class="cta-btn px-10 py-4 bg-white text-black font-bold rounded-full text-lg hover:bg-gray-100 transition-all duration-300 hover:scale-105">
-              Get Started Free
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <!-- Footer Links Placeholder -->
-    <section class="py-12 border-t border-white/5">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div class="flex items-center gap-2">
-            <span class="text-gray-500 text-sm">Part of</span>
-            <span class="text-white font-bold">MUAPI</span>
-          </div>
-          <div class="flex gap-6">
-            <a href="#" class="text-gray-500 hover:text-white text-sm transition-colors">Pricing</a>
-            <a href="#" class="text-gray-500 hover:text-white text-sm transition-colors">Documentation</a>
-            <a href="#" class="text-gray-500 hover:text-white text-sm transition-colors">API</a>
-            <a href="#" class="text-gray-500 hover:text-white text-sm transition-colors">Support</a>
-          </div>
-        </div>
-      </div>
-    </section>
+    <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-6 md:p-10 shadow-3xl mb-8 text-center">
+      <h2 class="text-xl font-bold text-white mb-2">Ready to Create?</h2>
+      <p class="text-sm text-secondary mb-6">Join thousands of creators generating amazing images with our AI platform</p>
+      <button class="cta-btn bg-primary text-black px-6 py-2.5 rounded-xl font-black text-sm hover:shadow-glow hover:scale-105 active:scale-95 transition-all">Get Started Free</button>
+    </div>
   `;
+
+  container.appendChild(contentWrapper);
 
   // Event Listeners
   container.querySelector('.start-btn').onclick = () => navigate('image');
-  container.querySelector('.cta-btn').onclick = () => navigate('image');
-  
-  container.querySelectorAll('.model-card').forEach(card => {
+  contentWrapper.querySelector('.cta-btn').onclick = () => navigate('image');
+
+  contentWrapper.querySelectorAll('.model-card').forEach(card => {
     card.onclick = () => {
       const modelName = card.dataset.model;
       localStorage.setItem('prefill_model', modelName);
       navigate('image');
     };
   });
-  
-  container.querySelectorAll('.prompt-card').forEach((card, i) => {
+
+  contentWrapper.querySelectorAll('.prompt-card').forEach((card, i) => {
     card.onclick = () => {
       const prompt = EXAMPLE_PROMPTS[i];
       localStorage.setItem('prefill_prompt', prompt.prompt);
@@ -241,8 +152,8 @@ export function TextToImagePage() {
       navigate('image');
     };
   });
-  
-  container.querySelectorAll('.prompt-card .try-btn').forEach((btn, i) => {
+
+  contentWrapper.querySelectorAll('.prompt-card .try-btn').forEach((btn, i) => {
     btn.onclick = (e) => {
       e.stopPropagation();
       const prompt = EXAMPLE_PROMPTS[i];

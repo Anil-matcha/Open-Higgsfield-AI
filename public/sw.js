@@ -3,7 +3,7 @@
  * Caches critical assets for offline access
  */
 
-const CACHE_NAME = 'higgsfield-v1';
+const CACHE_NAME = 'higgsfield-v2';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -63,6 +63,25 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
+    // Navigation requests (index.html) must always go to network first
+    // to pick up new asset hashes after deployments
+    if (request.mode === 'navigate' || url.pathname === '/' || url.pathname === '/index.html') {
+        event.respondWith(
+            fetch(request).then((response) => {
+                const responseClone = response.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(request, responseClone);
+                });
+                return response;
+            }).catch(() => {
+                return caches.match(request).then((cached) => {
+                    return cached || caches.match('/');
+                });
+            })
+        );
+        return;
+    }
+
     event.respondWith(
         caches.match(request).then((cached) => {
             // Return cached version if available
@@ -94,11 +113,6 @@ self.addEventListener('fetch', (event) => {
                 
                 return response;
             }).catch(() => {
-                // Return offline page for navigation requests
-                if (request.mode === 'navigate') {
-                    return caches.match('/');
-                }
-                
                 return new Response('Offline', {
                     status: 503,
                     statusText: 'Service Unavailable'

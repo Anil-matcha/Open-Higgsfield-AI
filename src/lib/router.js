@@ -58,6 +58,9 @@ const pageLoaders = {
   'influencer-page': () => import('../components/InfluencerPage.js').then(m => m.InfluencerPage()),
   'commercial-page': () => import('../components/CommercialPage.js').then(m => m.CommercialPage()),
   'upscale-page': () => import('../components/UpscalePage.js').then(m => m.UpscalePage()),
+  render: () => import('../components/RenderPage.js').then(m => m.RenderPage()),
+  'video-agent': () => import('../components/VideoAgentPage.js').then(m => m.VideoAgentPage()),
+  director: () => import('../components/DirectorPage.js').then(m => m.DirectorPage()),
 };
 
 let currentPage = null;
@@ -81,6 +84,11 @@ export async function navigate(page, params = {}) {
 
   isNavigating = true;
   currentPage = page;
+
+  // Update URL with params so components can read them via URLSearchParams
+  const searchParams = new URLSearchParams(params).toString();
+  const newUrl = searchParams ? `/?${searchParams}#/${page}` : `/#/${page}`;
+  history.pushState({}, '', newUrl);
 
   contentArea.innerHTML = '';
 

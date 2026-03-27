@@ -2,7 +2,6 @@ import { navigate } from '../lib/router.js';
 import { showToast } from '../lib/loading.js';
 import { createHeroSection } from '../lib/thumbnails.js';
 import { getSupabaseUrl, isSupabaseConfigured } from '../lib/supabase.js';
-import { getSupabaseUrl, isSupabaseConfigured } from '../lib/supabase.js';
 
 const AI_TOOLS = [
     { id: 'scene-detection', name: 'Scene Detection', thumbnail: '/thumbnails/videoagent/scene-detection.webp', color: 'blue', description: 'Identify scene boundaries', category: 'understanding' },

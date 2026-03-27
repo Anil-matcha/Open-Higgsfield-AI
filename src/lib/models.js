@@ -8169,3 +8169,83 @@ export const imageLipSyncModels = lipsyncModels.filter(m => m.category === 'imag
 export const videoLipSyncModels = lipsyncModels.filter(m => m.category === 'video');
 
 export const getV2VModelById = (id) => v2vModels.find(m => m.id === id);
+
+// ─── Novita Models (v3 async model APIs) ─────────────────────────────────────
+export const novitaImageModels = [
+  {
+    "id": "seedream-5.0-lite",
+    "name": "Seedream 5.0 Lite",
+    "endpoint": "seedream-5.0-lite",
+    "inputs": {
+      "prompt": { "type": "string", "title": "Prompt", "name": "prompt" },
+      "aspect_ratio": {
+        "type": "string",
+        "title": "Aspect Ratio",
+        "name": "aspect_ratio",
+        "enum": ["1:1", "16:9", "9:16", "4:3", "3:4"],
+        "default": "1:1"
+      },
+      "resolution": {
+        "type": "string",
+        "title": "Resolution",
+        "name": "resolution",
+        "enum": ["1k", "2k", "4k"],
+        "default": "1k"
+      }
+    }
+  },
+  {
+    "id": "flux-1-schnell",
+    "name": "Flux 1 Schnell",
+    "endpoint": "flux-1-schnell",
+    "inputs": {
+      "prompt": { "type": "string", "title": "Prompt", "name": "prompt" },
+      "aspect_ratio": {
+        "type": "string",
+        "title": "Aspect Ratio",
+        "name": "aspect_ratio",
+        "enum": ["1:1", "16:9", "9:16", "4:3", "3:4"],
+        "default": "1:1"
+      },
+      "resolution": {
+        "type": "string",
+        "title": "Resolution",
+        "name": "resolution",
+        "enum": ["1k", "2k", "4k"],
+        "default": "1k"
+      }
+    }
+  },
+  {
+    "id": "qwen-image",
+    "name": "Qwen Image",
+    "endpoint": "qwen-image",
+    "inputs": {
+      "prompt": { "type": "string", "title": "Prompt", "name": "prompt" },
+      "aspect_ratio": {
+        "type": "string",
+        "title": "Aspect Ratio",
+        "name": "aspect_ratio",
+        "enum": ["1:1", "16:9", "9:16", "4:3", "3:4"],
+        "default": "1:1"
+      },
+      "resolution": {
+        "type": "string",
+        "title": "Resolution",
+        "name": "resolution",
+        "enum": ["1k", "2k", "4k"],
+        "default": "1k"
+      }
+    }
+  }
+];
+
+export const novitaVideoModels = [
+  { "id": "kling-v3.0-pro-t2v", "name": "Kling V3.0 Pro T2V", "endpoint": "kling-v3.0-pro-t2v" },
+  { "id": "vidu-q3-pro-t2v", "name": "Vidu Q3 Pro T2V", "endpoint": "vidu-q3-pro-t2v" },
+  { "id": "wan2.6-t2v", "name": "Wan 2.6 T2V", "endpoint": "wan2.6-t2v" }
+];
+
+export const getNovitaImageModelById = (id) => novitaImageModels.find(m => m.id === id);
+export const getNovitaVideoModelById = (id) => novitaVideoModels.find(m => m.id === id);
+export const getNovitaResolutions = () => ["1k", "2k", "4k"];

@@ -1,4 +1,5 @@
-import { muapi } from '../lib/muapi.js';
+import { api } from '../lib/providerRouter.js';
+import { getProviderApiKey } from '../lib/providerConfig.js';
 import {
     t2iModels, getAspectRatiosForModel, getResolutionsForModel, getQualityFieldForModel,
     i2iModels, getAspectRatiosForI2IModel, getResolutionsForI2IModel, getQualityFieldForI2IModel,
@@ -959,7 +960,7 @@ export function ImageStudio() {
         const pending = getPendingJobs('image');
         if (!pending.length) return;
 
-        const apiKey = localStorage.getItem('muapi_key');
+        const apiKey = getProviderApiKey();
         if (!apiKey) return; // can't poll without key; jobs remain for next time
 
         const banner = document.createElement('div');
@@ -972,7 +973,7 @@ export function ImageStudio() {
             const elapsedAttempts = Math.floor((Date.now() - job.submittedAt) / job.interval);
             const attemptsLeft = Math.max(1, job.maxAttempts - elapsedAttempts);
             try {
-                const result = await muapi.pollForResult(job.requestId, apiKey, attemptsLeft, job.interval);
+                const result = await api.pollForResult(job.requestId, apiKey, attemptsLeft, job.interval);
                 const url = result.outputs?.[0] || result.url || result.output?.url;
                 if (url) {
                     addToHistory({ id: job.requestId, url, ...job.historyMeta, timestamp: new Date().toISOString() });
@@ -1045,7 +1046,7 @@ export function ImageStudio() {
             }
         }
 
-        const apiKey = localStorage.getItem('muapi_key');
+        const apiKey = getProviderApiKey();
         if (!apiKey) {
             AuthModal(() => generateBtn.click());
             return;
@@ -1076,7 +1077,7 @@ export function ImageStudio() {
                 if (prompt) genParams.prompt = prompt;
                 const qualityField = getCurrentQualityField(selectedModel);
                 if (qualityField && qualityLabel) genParams[qualityField] = qualityLabel;
-                res = await muapi.generateI2I(genParams);
+                res = await api.generateI2I(genParams);
             } else {
                 const genParams = {
                     model: selectedModel,
@@ -1089,7 +1090,7 @@ export function ImageStudio() {
                 };
                 const qualityField = getCurrentQualityField(selectedModel);
                 if (qualityField && qualityLabel) genParams[qualityField] = qualityLabel;
-                res = await muapi.generateImage(genParams);
+                res = await api.generateImage(genParams);
             }
 
             console.log('[ImageStudio] Full response:', res);

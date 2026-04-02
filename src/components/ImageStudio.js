@@ -13,7 +13,7 @@ import { createHeroSection } from '../lib/thumbnails.js';
 
 export function ImageStudio() {
     const container = document.createElement('div');
-    container.className = 'w-full h-full flex flex-col items-center justify-center bg-app-bg relative p-4 md:p-6 overflow-y-auto custom-scrollbar overflow-x-hidden';
+    container.className = 'w-full h-full flex flex-col items-center justify-start bg-app-bg relative p-4 md:p-6 overflow-y-auto custom-scrollbar overflow-x-hidden';
 
     // --- State ---
     const defaultModel = t2iModels[0];
@@ -52,8 +52,8 @@ export function ImageStudio() {
     // 1. HERO SECTION
     // ==========================================
     const hero = document.createElement('div');
-    hero.className = 'flex flex-col items-center mb-10 md:mb-20 animate-fade-in-up transition-all duration-700 w-full max-w-4xl';
-    const heroBanner = createHeroSection('image', 'h-32 md:h-44 mb-6');
+    hero.className = 'flex flex-col items-center mb-2 md:mb-4 animate-fade-in-up transition-all duration-700 w-full max-w-4xl';
+    const heroBanner = createHeroSection('image', 'h-32 md:h-44 mb-3');
     if (heroBanner) {
         const heroContent = document.createElement('div');
         heroContent.className = 'absolute bottom-0 left-0 right-0 p-6 z-10';

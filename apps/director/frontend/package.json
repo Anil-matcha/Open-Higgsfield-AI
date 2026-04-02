@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@higgsfield/layout": "file:../../../../packages/layout",
+    "@higgsfield/tokens": "file:../../../../packages/tokens",
+    "@higgsfield/navigation": "file:../../../../packages/navigation",
     "@videodb/chat-vue": "^0.0.41",
     "@videodb/player-vue": "^0.0.2",
     "axios": "^1.7.5",

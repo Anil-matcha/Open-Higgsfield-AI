@@ -1,122 +1,210 @@
 /**
- * Error Boundary Component
- * Catches errors in child components and displays a fallback UI
+ * Error Boundary Utility
+ * Provides graceful error handling for DOM components
  */
 
-import { showToast } from './loading.js';
+import { logger } from './logger.js';
 
+/**
+ * Error Boundary Class
+ * Wraps components and catches errors for graceful fallback
+ */
 export class ErrorBoundary {
-    constructor(fallbackUI, onError = null) {
-        this.fallbackUI = fallbackUI;
-        this.onError = onError;
-        this.hasError = false;
+    constructor(options = {}) {
+        this.fallbackUI = options.fallbackUI || this.defaultFallback;
+        this.onError = options.onError || (() => {});
+        this.container = null;
+        this.originalContent = null;
+        this.isErrorState = false;
     }
-
-    wrap(componentFactory, ...args) {
-        try {
-            const component = componentFactory(...args);
-            this.hasError = false;
-            return component;
-        } catch (error) {
-            this.hasError = true;
-            console.error('[ErrorBoundary]', error);
-            
-            if (this.onError) {
-                this.onError(error);
-            }
-            
-            showToast('Something went wrong. Please try again.', 'error');
-            
-            if (typeof this.fallbackUI === 'function') {
-                return this.fallbackUI(error);
-            }
-            
-            return this.fallbackUI;
-        }
+    
+    /**
+     * Default fallback UI when error occurs
+     * @param {Error} error - The caught error
+     * @param {Function} retry - Function to retry the component
+     * @returns {HTMLElement} - Fallback UI element
+     */
+    defaultFallback(error, retry) {
+        const container = document.createElement('div');
+        container.className = 'error-boundary-fallback';
+        container.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            min-height: 200px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 0.5rem;
+            margin: 1rem;
+        `;
+        
+        const icon = document.createElement('div');
+        icon.innerHTML = `
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        `;
+        container.appendChild(icon);
+        
+        const title = document.createElement('h3');
+        title.textContent = 'Something went wrong';
+        title.style.cssText = 'color: #ef4444; margin: 1rem 0 0.5rem; font-size: 1.125rem; font-weight: 600;';
+        container.appendChild(title);
+        
+        const message = document.createElement('p');
+        message.textContent = error.message || 'An unexpected error occurred';
+        message.style.cssText = 'color: #a1a1aa; margin: 0 0 1rem; font-size: 0.875rem;';
+        container.appendChild(message);
+        
+        const retryBtn = document.createElement('button');
+        retryBtn.textContent = 'Try Again';
+        retryBtn.style.cssText = `
+            background: #d9ff00;
+            color: #000;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        `;
+        retryBtn.onmouseenter = () => retryBtn.style.opacity = '0.9';
+        retryBtn.onmouseleave = () => retryBtn.style.opacity = '1';
+        retryBtn.onclick = retry;
+        container.appendChild(retryBtn);
+        
+        return container;
     }
-
-    static async wrapAsync(asyncFactory, ...args) {
-        try {
-            const component = await asyncFactory(...args);
-            return component;
-        } catch (error) {
-            console.error('[ErrorBoundary]', error);
-            showToast('Something went wrong. Please try again.', 'error');
-            
-            const fallback = document.createElement('div');
-            fallback.className = 'w-full h-full flex items-center justify-center';
-            fallback.innerHTML = `
-                <div class="text-center">
-                    <div class="text-4xl mb-4">😕</div>
-                    <h3 class="text-lg font-bold text-white mb-2">Something went wrong</h3>
-                    <p class="text-sm text-secondary mb-4">${escapeHtml(error.message || 'Unknown error')}</p>
-                    <button class="px-4 py-2 bg-primary text-black font-bold rounded-lg hover:scale-105 transition-transform" onclick="location.reload()">
-                        Reload Page
-                    </button>
-                </div>
-            `;
-            return fallback;
+    
+    /**
+     * Wrap a component function with error boundary
+     * @param {Function} componentFn - Component function that returns HTMLElement
+     * @param {HTMLElement} container - Container to render into
+     * @returns {Function} - Wrapped component function
+     */
+    wrap(componentFn, container) {
+        this.container = container;
+        
+        return (...args) => {
+            try {
+                const element = componentFn(...args);
+                this.isErrorState = false;
+                this.originalContent = element;
+                return element;
+            } catch (error) {
+                return this.handleError(error, () => {
+                    const newElement = componentFn(...args);
+                    this.container.innerHTML = '';
+                    this.container.appendChild(newElement);
+                    this.isErrorState = false;
+                });
+            }
+        };
+    }
+    
+    /**
+     * Handle an error
+     * @param {Error} error - The caught error
+     * @param {Function} retry - Function to retry
+     * @returns {HTMLElement} - Fallback UI element
+     */
+    handleError(error, retry) {
+        this.isErrorState = true;
+        
+        // Log the error
+        logger.error('Component error caught by boundary', {
+            errorMessage: error.message,
+            errorStack: error.stack
+        }, error);
+        
+        // Call onError callback
+        this.onError(error);
+        
+        // Return fallback UI
+        return this.fallbackUI(error, retry);
+    }
+    
+    /**
+     * Reset the error boundary
+     */
+    reset() {
+        this.isErrorState = false;
+        if (this.container && this.originalContent) {
+            this.container.innerHTML = '';
+            this.container.appendChild(this.originalContent);
         }
     }
 }
 
-// Higher-order component that wraps a component factory with error handling
-export function withErrorBoundary(componentFactory, fallbackUI = null) {
-    return (...args) => {
-        const boundary = new ErrorBoundary(fallbackUI);
-        return boundary.wrap(componentFactory, ...args);
-    };
-}
-
-// Async version
-export function withAsyncErrorBoundary(componentFactory, fallbackUI = null) {
+/**
+ * Wrap an async function with error handling
+ * @param {Function} asyncFn - Async function to wrap
+ * @param {Object} options - Error handling options
+ * @returns {Function} - Wrapped function
+ */
+export function withErrorHandling(asyncFn, options = {}) {
+    const {
+        retries = 0,
+        retryDelay = 1000,
+        onError = () => {},
+        fallback = null
+    } = options;
+    
     return async (...args) => {
-        return ErrorBoundary.wrapAsync(async () => componentFactory(...args), ...args);
+        let lastError;
+        
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            try {
+                return await asyncFn(...args);
+            } catch (error) {
+                lastError = error;
+                
+                logger.error('Async operation failed', {
+                    function: asyncFn.name,
+                    attempt: attempt + 1,
+                    maxRetries: retries
+                }, error);
+                
+                if (attempt < retries) {
+                    await new Promise(resolve => setTimeout(resolve, retryDelay * (attempt + 1)));
+                }
+            }
+        }
+        
+        onError(lastError);
+        
+        if (fallback) {
+            return fallback(lastError);
+        }
+        
+        throw lastError;
     };
 }
 
-// Try-catch wrapper for async operations with user feedback
-export async function withUserFeedback(operation, { 
-    loadingMessage = 'Loading...',
-    successMessage = null,
-    errorMessage = 'An error occurred',
-    showLoadingToast = false,
-    showSuccessToast = true
-} = {}) {
+/**
+ * Global error handler setup
+ */
+export function setupGlobalErrorHandlers() {
+    // Handle uncaught errors
+    window.addEventListener('error', (event) => {
+        logger.error('Uncaught error', {
+            filename: event.filename,
+            lineno: event.lineno,
+            colno: event.colno
+        }, event.error);
+    });
     
-    let loadingToast = null;
-    
-    try {
-        if (showLoadingToast && loadingMessage) {
-            loadingToast = showToast(loadingMessage, 'info', 0); // Don't auto-dismiss
-        }
-        
-        const result = await operation();
-        
-        if (loadingToast) {
-            dismissToast(loadingToast);
-        }
-        
-        if (successMessage && showSuccessToast) {
-            showToast(successMessage, 'success');
-        }
-        
-        return { success: true, data: result };
-        
-    } catch (error) {
-        if (loadingToast) {
-            dismissToast(loadingToast);
-        }
-        
-        console.error('[withUserFeedback]', error);
-        showToast(errorMessage || error.message, 'error');
-        
-        return { success: false, error };
-    }
+    // Handle unhandled promise rejections
+    window.addEventListener('unhandledrejection', (event) => {
+        logger.error('Unhandled promise rejection', {
+            reason: event.reason?.message || String(event.reason)
+        }, event.reason instanceof Error ? event.reason : new Error(String(event.reason)));
+    });
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+export default ErrorBoundary;

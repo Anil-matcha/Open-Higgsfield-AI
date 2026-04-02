@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unified Layout System Demo</title>
+  <link rel="stylesheet" href="/packages/tokens/src/index.css">
+</head>
+<body>
+  <div id="demo-app"></div>
+
+  <script type="module">
+    import { createAppShell, createHeader, createSidebar, createContentArea } from '/packages/layout/src/vanilla/index.ts';
+    import { defaultNavigationItems } from '/packages/navigation/src/menu-config.ts';
+
+    // Create the app shell
+    const appShell = createAppShell();
+    document.getElementById('demo-app').appendChild(appShell.element);
+
+    // Create header with navigation
+    const header = createHeader({
+      config: {
+        logo: { enabled: true },
+        navigation: { enabled: true, items: defaultNavigationItems.slice(0, 5) },
+        actions: { enabled: true },
+        mobile: { enabled: true, breakpoint: 'lg' }
+      },
+      logo: (() => {
+        const logo = document.createElement('div');
+        logo.style.display = 'flex';
+        logo.style.alignItems = 'center';
+        logo.style.gap = '8px';
+        logo.innerHTML = `
+          <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #d9ff00 0%, #a855f7 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">U</div>
+          <span style="font-weight: bold; font-size: 18px; color: white;">Unified Layout</span>
+        `;
+        return logo;
+      })(),
+      actions: (() => {
+        const actions = document.createElement('div');
+        actions.style.display = 'flex';
+        actions.style.alignItems = 'center';
+        actions.style.gap = '12px';
+        actions.innerHTML = `
+          <button style="padding: 8px; color: var(--text-secondary); transition: color 150ms; border: none; background: none; cursor: pointer;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
+        `;
+        return actions;
+      })(),
+      onNavigate: (route) => {
+        console.log('Navigate to:', route);
+      }
+    });
+    appShell.element.appendChild(header.element);
+
+    // Create body container
+    const body = document.createElement('div');
+    body.style.display = 'flex';
+    body.style.flex = '1';
+
+    // Create sidebar
+    const sidebar = createSidebar({
+      config: {
+        width: '250px',
+        collapsible: true,
+        defaultCollapsed: false,
+        items: [
+          { label: 'Dashboard', route: 'dashboard', icon: '📊' },
+          { label: 'Projects', route: 'projects', icon: '📁' },
+          { label: 'Settings', route: 'settings', icon: '⚙️' },
+        ]
+      },
+      onNavigate: (route) => {
+        console.log('Sidebar navigate to:', route);
+      }
+    });
+    body.appendChild(sidebar.element);
+
+    // Create content area
+    const contentArea = createContentArea();
+    body.appendChild(contentArea.element);
+
+    // Add demo content
+    const demoContent = document.createElement('div');
+    demoContent.style.padding = '24px';
+    demoContent.innerHTML = `
+      <h1 style="color: var(--color-primary); font-size: 2rem; margin-bottom: 16px;">Unified Layout System Demo</h1>
+      <p style="color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">
+        This demo shows the unified layout system in action. The header spans the full width of the application,
+        and the content area fills the remaining space. Try resizing your browser and toggling the mobile menu.
+      </p>
+
+      <div style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div style="background: var(--bg-card); padding: 16px; border-radius: 8px; border: 1px solid var(--border-light);">
+          <h3 style="color: var(--text-primary); margin-bottom: 8px;">Full-Width Header</h3>
+          <p style="color: var(--text-secondary); font-size: 14px;">Header spans entire app width with navigation and actions.</p>
+        </div>
+
+        <div style="background: var(--bg-card); padding: 16px; border-radius: 8px; border: 1px solid var(--border-light);">
+          <h3 style="color: var(--text-primary); margin-bottom: 8px;">Flexible Layout</h3>
+          <p style="color: var(--text-secondary); font-size: 14px;">Sidebar and content automatically adjust to fill space.</p>
+        </div>
+
+        <div style="background: var(--bg-card); padding: 16px; border-radius: 8px; border: 1px solid var(--border-light);">
+          <h3 style="color: var(--text-primary); margin-bottom: 8px;">Responsive Design</h3>
+          <p style="color: var(--text-secondary); font-size: 14px;">Mobile menu appears on smaller screens automatically.</p>
+        </div>
+      </div>
+
+      <div style="margin-top: 32px; padding: 16px; background: var(--bg-panel); border-radius: 8px;">
+        <h3 style="color: var(--text-primary); margin-bottom: 8px;">Theme Variants</h3>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="theme-btn" data-theme="default" style="padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer;">Default</button>
+          <button class="theme-btn" data-theme="cinematic" style="padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer;">Cinematic</button>
+          <button class="theme-btn" data-theme="electric" style="padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer;">Electric</button>
+          <button class="theme-btn" data-theme="violet" style="padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 4px; color: var(--text-primary); cursor: pointer;">Violet</button>
+        </div>
+      </div>
+    `;
+
+    contentArea.setContent(demoContent);
+
+    appShell.element.appendChild(body);
+
+    // Theme switching
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('theme-btn')) {
+        const theme = e.target.getAttribute('data-theme');
+        document.documentElement.className = `theme-${theme}`;
+      }
+    });
+
+    console.log('Unified Layout System Demo loaded!');
+  </script>
+</body>
+</html>

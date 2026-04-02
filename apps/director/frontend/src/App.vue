@@ -1,11 +1,12 @@
 <script setup>
 import "./style.css";
+import { DirectorLayout } from "./layout/DirectorLayout.vue";
 </script>
 
 <template>
-  <div class="w-full h-full template">
+  <DirectorLayout>
     <router-view />
-  </div>
+  </DirectorLayout>
 </template>
 
 <style>

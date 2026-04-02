@@ -4,33 +4,36 @@ import { createHeroSection } from '../lib/thumbnails.js';
 import { getSupabaseUrl, isSupabaseConfigured } from '../lib/supabase.js';
 
 const AI_TOOLS = [
-    { id: 'scene-detection', name: 'Scene Detection', thumbnail: '/thumbnails/videoagent/scene-detection.webp', color: 'blue', description: 'Identify scene boundaries', category: 'understanding' },
-    { id: 'clip-segmentation', name: 'Clip Segmentation', thumbnail: '/thumbnails/videoagent/clip-segmentation.webp', color: 'purple', description: 'Split into clip segments', category: 'editing' },
-    { id: 'highlight-detection', name: 'Highlight Detection', thumbnail: '/thumbnails/videoagent/highlight-detection.webp', color: 'orange', description: 'Find key moments', category: 'understanding' },
-    { id: 'cosyvoice', name: 'CosyVoice', thumbnail: '/thumbnails/videoagent/cosyvoice.webp', color: 'pink', description: 'Voice cloning & TTS', category: 'audio' },
-    { id: 'fish-speech', name: 'Fish Speech', thumbnail: '/thumbnails/videoagent/fish-speech.webp', color: 'cyan', description: 'Voice synthesis', category: 'audio' },
-    { id: 'seed-vc', name: 'Seed-VC', thumbnail: '/thumbnails/videoagent/seed-vc.webp', color: 'teal', description: 'Voice conversion', category: 'audio' },
-    { id: 'whisper', name: 'Whisper', thumbnail: '/thumbnails/videoagent/whisper.webp', color: 'green', description: 'Audio transcription', category: 'audio' },
-    { id: 'imagebind', name: 'ImageBind', thumbnail: '/thumbnails/videoagent/imagebind.webp', color: 'indigo', description: 'Multimodal understanding', category: 'understanding' },
-    { id: 'dubbing', name: 'Cross-lingual Dub', thumbnail: '/thumbnails/videoagent/dubbing.webp', color: 'yellow', description: 'Translate & dub video', category: 'translate' },
-    { id: 'color-correct', name: 'Color Correction', thumbnail: '/thumbnails/videoagent/color-correct.webp', color: 'rose', description: 'Adjust colors & tones', category: 'enhance' },
-    { id: 'upscale', name: 'Video Upscale', thumbnail: '/thumbnails/videoagent/upscale.webp', color: 'emerald', description: 'Enhance resolution', category: 'enhance' },
-    { id: 'stabilize', name: 'Stabilize', thumbnail: '/thumbnails/videoagent/stabilize.webp', color: 'violet', description: 'Fix shaky footage', category: 'enhance' },
+    { id: 'scene-detection', name: 'Scene Detection', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"/></svg>', thumbnail: '/thumbnails/videoagent/scene-detection.png', color: 'blue', description: 'Identify scene boundaries', category: 'understanding' },
+    { id: 'clip-segmentation', name: 'Clip Segmentation', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="8" height="16" rx="1"/><rect x="14" y="4" width="8" height="16" rx="1"/><line x1="12" y1="4" x2="12" y2="20" stroke-dasharray="2 2"/></svg>', thumbnail: '/thumbnails/videoagent/clip-segmentation.png', color: 'purple', description: 'Split into clip segments', category: 'editing' },
+    { id: 'highlight-detection', name: 'Highlight Detection', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', thumbnail: '/thumbnails/videoagent/highlight-detection.png', color: 'orange', description: 'Find key moments', category: 'understanding' },
+    { id: 'cosyvoice', name: 'CosyVoice', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>', thumbnail: '/thumbnails/videoagent/cosyvoice.png', color: 'pink', description: 'Voice cloning & TTS', category: 'audio' },
+    { id: 'fish-speech', name: 'Fish Speech', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M2 10c1.5-1 3-1.5 4.5-1s3 1.5 4.5 1 3-1.5 4.5-1 3 1 4.5 1"/></svg>', thumbnail: '/thumbnails/videoagent/fish-speech.png', color: 'cyan', description: 'Voice synthesis', category: 'audio' },
+    { id: 'seed-vc', name: 'Seed-VC', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7 7"/><path d="M3 3l7 7"/><path d="M3 21l7-7"/><path d="M21 21l-7-7"/></svg>', thumbnail: '/thumbnails/videoagent/seed-vc.png', color: 'teal', description: 'Voice conversion', category: 'audio' },
+    { id: 'whisper', name: 'Whisper', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>', thumbnail: '/thumbnails/videoagent/whisper.png', color: 'green', description: 'Audio transcription', category: 'audio' },
+    { id: 'imagebind', name: 'ImageBind', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>', thumbnail: '/thumbnails/videoagent/imagebind.png', color: 'indigo', description: 'Multimodal understanding', category: 'understanding' },
+    { id: 'dubbing', name: 'Cross-lingual Dub', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>', thumbnail: '/thumbnails/videoagent/dubbing.png', color: 'yellow', description: 'Translate & dub video', category: 'translate' },
+    { id: 'color-correct', name: 'Color Correction', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22c-4.97 0-9-2.69-9-6v-.01C3 12.2 7.03 8.6 12 8.6s9 3.6 9 7.39V16c0 3.31-4.03 6-9 6z"/></svg>', thumbnail: '/thumbnails/videoagent/color-correct.png', color: 'rose', description: 'Adjust colors & tones', category: 'enhance' },
+    { id: 'upscale', name: 'Video Upscale', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>', thumbnail: '/thumbnails/videoagent/upscale.png', color: 'emerald', description: 'Enhance resolution', category: 'enhance' },
+    { id: 'stabilize', name: 'Stabilize', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>', thumbnail: '/thumbnails/videoagent/stabilize.png', color: 'violet', description: 'Fix shaky footage', category: 'enhance' },
 ];
 
 const USE_CASES = [
-    { id: 'standup', name: 'Stand-up Comedy', thumbnail: '/thumbnails/videoagent/standup.webp', description: 'Transform video with comedy timing' },
-    { id: 'commentary', name: 'Commentary', thumbnail: '/thumbnails/videoagent/commentary.webp', description: 'Add AI commentary overlay' },
-    { id: 'overview', name: 'Video Overview', thumbnail: '/thumbnails/videoagent/overview.webp', description: 'Generate summary overview' },
-    { id: 'meme', name: 'Meme Generator', thumbnail: '/thumbnails/videoagent/meme.webp', description: 'Create meme videos' },
-    { id: 'music-video', name: 'Music Video', thumbnail: '/thumbnails/videoagent/music-video.webp', description: 'Set video to music' },
-    { id: 'qa', name: 'Video Q&A', thumbnail: '/thumbnails/videoagent/qa.webp', description: 'Interactive video Q&A' },
+    { id: 'standup', name: 'Stand-up Comedy', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>', thumbnail: '/thumbnails/videoagent/standup.png', description: 'Transform video with comedy timing' },
+    { id: 'commentary', name: 'Commentary', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>', thumbnail: '/thumbnails/videoagent/commentary.png', description: 'Add AI commentary overlay' },
+    { id: 'overview', name: 'Video Overview', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>', thumbnail: '/thumbnails/videoagent/overview.png', description: 'Generate summary overview' },
+    { id: 'meme', name: 'Meme Generator', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10"/><path d="M7 12h4"/><path d="M7 16h6"/></svg>', thumbnail: '/thumbnails/videoagent/meme.png', description: 'Create meme videos' },
+    { id: 'music-video', name: 'Music Video', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>', thumbnail: '/thumbnails/videoagent/music-video.png', description: 'Set video to music' },
+    { id: 'qa', name: 'Video Q&A', icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', thumbnail: '/thumbnails/videoagent/qa.png', description: 'Interactive video Q&A' },
 ];
 
 export function VideoAgentPage() {
     const container = document.createElement('div');
     container.className = 'w-full h-full flex flex-col items-center justify-center bg-app-bg relative p-4 md:p-6 overflow-y-auto custom-scrollbar overflow-x-hidden';
-    
+
+    // AbortController for cancelling async operations
+    const abortController = new AbortController();
+
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('videoId') || '';
     const videoUrl = urlParams.get('videoUrl') || '';
@@ -43,7 +46,7 @@ export function VideoAgentPage() {
     // ==========================================
     const hero = document.createElement('div');
     hero.className = 'flex flex-col items-center mb-8 md:mb-12 animate-fade-in-up transition-all duration-700 w-full max-w-5xl';
-    const heroBanner = createHeroSection('video', 'h-32 md:h-44 mb-4');
+    const heroBanner = createHeroSection('videoagent', 'h-32 md:h-44 mb-4');
     if (heroBanner) {
         const heroContent = document.createElement('div');
         heroContent.className = 'absolute bottom-0 left-0 right-0 p-6 z-10';
@@ -89,28 +92,42 @@ export function VideoAgentPage() {
                                 Your browser does not support video playback.
                             </video>
                         ` : `
-                            <div class="text-center p-8">
-                                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="text-muted mx-auto mb-4">
-                                    <polygon points="5 3 19 12 5 21 5 3"/>
-                                </svg>
-                                <p class="text-white/50">No video loaded</p>
-                                <p class="text-xs text-muted mt-2">Generate a video first to process</p>
+                            <div class="relative w-full h-full flex items-center justify-center overflow-hidden">
+                                <img src="/thumbnails/videoagent/empty-video.png" alt="No video loaded" class="absolute inset-0 w-full h-full object-cover opacity-40" onerror="this.style.display='none'" />
+                                <div class="relative text-center p-8 z-10">
+                                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="text-muted mx-auto mb-4">
+                                        <polygon points="5 3 19 12 5 21 5 3"/>
+                                    </svg>
+                                    <p class="text-white/50">No video loaded</p>
+                                    <p class="text-xs text-muted mt-2">Generate a video first to process</p>
+                                </div>
                             </div>
                         `}
                     </div>
                 </div>
                 
                 <!-- Use Cases -->
-                <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-4 md:p-6 shadow-3xl">
-                    <h3 class="font-black text-white mb-4 text-sm tracking-wide">AI USE CASES</h3>
+                <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-[1.5rem] overflow-hidden shadow-3xl">
+                    <div class="relative w-full h-28 overflow-hidden">
+                        <img src="/thumbnails/videoagent/header-use-cases.png" alt="AI Use Cases" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/50 to-transparent"></div>
+                        <h3 class="absolute bottom-3 left-5 font-black text-white text-sm tracking-wide z-10">AI USE CASES</h3>
+                    </div>
+                    <div class="p-4 md:p-6 pt-4">
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                         ${USE_CASES.map(uc => `
-                            <button class="usecase-btn p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-primary/30 rounded-2xl text-left transition-all hover:scale-[1.02] cursor-pointer" data-usecase="${uc.id}">
-                                <div class="text-2xl mb-2">${uc.icon}</div>
-                                <div class="font-bold text-white text-sm">${uc.name}</div>
-                                <div class="text-xs text-muted">${uc.description}</div>
+                            <button class="usecase-btn overflow-hidden bg-white/5 hover:bg-white/10 border border-white/5 hover:border-primary/30 rounded-2xl text-left transition-all hover:scale-[1.02] cursor-pointer" data-usecase="${uc.id}">
+                                <div class="relative w-full aspect-square overflow-hidden">
+                                    <img src="${uc.thumbnail}" alt="${uc.name}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'" />
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                                    <div class="absolute bottom-0 left-0 right-0 p-3">
+                                        <div class="font-bold text-white text-sm">${uc.name}</div>
+                                        <div class="text-[10px] text-white/60">${uc.description}</div>
+                                    </div>
+                                </div>
                             </button>
                         `).join('')}
+                    </div>
                     </div>
                 </div>
                 
@@ -124,7 +141,14 @@ export function VideoAgentPage() {
             
             <!-- Right Panel - AI Tools -->
             <div class="w-full lg:w-96 flex-shrink-0">
-                <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-4 md:p-6 shadow-3xl">
+                <div class="bg-[#111]/90 backdrop-blur-xl border border-white/10 rounded-[1.5rem] overflow-hidden shadow-3xl">
+                    <!-- Tools Header Banner -->
+                    <div class="relative w-full h-28 overflow-hidden">
+                        <img src="/thumbnails/videoagent/header-tools.png" alt="AI Processing Tools" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/50 to-transparent"></div>
+                        <h3 class="absolute bottom-3 left-5 font-black text-white text-sm tracking-wide z-10">AI PROCESSING TOOLS</h3>
+                    </div>
+                    <div class="p-4 md:p-6 pt-4">
                     <!-- Category Tabs -->
                     <div class="flex border-b border-white/10 mb-4 -mx-4 px-4">
                         <button class="category-tab flex-1 py-2 text-xs font-bold text-primary border-b-2 border-primary" data-category="all">
@@ -142,17 +166,17 @@ export function VideoAgentPage() {
                     </div>
                     
                     <!-- AI Tools Grid -->
-                    <h3 class="font-black text-white mb-4 text-sm tracking-wide">AI PROCESSING TOOLS</h3>
                     <div id="tools-grid" class="grid grid-cols-2 gap-3 mb-6">
                         ${AI_TOOLS.map(tool => `
-                            <button class="tool-btn p-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-primary/30 rounded-2xl text-left transition-all hover:scale-[1.02] cursor-pointer" data-tool="${tool.id}" data-category="${tool.category}">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-10 h-10 bg-${tool.color}-600/20 rounded-xl flex items-center justify-center">
-                                        <span class="text-lg">${tool.icon}</span>
+                            <button class="tool-btn overflow-hidden bg-white/5 hover:bg-white/10 border border-white/5 hover:border-primary/30 rounded-2xl text-left transition-all hover:scale-[1.02] cursor-pointer" data-tool="${tool.id}" data-category="${tool.category}">
+                                <div class="relative w-full aspect-square overflow-hidden">
+                                    <img src="${tool.thumbnail}" alt="${tool.name}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'" />
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                                    <div class="absolute bottom-0 left-0 right-0 p-2.5">
+                                        <div class="font-bold text-white text-xs">${tool.name}</div>
+                                        <div class="text-[9px] text-white/60">${tool.description}</div>
                                     </div>
                                 </div>
-                                <div class="font-bold text-white text-sm">${tool.name}</div>
-                                <div class="text-xs text-muted">${tool.description}</div>
                             </button>
                         `).join('')}
                     </div>
@@ -206,6 +230,8 @@ export function VideoAgentPage() {
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
                     </div>
                 </div>
             </div>
@@ -361,7 +387,7 @@ export function VideoAgentPage() {
             
             // If we get a jobId, poll for completion
             if (result.jobId) {
-                await pollToolJob(result.jobId, tool, stepsEl, progressBar, percentEl);
+                await pollToolJob(result.jobId, tool, stepsEl, progressBar, percentEl, abortController.signal);
             } else if (result.status === 'completed') {
                 // Direct completion
                 updateProgress(stepsEl, progressBar, percentEl, 100);
@@ -441,7 +467,7 @@ export function VideoAgentPage() {
             const result = await response.json();
             
             if (result.jobId) {
-                await pollToolJob(result.jobId, { name: usecase.name }, stepsEl, progressBar, percentEl);
+                await pollToolJob(result.jobId, { name: usecase.name }, stepsEl, progressBar, percentEl, abortController.signal);
             } else if (result.status === 'completed') {
                 updateProgress(stepsEl, progressBar, percentEl, 100);
                 await new Promise(r => setTimeout(r, 500));
@@ -518,7 +544,7 @@ export function VideoAgentPage() {
             const result = await response.json();
             
             if (result.jobId) {
-                await pollPipelineJob(result.jobId, stepsEl, progressBar, percentEl);
+                await pollPipelineJob(result.jobId, stepsEl, progressBar, percentEl, abortController.signal);
             } else if (result.status === 'completed') {
                 updateProgress(stepsEl, progressBar, percentEl, 100);
                 await new Promise(r => setTimeout(r, 500));
@@ -649,13 +675,15 @@ export function VideoAgentPage() {
     }
     
     // Poll for tool/job completion
-    async function pollToolJob(jobId, tool, stepsEl, progressBar, percentEl) {
+    async function pollToolJob(jobId, tool, stepsEl, progressBar, percentEl, abortSignal) {
         const supabaseUrl = getSupabaseUrl();
         const maxAttempts = 60;
         const steps = getToolSteps(tool.id || '');
-        
+
         for (let i = 0; i < maxAttempts; i++) {
+            if (abortSignal?.aborted) return;
             try {
+                if (abortSignal?.aborted) return;
                 const response = await fetch(`${supabaseUrl}/functions/v1/videoagent?jobId=${jobId}`);
                 const result = await response.json();
                 
@@ -682,7 +710,7 @@ export function VideoAgentPage() {
     }
     
     // Poll for pipeline completion
-    async function pollPipelineJob(jobId, stepsEl, progressBar, percentEl) {
+    async function pollPipelineJob(jobId, stepsEl, progressBar, percentEl, abortSignal) {
         const supabaseUrl = getSupabaseUrl();
         const maxAttempts = 120;
         const pipelineSteps = [
@@ -697,7 +725,9 @@ export function VideoAgentPage() {
         let totalSteps = pipelineSteps.reduce((sum, j) => sum + j.steps.length, 0);
         
         for (let i = 0; i < maxAttempts; i++) {
+            if (abortSignal?.aborted) return;
             try {
+                if (abortSignal?.aborted) return;
                 const response = await fetch(`${supabaseUrl}/functions/v1/videoagent?jobId=${jobId}`);
                 const result = await response.json();
                 
@@ -854,7 +884,12 @@ export function VideoAgentPage() {
         isProcessing = false;
         showToast('Full pipeline completed!', 'success');
     }
-    
+
+    // Cleanup function to abort ongoing operations
+    container.cleanup = () => {
+        abortController.abort();
+    };
+
     return container;
 }
 

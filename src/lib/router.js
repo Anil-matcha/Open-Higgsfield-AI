@@ -61,6 +61,7 @@ const pageLoaders = {
   render: () => import('../components/RenderPage.js').then(m => m.RenderPage()),
   'video-agent': () => import('../components/VideoAgentPage.js').then(m => m.VideoAgentPage()),
   director: () => import('../components/DirectorPage.js').then(m => m.DirectorPage()),
+  timeline: () => import('../components/TimelineEditorPage.js').then(m => m.TimelineEditorPage()),
 };
 
 let currentPage = null;

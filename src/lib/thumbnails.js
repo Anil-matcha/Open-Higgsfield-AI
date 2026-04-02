@@ -18,6 +18,7 @@ const STUDIO_THUMBNAILS = {
 const HERO_THUMBNAILS = {
   image: '/thumbnails/heroes/image.webp',
   video: '/thumbnails/heroes/video.webp',
+  videoagent: '/thumbnails/heroes/videoagent.webp',
   cinema: '/thumbnails/heroes/cinema.webp',
   storyboard: '/thumbnails/heroes/storyboard.webp',
   effects: '/thumbnails/heroes/effects.webp',
@@ -30,7 +31,10 @@ const HERO_THUMBNAILS = {
   avatar: '/thumbnails/heroes/avatar.webp',
   training: '/thumbnails/heroes/training.webp',
   videotools: '/thumbnails/heroes/videotools.webp',
+  lipsync: '/thumbnails/heroes/lipsync.webp',
+  render: '/thumbnails/heroes/render.webp',
   chat: '/thumbnails/heroes/chat.webp',
+  templates: '/thumbnails/heroes/templates.webp',
 };
 
 const TOOL_THUMBNAILS = {
@@ -84,7 +88,15 @@ export function getPageThumbnail(pageId) {
 }
 
 export function getTemplateThumbnail(templateId) {
+  // First try .webp, then fall back to .webp.png (some generated images are PNG format)
   return `/thumbnails/templates/${templateId}.webp`;
+}
+
+export function getTemplateThumbnailWithFallback(templateId) {
+  // For cinematic templates that may have .webp.png extension
+  const webpPath = `/thumbnails/templates/${templateId}.webp`;
+  const pngPath = `/thumbnails/templates/${templateId}.webp.png`;
+  return { webpPath, pngPath };
 }
 
 export function createThumbnailImg(src, alt, className = '') {
@@ -94,9 +106,27 @@ export function createThumbnailImg(src, alt, className = '') {
   img.loading = 'lazy';
   img.className = className;
   img.onerror = () => {
-    img.style.display = 'none';
-    const parent = img.parentElement;
-    if (parent) parent.classList.add('thumb-fallback');
+    // Try fallback for template thumbnails (some are .webp.png format)
+    if (src.includes('/thumbnails/templates/') && src.endsWith('.webp')) {
+      img.src = src + '.png';
+      img.onerror = () => {
+        img.style.display = 'none';
+        const parent = img.parentElement;
+        if (parent) parent.classList.add('thumb-fallback');
+      };
+    } else if ((src.includes('/thumbnails/heroes/') || src.includes('/thumbnails/pages/') || src.includes('/thumbnails/videoagent/') || src.includes('/thumbnails/studios/')) && src.endsWith('.webp')) {
+      // Try fallback for hero, page, videoagent, and studio thumbnails (generated as .webp.png)
+      img.src = src + '.png';
+      img.onerror = () => {
+        img.style.display = 'none';
+        const parent = img.parentElement;
+        if (parent) parent.classList.add('thumb-fallback');
+      };
+    } else {
+      img.style.display = 'none';
+      const parent = img.parentElement;
+      if (parent) parent.classList.add('thumb-fallback');
+    }
   };
   img.onload = () => {
     const skeleton = img.parentElement?.querySelector('.thumb-skeleton');

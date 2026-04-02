@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@higgsfield/layout": ["./packages/layout/src"],
+      "@higgsfield/layout/*": ["./packages/layout/src/*"],
+      "@higgsfield/tokens": ["./packages/tokens/src"],
+      "@higgsfield/tokens/*": ["./packages/tokens/src/*"],
+      "@higgsfield/navigation": ["./packages/navigation/src"],
+      "@higgsfield/navigation/*": ["./packages/navigation/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "build"]
+}

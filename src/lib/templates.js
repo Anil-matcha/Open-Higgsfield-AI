@@ -1,3 +1,6 @@
+import { ALL_NICHE_TEMPLATES, RESTAURANT_TEMPLATES, MED_SPA_TEMPLATES, SALON_TEMPLATES, FITNESS_TEMPLATES, REAL_ESTATE_TEMPLATES, DENTAL_TEMPLATES, CHIROPRACTIC_TEMPLATES, LEGAL_TEMPLATES, AUTOMOTIVE_TEMPLATES, FASHION_TEMPLATES, EVENT_TEMPLATES, LUXURY_TEMPLATES } from './nicheTemplatesIndex.js';
+import { MATRIX_TEMPLATES } from './templateMatrix.js';
+
 export const TEMPLATE_CATEGORIES = {
   SOCIAL: 'Social Media',
   STYLE: 'Style Transfer',
@@ -7,6 +10,20 @@ export const TEMPLATE_CATEGORIES = {
   PORTRAIT: 'Portrait & Creator',
   DECADE: 'Decade & Era',
   CAMERA: 'Camera & Cinematic',
+  // Niche categories
+  INDUSTRY: 'Industry',
+  RESTAURANT: 'Restaurant & Cafe',
+  MED_SPA: 'Med Spa',
+  SALON: 'Salon & Beauty',
+  FITNESS: 'Fitness & Training',
+  REAL_ESTATE: 'Real Estate',
+  DENTAL: 'Dental',
+  CHIROPRACTIC: 'Chiropractic',
+  LEGAL: 'Legal',
+  AUTOMOTIVE: 'Automotive',
+  FASHION: 'Fashion',
+  EVENT: 'Events',
+  LUXURY: 'Luxury',
 };
 
 export const templates = [
@@ -891,14 +908,19 @@ export const templates = [
   },
 ];
 
+// Combine all templates including niche templates and matrix templates
+export const allTemplates = [...templates, ...ALL_NICHE_TEMPLATES, ...MATRIX_TEMPLATES];
+
 export function getTemplateById(id) {
-  return templates.find(t => t.id === id);
+  return allTemplates.find(t => t.id === id);
 }
 
 export function getTemplatesByCategory(category) {
-  return templates.filter(t => t.category === category);
+  return allTemplates.filter(t => t.category === category);
 }
 
 export function getAllCategories() {
-  return [...new Set(templates.map(t => t.category))];
+  return [...new Set(allTemplates.map(t => t.category))];
 }
+
+export { ALL_NICHE_TEMPLATES, RESTAURANT_TEMPLATES, MED_SPA_TEMPLATES, SALON_TEMPLATES, FITNESS_TEMPLATES, REAL_ESTATE_TEMPLATES, DENTAL_TEMPLATES, CHIROPRACTIC_TEMPLATES, LEGAL_TEMPLATES, AUTOMOTIVE_TEMPLATES, FASHION_TEMPLATES, EVENT_TEMPLATES, LUXURY_TEMPLATES, MATRIX_TEMPLATES };

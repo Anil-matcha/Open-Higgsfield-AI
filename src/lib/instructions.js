@@ -136,21 +136,6 @@ const STUDIO_INSTRUCTIONS = {
       'Filter by category to quickly find the right template for your project',
     ],
   },
-  templates: {
-    title: 'Templates Hub',
-    steps: [
-      { number: 1, heading: 'Pick a template', description: 'Browse 60+ ready-made templates by category or search by name. Each template is pre-configured for a specific creative task.' },
-      { number: 2, heading: 'Fill in the details', description: 'Upload a photo or write a prompt depending on the template. Some templates combine both for the best results.' },
-      { number: 3, heading: 'Choose options', description: 'Select from preset effects, styles, or camera motions. Each template offers curated options tailored to its output.' },
-      { number: 4, heading: 'Generate and download', description: 'Hit Generate to create your image or video. Download the result or click Generate Again to try different inputs.' },
-    ],
-    quickTips: [
-      'Use high-quality, well-lit photos or videos for media-based templates',
-      'Video templates take 1-3 minutes to process',
-      'Try the same photo across multiple templates to compare styles',
-      'Filter by category to quickly find the right template for your project',
-    ],
-  },
   training: {
     title: 'Training Studio',
     steps: [

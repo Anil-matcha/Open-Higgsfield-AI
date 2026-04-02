@@ -13,6 +13,7 @@ import ContentStep from './steps/ContentStep';
 import StyleStep from './steps/StyleStep';
 import GenerationStep from './steps/GenerationStep';
 import ResultStep from './steps/ResultStep';
+import { ViMaxLayout } from './layout/ViMaxLayout';
 import {
   upsertUser,
   getUserJobs,
@@ -584,18 +585,20 @@ export default function App() {
   };
 
   return (
-    <div className="app-layout">
-      <Sidebar
-        activeView={activeView}
-        onViewChange={setActiveView}
-        userStats={userStats}
-        historyCount={userHistory.length}
-        batchCount={userBatches.length}
-        onNewVideo={handleNewVideo}
-      />
-      <main className="app-main">
-        {renderView()}
-      </main>
-    </div>
+    <ViMaxLayout currentView={activeView} onViewChange={setActiveView}>
+      <div className="app-layout">
+        <Sidebar
+          activeView={activeView}
+          onViewChange={setActiveView}
+          userStats={userStats}
+          historyCount={userHistory.length}
+          batchCount={userBatches.length}
+          onNewVideo={handleNewVideo}
+        />
+        <main className="app-main">
+          {renderView()}
+        </main>
+      </div>
+    </ViMaxLayout>
   );
 }

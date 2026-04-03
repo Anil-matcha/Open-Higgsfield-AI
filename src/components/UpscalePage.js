@@ -20,7 +20,7 @@ export function UpscalePage() {
 
   // Hero
   const hero = document.createElement('div');
-  hero.className = 'flex flex-col items-center mb-8 md:mb-12 animate-fade-in-up transition-all duration-700 w-full max-w-5xl';
+  hero.className = 'flex flex-col items-center mb-8 md:mb-12 animate-fade-in-up transition-all duration-700 w-full';
   const heroBanner = createHeroSection('upscale', 'h-32 md:h-44 mb-4');
   if (heroBanner) {
     const heroContent = document.createElement('div');

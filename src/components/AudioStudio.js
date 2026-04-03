@@ -15,7 +15,7 @@ export function AudioStudio() {
 
   // Header with hero banner
   const header = document.createElement('div');
-  header.className = 'mb-8 animate-fade-in-up text-center w-full max-w-xl';
+  header.className = 'mb-8 animate-fade-in-up text-center w-full';
   const audioBanner = createHeroSection('audio', 'h-32 md:h-44 mb-4');
   if (audioBanner) {
     const bannerText = document.createElement('div');
@@ -48,7 +48,7 @@ export function AudioStudio() {
 
   // Form card
   const formCard = document.createElement('div');
-  formCard.className = 'w-full max-w-md bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col gap-5 animate-fade-in-up';
+  formCard.className = 'w-full bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col gap-5 animate-fade-in-up';
   formCard.style.animationDelay = '0.2s';
 
   // Prompt input (for music generation)

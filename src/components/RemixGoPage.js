@@ -27,8 +27,7 @@ export function RemixGoPage() {
         </svg>
       </div>
       <h3 class="text-lg font-semibold mb-2">Remix Go Unavailable</h3>
-      <p class="text-secondary mb-4">The Remix Go application is not running. Please start it with:</p>
-      <code class="bg-gray-100 px-3 py-1 rounded text-sm block mb-4">cd remix-go && npm run dev</code>
+      <p class="text-secondary mb-4">The Remix Go application is currently unavailable. Please try again later.</p>
       <button class="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors" onclick="location.reload()">
         Try Again
       </button>

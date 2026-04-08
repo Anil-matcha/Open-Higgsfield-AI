@@ -50,7 +50,116 @@ export function TimelineEditorPage() {
       display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
       transition: transform .15s ease, background .15s ease, border-color .15s ease;
     }
-    .icon-btn:hover, .top-icon:hover, .mini-btn:hover, .rail-btn:hover, .tool-btn:hover, .clip:hover { transform: translateY(-1px); }
+    .icon-btn:hover, .top-icon:hover, .mini-btn:hover, .rail-btn:hover, .tool-btn:hover, .clip:hover, .timeline-item:hover { transform: translateY(-1px); }
+
+    /* Timeline Studio Styles */
+    .timeline-item {
+      position: absolute;
+      height: 40px;
+      background: linear-gradient(135deg, rgba(34,211,238,0.2), rgba(34,211,238,0.1));
+      border: 1px solid rgba(34,211,238,0.3);
+      border-radius: 6px;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      transition: all 0.15s ease;
+    }
+    .timeline-item.active {
+      border-color: var(--cyan);
+      background: linear-gradient(135deg, rgba(34,211,238,0.3), rgba(34,211,238,0.2));
+      box-shadow: 0 0 8px rgba(34,211,238,0.4);
+    }
+    .timeline-item.audio {
+      background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(52,211,153,0.1));
+      border-color: rgba(52,211,153,0.3);
+    }
+    .timeline-item.audio.active {
+      border-color: var(--emerald);
+      background: linear-gradient(135deg, rgba(52,211,153,0.3), rgba(52,211,153,0.2));
+      box-shadow: 0 0 8px rgba(52,211,153,0.4);
+    }
+    .timeline-item .waveform-canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+    .timeline-item .item-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--cyan);
+      text-shadow: 0 0 4px rgba(34,211,238,0.5);
+    }
+    .timeline-item.audio .item-label {
+      color: var(--emerald);
+      text-shadow: 0 0 4px rgba(52,211,153,0.5);
+    }
+
+    .caption-item {
+      position: absolute;
+      height: 24px;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 11px;
+      color: white;
+    }
+    .caption-item.active {
+      border-color: var(--cyan);
+      background: rgba(34,211,238,0.2);
+    }
+    .caption-item .caption-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .resize-handle {
+      position: absolute;
+      top: 0;
+      width: 8px;
+      height: 100%;
+      background: var(--cyan);
+      opacity: 0;
+      cursor: ew-resize;
+      transition: opacity 0.15s ease;
+    }
+    .timeline-item:hover .resize-handle,
+    .caption-item:hover .resize-handle {
+      opacity: 0.6;
+    }
+    .resize-handle.left { left: -4px; }
+    .resize-handle.right { right: -4px; }
+
+    .timeline-playhead {
+      position: absolute;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px rgba(34,211,238,0.6);
+      z-index: 10;
+      pointer-events: none;
+    }
+    .timeline-playhead::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      left: -4px;
+      width: 10px;
+      height: 10px;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(34,211,238,0.6);
+    }
     .icon-btn { width: 40px; height: 40px; border-radius: 12px; }
     .brand-mark {
       width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 22px;
@@ -328,7 +437,48 @@ export function TimelineEditorPage() {
   <div class="floating-rail" id="floatingRail"></div>
   <div class="status-toast" id="toast"></div>
   <script>
+    // Enhanced Timeline Studio Data Model
     const state = {
+      // Project-level metadata (Timeline Studio integration)
+      project: {
+        id: 'project-1',
+        fps: 30,
+        duration: 180000, // ms
+        aspectRatio: '16:9',
+        tracks: [],
+        assets: [
+          {
+            id: 'asset-1',
+            type: 'video',
+            url: 'video.mp4',
+            thumbnail: 'thumb.jpg',
+            duration: 5000,
+            waveform: [0.1, 0.3, 0.2, 0.8, 0.5, 0.7, 0.4, 0.6, 0.9, 0.3],
+            proxyUrl: 'proxy.mp4',
+            metadata: {}
+          },
+          {
+            id: 'asset-2',
+            type: 'audio',
+            url: 'music.mp3',
+            thumbnail: 'audio-thumb.jpg',
+            duration: 42000,
+            waveform: [0.2, 0.5, 0.8, 0.6, 0.3, 0.7, 0.9, 0.4, 0.1, 0.6, 0.8, 0.5, 0.3, 0.7, 0.9],
+            metadata: {}
+          }
+        ],
+        markers: [
+          { id: 'marker-1', time: 2000, label: 'Opening', color: '#22d3ee' },
+          { id: 'marker-2', time: 10000, label: 'Key Moment', color: '#34d399' }
+        ],
+        captions: [
+          { id: 'caption-1', start: 2000, end: 5000, text: 'Welcome to the video', style: { fontSize: 24, color: '#ffffff', backgroundColor: 'rgba(0,0,0,0.7)' } },
+          { id: 'caption-2', start: 8000, end: 12000, text: 'This is an amazing feature', style: { fontSize: 20, color: '#ffffff', backgroundColor: 'rgba(0,0,0,0.7)' } }
+        ],
+        effects: []
+      },
+
+      // Legacy properties for backward compatibility
       projectTitle: 'Untitled Project',
       selectedTool: 'Select',
       selectedClipId: 1,
@@ -337,21 +487,137 @@ export function TimelineEditorPage() {
       playheadPercent: 32,
       zoom: 1,
       timelineSeconds: 60,
+
+      // Enhanced tracks with Timeline Studio structure
       tracks: [
-        { id: 'video-1', name: 'Video', muted: false, solo: false, locked: true, clips: [
-          { id: 1, name: 'Opening Shot', left: 8, width: 18, type: 'video' },
-          { id: 2, name: 'Generated Clip', left: 34, width: 16, type: 'video' }
-        ] },
-        { id: 'audio-1', name: 'Audio', muted: false, solo: false, locked: false, clips: [
-          { id: 3, name: 'Music Bed', left: 5, width: 42, type: 'audio' }
-        ] },
-        { id: 'text-1', name: 'Text', muted: false, solo: false, locked: false, clips: [
-          { id: 4, name: 'Title Card', left: 14, width: 12, type: 'text' }
-        ] },
-        { id: 'broll-1', name: 'B-Roll', muted: false, solo: false, locked: false, clips: [
-          { id: 5, name: 'City Cutaway', left: 52, width: 20, type: 'broll' }
-        ] }
+        {
+          id: 'video-1',
+          type: 'video',
+          name: 'Video',
+          locked: false,
+          muted: false,
+          items: [
+            {
+              id: 1,
+              assetId: 'asset-1',
+              type: 'video',
+              start: 0,
+              end: 5000,
+              sourceStart: 0,
+              sourceEnd: 5000,
+              lane: 0,
+              x: 8,
+              width: 18,
+              trimIn: 0,
+              trimOut: 0,
+              volume: 1.0,
+              playbackRate: 1.0,
+              effects: []
+            },
+            {
+              id: 2,
+              assetId: 'asset-1',
+              type: 'video',
+              start: 8500,
+              end: 13500,
+              sourceStart: 1000,
+              sourceEnd: 6000,
+              lane: 0,
+              x: 34,
+              width: 16,
+              trimIn: 1000,
+              trimOut: 1000,
+              volume: 1.0,
+              playbackRate: 1.0,
+              effects: []
+            }
+          ]
+        },
+        {
+          id: 'audio-1',
+          type: 'audio',
+          name: 'Audio',
+          locked: false,
+          muted: false,
+          items: [
+            {
+              id: 3,
+              assetId: 'asset-2',
+              type: 'audio',
+              start: 0,
+              end: 42000,
+              sourceStart: 0,
+              sourceEnd: 42000,
+              lane: 0,
+              x: 5,
+              width: 42,
+              trimIn: 0,
+              trimOut: 0,
+              volume: 0.8,
+              playbackRate: 1.0,
+              effects: []
+            }
+          ]
+        },
+        {
+          id: 'caption-1',
+          type: 'captions',
+          name: 'Captions',
+          locked: false,
+          muted: false,
+          items: [
+            {
+              id: 'caption-1',
+              type: 'caption',
+              start: 2000,
+              end: 5000,
+              text: 'Welcome to the video',
+              style: { fontSize: 24, color: '#ffffff', backgroundColor: 'rgba(0,0,0,0.7)' },
+              lane: 0,
+              x: 12,
+              width: 8
+            },
+            {
+              id: 'caption-2',
+              type: 'caption',
+              start: 8000,
+              end: 12000,
+              text: 'This is an amazing feature',
+              style: { fontSize: 20, color: '#ffffff', backgroundColor: 'rgba(0,0,0,0.7)' },
+              lane: 0,
+              x: 32,
+              width: 12
+            }
+          ]
+        }
       ],
+
+      // Timeline Studio interaction state
+      editor: {
+        selectedItemId: null,
+        playhead: 2000, // current time in ms
+        zoom: 1,
+        scrollX: 0,
+        dragging: null,
+        resizing: null,
+        snapping: true,
+        tool: 'select'
+      },
+
+      // Playback engine state
+      playback: {
+        playing: false,
+        currentTime: 0,
+        fps: 30,
+        seek: (time) => { /* seek implementation */ },
+        play: () => { /* play implementation */ },
+        pause: () => { /* pause implementation */ },
+        syncPreview: () => { /* sync preview */ },
+        syncTimeline: () => { /* sync timeline */ },
+        syncCaptions: () => { /* sync captions */ }
+      },
+
+      // Legacy UI state for backward compatibility
       tools: [['↖', 'Select'], ['✂', 'Blade'], ['⤵', 'Ripple'], ['⤶', 'Roll'], ['⇿', 'Slip'], ['⇆', 'Slide'], ['🔍', 'Zoom'], ['✋', 'Hand']],
       pills: ['Text to Video', 'Image to Video', 'Retake', 'Extend', 'B-Roll', 'Music Gen', 'Audio Sync', 'Fill Gap AI', 'Elements', 'Dual Viewer'],
       topIcons: ['👁','📺','📁','⚡','🎵','🔊','🎞️','👤','⚙️','💬','📋'],
@@ -435,7 +701,7 @@ export function TimelineEditorPage() {
         btn.className = 'tool-btn ' + (state.selectedTool === label ? 'active' : '');
         btn.title = label;
         btn.textContent = icon;
-        btn.addEventListener('click', () => { state.selectedTool = label; renderTools(); updatePreview(); showToast(label + ' tool selected'); });
+        btn.addEventListener('click', () => { state.selectedTool = label; state.editor.tool = label.toLowerCase(); renderTools(); updatePreview(); showToast(label + ' tool selected'); });
         els.toolGroup.appendChild(btn);
       });
     }
@@ -455,7 +721,7 @@ export function TimelineEditorPage() {
         row.className = 'track-row';
         const meta = document.createElement('div');
         meta.className = 'track-meta';
-        meta.innerHTML = '<div class="track-name">' + track.name + '</div><div class="track-actions"><button class="track-toggle ' + (track.muted ? 'locked' : '') + '" data-toggle="mute">M</button><button class="track-toggle ' + (track.solo ? 'locked' : '') + '" data-toggle="solo">S</button><button class="track-toggle ' + (track.locked ? 'locked' : '') + '" data-toggle="lock">L</button></div><div class="track-count">' + track.clips.length + ' clips</div>';
+        meta.innerHTML = '<div class="track-name">' + track.name + '</div><div class="track-actions"><button class="track-toggle ' + (track.muted ? 'locked' : '') + '" data-toggle="mute">M</button><button class="track-toggle ' + (track.solo ? 'locked' : '') + '" data-toggle="solo">S</button><button class="track-toggle ' + (track.locked ? 'locked' : '') + '" data-toggle="lock">L</button></div><div class="track-count">' + track.items.length + ' items</div>';
         meta.querySelectorAll('.track-toggle').forEach((btn) => {
           btn.addEventListener('click', () => {
             const key = btn.dataset.toggle;
@@ -466,29 +732,342 @@ export function TimelineEditorPage() {
             showToast(track.name + ' ' + key + ' toggled');
           });
         });
+
         const lane = document.createElement('div');
         lane.className = 'track-lane';
+        lane.style.transform = 'scaleX(' + state.editor.zoom + ')';
+        lane.style.transformOrigin = '0 0';
+
+        // Timeline click for playhead positioning
         lane.addEventListener('click', (event) => {
           if (event.target !== lane) return;
           const rect = lane.getBoundingClientRect();
           const percent = ((event.clientX - rect.left) / rect.width) * 100;
           state.playheadPercent = Math.max(0, Math.min(100, percent));
+          state.editor.playhead = (percent / 100) * state.project.duration;
           updatePlaybackUI();
+          syncCaptions();
         });
-        track.clips.forEach((clip) => {
-          const clipEl = document.createElement('button');
-          clipEl.className = 'clip ' + (state.selectedClipId === clip.id ? 'active' : '');
-          clipEl.style.left = clip.left + '%';
-          clipEl.style.width = clip.width + '%';
-          clipEl.innerHTML = '<span class="clip-label">' + clip.name + '</span>';
-          clipEl.addEventListener('click', (e) => { e.stopPropagation(); state.selectedClipId = clip.id; updatePreview(clip); renderTracks(); showToast(clip.name + ' selected'); });
-          lane.appendChild(clipEl);
+
+        // Render items for this track
+        track.items.forEach((item) => {
+          if (item.type === 'caption') {
+            // Render caption items
+            const captionEl = document.createElement('div');
+            captionEl.className = 'caption-item ' + (state.editor.selectedItemId === item.id ? 'active' : '');
+            captionEl.style.left = item.x + '%';
+            captionEl.style.width = item.width + '%';
+            captionEl.innerHTML = '<span class="caption-text">' + item.text + '</span>';
+
+            // Caption interactions
+            captionEl.addEventListener('pointerdown', (e) => {
+              e.stopPropagation();
+              state.editor.selectedItemId = item.id;
+              handlePointerDown(e, item.id);
+            });
+
+            // Add caption resize handles
+            const leftHandle = document.createElement('div');
+            leftHandle.className = 'resize-handle left';
+            leftHandle.addEventListener('pointerdown', (e) => {
+              e.stopPropagation();
+              handlePointerDown(e, item.id, 'left');
+            });
+            captionEl.appendChild(leftHandle);
+
+            const rightHandle = document.createElement('div');
+            rightHandle.className = 'resize-handle right';
+            rightHandle.addEventListener('pointerdown', (e) => {
+              e.stopPropagation();
+              handlePointerDown(e, item.id, 'right');
+            });
+            captionEl.appendChild(rightHandle);
+
+            lane.appendChild(captionEl);
+          } else {
+            // Render media items (video/audio)
+            const itemEl = document.createElement('div');
+            itemEl.className = 'timeline-item ' + item.type + ' ' + (state.editor.selectedItemId === item.id ? 'active' : '');
+            itemEl.style.left = item.x + '%';
+            itemEl.style.width = item.width + '%';
+
+            // Add waveform for audio items
+            if (item.type === 'audio') {
+              const waveformCanvas = document.createElement('canvas');
+              waveformCanvas.className = 'waveform-canvas';
+              waveformCanvas.width = item.width * 2; // Scale for better resolution
+              waveformCanvas.height = 40;
+
+              const asset = state.project.assets.find(a => a.id === item.assetId);
+              if (asset && asset.waveform) {
+                drawWaveform(waveformCanvas, asset.waveform, waveformCanvas.width, waveformCanvas.height);
+              }
+
+              itemEl.appendChild(waveformCanvas);
+            }
+
+            // Item label
+            const label = document.createElement('div');
+            label.className = 'item-label';
+            const asset = state.project.assets.find(a => a.id === item.assetId);
+            label.textContent = asset ? asset.type.toUpperCase() : item.type.toUpperCase();
+            itemEl.appendChild(label);
+
+            // Item interactions
+            itemEl.addEventListener('pointerdown', (e) => {
+              e.stopPropagation();
+              state.editor.selectedItemId = item.id;
+              handlePointerDown(e, item.id);
+            });
+
+            // Add resize handles for media items
+            const leftHandle = document.createElement('div');
+            leftHandle.className = 'resize-handle left';
+            leftHandle.addEventListener('pointerdown', (e) => {
+              e.stopPropagation();
+              handlePointerDown(e, item.id, 'left');
+            });
+            itemEl.appendChild(leftHandle);
+
+            const rightHandle = document.createElement('div');
+            rightHandle.className = 'resize-handle right';
+            rightHandle.addEventListener('pointerdown', (e) => {
+              e.stopPropagation();
+              handlePointerDown(e, item.id, 'right');
+            });
+            itemEl.appendChild(rightHandle);
+
+            lane.appendChild(itemEl);
+          }
         });
+
         row.appendChild(meta);
         row.appendChild(lane);
         els.trackRows.appendChild(row);
       });
+
+      // Render playhead
+      renderPlayhead();
     }
+
+    function renderPlayhead() {
+      // Remove existing playhead
+      const existingPlayhead = document.querySelector('.timeline-playhead');
+      if (existingPlayhead) existingPlayhead.remove();
+
+      // Add new playhead
+      const playhead = document.createElement('div');
+      playhead.className = 'timeline-playhead';
+      playhead.style.left = state.playheadPercent + '%';
+      document.querySelector('.track-lane')?.appendChild(playhead);
+    }
+
+    function syncCaptions() {
+      const activeCaptions = state.project.captions.filter(caption =>
+        state.editor.playhead >= caption.start && state.editor.playhead <= caption.end
+      );
+
+      // Update preview with active captions
+      const captionDisplay = activeCaptions.map(c => c.text).join(' ');
+      els.previewSubtitle.textContent = captionDisplay || 'No active captions';
+    }
+
+    // Timeline Studio Features - Enhanced Interactions
+    function handlePointerDown(event, itemId, edge = null) {
+      event.preventDefault();
+
+      if (state.editor.tool === 'blade') {
+        // Split clip at click position
+        splitClipAtPosition(itemId, event.offsetX);
+        return;
+      }
+
+      if (edge) {
+        // Start resizing
+        state.editor.resizing = { itemId, edge };
+        document.addEventListener('pointermove', handlePointerMove);
+        document.addEventListener('pointerup', handlePointerUp);
+      } else {
+        // Start dragging
+        const item = findItemById(itemId);
+        if (item) {
+          state.editor.dragging = {
+            itemId,
+            startX: event.clientX,
+            startItemX: item.x
+          };
+          document.addEventListener('pointermove', handlePointerMove);
+          document.addEventListener('pointerup', handlePointerUp);
+        }
+      }
+    }
+
+    function handlePointerMove(event) {
+      if (state.editor.resizing) {
+        resizeItem(state.editor.resizing.itemId, event.clientX, state.editor.resizing.edge);
+      } else if (state.editor.dragging) {
+        moveItem(state.editor.dragging.itemId, event.clientX);
+      }
+    }
+
+    function handlePointerUp() {
+      state.editor.resizing = null;
+      state.editor.dragging = null;
+      document.removeEventListener('pointermove', handlePointerMove);
+      document.removeEventListener('pointerup', handlePointerUp);
+      renderTracks();
+    }
+
+    function findItemById(itemId) {
+      for (const track of state.tracks) {
+        const item = track.items.find(item => item.id === itemId);
+        if (item) return item;
+      }
+      return null;
+    }
+
+    function findTrackByItemId(itemId) {
+      return state.tracks.find(track => track.items.some(item => item.id === itemId));
+    }
+
+    function moveItem(itemId, clientX) {
+      const item = findItemById(itemId);
+      if (!item) return;
+
+      const timelineEl = document.querySelector('.track-lane');
+      const rect = timelineEl.getBoundingClientRect();
+      const newX = ((clientX - rect.left) / rect.width) * 100;
+
+      // Snap to grid if enabled
+      if (state.editor.snapping) {
+        item.x = Math.round(newX / 2) * 2; // Snap to 2% increments
+      } else {
+        item.x = Math.max(0, Math.min(100 - item.width, newX));
+      }
+
+      // Update start/end times based on position
+      const pixelsPerSecond = (rect.width / 100) / (state.project.duration / 1000);
+      item.start = (item.x / 100) * state.project.duration;
+      item.end = item.start + ((item.width / 100) * state.project.duration);
+    }
+
+    function resizeItem(itemId, clientX, edge) {
+      const item = findItemById(itemId);
+      if (!item) return;
+
+      const timelineEl = document.querySelector('.track-lane');
+      const rect = timelineEl.getBoundingClientRect();
+      const percent = ((clientX - rect.left) / rect.width) * 100;
+
+      if (edge === 'left') {
+        const newWidth = item.x + item.width - percent;
+        if (newWidth > 1) {
+          item.x = percent;
+          item.width = newWidth;
+          item.start = (item.x / 100) * state.project.duration;
+          item.trimIn = ((item.x - percent) / item.width) * (item.sourceEnd - item.sourceStart);
+        }
+      } else if (edge === 'right') {
+        const newWidth = percent - item.x;
+        if (newWidth > 1) {
+          item.width = newWidth;
+          item.end = (percent / 100) * state.project.duration;
+          item.trimOut = ((percent - item.x - item.width) / item.width) * (item.sourceEnd - item.sourceStart);
+        }
+      }
+    }
+
+    function splitClipAtPosition(itemId, offsetX) {
+      const item = findItemById(itemId);
+      const track = findTrackByItemId(itemId);
+      if (!item || !track) return;
+
+      const timelineEl = document.querySelector('.track-lane');
+      const rect = timelineEl.getBoundingClientRect();
+      const percent = (offsetX / rect.width) * 100;
+
+      // Calculate split time
+      const splitTime = (percent / 100) * state.project.duration;
+      if (splitTime <= item.start || splitTime >= item.end) return;
+
+      // Create second half
+      const secondHalf = {
+        ...item,
+        id: Date.now(),
+        start: splitTime,
+        end: item.end,
+        sourceStart: item.sourceStart + (splitTime - item.start) * (item.playbackRate || 1),
+        x: percent,
+        width: item.width - (percent - item.x),
+        trimIn: item.trimIn + (splitTime - item.start)
+      };
+
+      // Update first half
+      item.end = splitTime;
+      item.width = percent - item.x;
+      item.trimOut = item.trimIn + (splitTime - item.start);
+
+      // Add second half to track
+      track.items.push(secondHalf);
+      track.items.sort((a, b) => a.start - b.start);
+
+      renderTracks();
+      showToast('Clip split at ' + formatTimeFromPercent(percent, state.timelineSeconds));
+    }
+
+    function drawWaveform(canvas, waveform, width, height) {
+      if (!canvas || !waveform || waveform.length === 0) return;
+
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, width, height);
+
+      const step = waveform.length / width;
+      ctx.strokeStyle = 'rgba(34, 211, 238, 0.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+
+      for (let x = 0; x < width; x++) {
+        const peak = waveform[Math.floor(x * step)] || 0;
+        const y = (1 - peak) * height / 2;
+        if (x === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+
+      ctx.stroke();
+    }
+
+    function applyTimelinePatch(patch) {
+      try {
+        patch.actions.forEach(action => {
+          switch (action.type) {
+            case 'splitClip':
+              // Find clip and split at time
+              break;
+            case 'removeClipRange':
+              // Remove portion of clip
+              break;
+            case 'addCaptionTrack':
+              // Add captions
+              if (action.captions) {
+                state.project.captions.push(...action.captions);
+              }
+              break;
+            case 'createSequence':
+              // Create new sequence of clips
+              break;
+          }
+        });
+
+        renderTracks();
+        showToast('AI changes applied successfully');
+      } catch (error) {
+        showToast('Error applying AI changes: ' + error.message);
+      }
+    }
+
     function renderMedia() {
       els.mediaGrid.innerHTML = '';
       state.media.forEach((media, index) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { generateImage, generateI2I, uploadFile } from "../muapi.js";
+import { uploadFile } from "../muapi.js";
 import {
   t2iModels,
   i2iModels,
@@ -45,7 +45,6 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
   const panelRef = useRef(null);
   const triggerRef = useRef(null);
 
-  // Close on outside click
   useEffect(() => {
     if (!panelOpen) return;
     const handler = (e) => {
@@ -62,29 +61,32 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
     return () => window.removeEventListener("click", handler);
   }, [panelOpen]);
 
-  // Sync initialUrls from parent (e.g. restored from localStorage)
   useEffect(() => {
     if (initialUrls && initialUrls.length > 0) {
-      // Avoid infinite loops by only updating if URLs actually changed
-      const currentUrls = selectedEntries.map(e => e.url);
-      const isSame = initialUrls.length === currentUrls.length && initialUrls.every(u => currentUrls.includes(u));
+      const currentUrls = selectedEntries.map((e) => e.url);
+      const isSame =
+        initialUrls.length === currentUrls.length &&
+        initialUrls.every((u) => currentUrls.includes(u));
       if (isSame) return;
 
-      const newEntries = initialUrls.map(url => ({ url }));
+      const newEntries = initialUrls.map((url) => ({ url }));
       setSelectedEntries(newEntries);
-      
-      // Also ensure they are in the history panel
-      setUploadHistory(prev => {
-        const existingUrls = prev.map(h => h.url);
+
+      setUploadHistory((prev) => {
+        const existingUrls = prev.map((h) => h.url);
         const missing = initialUrls
-          .filter(u => !existingUrls.includes(u))
-          .map(u => ({ id: `restored-${u}`, name: "Restored Image", url: u, progress: 100 }));
+          .filter((u) => !existingUrls.includes(u))
+          .map((u) => ({
+            id: `restored-${u}`,
+            name: "Restored Image",
+            url: u,
+            progress: 100,
+          }));
         return [...missing, ...prev];
       });
     }
   }, [initialUrls]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // When maxImages changes, trim excess selections
   useEffect(() => {
     if (selectedEntries.length > maxImages) {
       const trimmed = selectedEntries.slice(0, maxImages);
@@ -110,11 +112,13 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
     if (!files.length) return;
     e.target.value = "";
 
-    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
     const tooLarge = files.filter((f) => f.size > MAX_IMAGE_SIZE);
     if (tooLarge.length > 0) {
       alert(
-        `The following images are too large (max 10MB): ${tooLarge.map((f) => f.name).join(", ")}`,
+        `The following images are too large (max 10MB): ${tooLarge
+          .map((f) => f.name)
+          .join(", ")}`,
       );
       return;
     }
@@ -130,7 +134,6 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
         toUpload.map(async (file) => {
           const id = Date.now().toString() + Math.random();
 
-          // Add a placeholder to history immediately without local preview
           const placeholder = { id, name: file.name, url: null, progress: 0 };
           setUploadHistory((prev) => [placeholder, ...prev]);
 
@@ -142,7 +145,6 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
               );
             });
 
-            // Update history with real URL and Mark as 100%
             setUploadHistory((prev) =>
               prev.map((h) => {
                 if (h.id === id) {
@@ -152,7 +154,6 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
               }),
             );
 
-            // Auto-select if there's room
             if (selectedEntries.length < maxImages) {
               const newEntry = { url: uploadedUrl };
               setSelectedEntries((prev) => [...prev, newEntry]);
@@ -180,8 +181,7 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
   const handleCellClick = (entry) => {
     const selIdx = selectedEntries.findIndex((e) => e.url === entry.url);
     const isSelected = selIdx !== -1;
-    const atMax =
-      maxImages > 1 && !isSelected && selectedEntries.length >= maxImages;
+    const atMax = maxImages > 1 && !isSelected && selectedEntries.length >= maxImages;
     if (atMax) return;
 
     if (maxImages === 1) {
@@ -195,10 +195,7 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
         next = selectedEntries.filter((_, i) => i !== selIdx);
         if (next.length === 0) onClear?.();
       } else {
-        next = [
-          ...selectedEntries,
-          { url: entry.url, localUrl: entry.localUrl },
-        ];
+        next = [...selectedEntries, { url: entry.url, localUrl: entry.localUrl }];
       }
       setSelectedEntries(next);
     }
@@ -222,19 +219,10 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
     setPanelOpen(false);
   };
 
-  const reset = () => {
-    setSelectedEntries([]);
-    setPanelOpen(false);
-  };
-
-  // expose reset via ref pattern — parent calls reset() directly
-  // (handled by parent through uploadedImageUrls state reset)
-
   const isMulti = maxImages > 1;
   const count = selectedEntries.length;
   const hasSelection = count > 0;
 
-  // Trigger icon content
   let triggerContent;
   if (hasSelection || uploading) {
     const mainEntry = selectedEntries[0] || uploadHistory[0];
@@ -244,38 +232,25 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
       badge = (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-10">
           <div className="w-4 h-4 rounded-full border border-primary/30 border-t-primary animate-spin mb-0.5" />
-          <span className="text-[8px] font-black text-primary">
-            {lastUploadProgress}%
-          </span>
+          <span className="text-[8px] font-black text-primary">{lastUploadProgress}%</span>
         </div>
       );
     } else if (count > 1) {
       badge = (
         <div className="absolute bottom-0.5 right-0.5 min-w-[16px] h-4 bg-primary rounded-full flex items-center justify-center px-0.5">
-          <span className="text-[9px] font-black text-black leading-none">
-            {count}
-          </span>
+          <span className="text-[9px] font-black text-black leading-none">{count}</span>
         </div>
       );
     } else if (canAddMore) {
       badge = (
         <div className="absolute bottom-0.5 right-0.5 min-w-[16px] h-4 bg-white/80 rounded-full flex items-center justify-center px-0.5 border border-primary/60">
-          <span className="text-[9px] font-black text-black leading-none">
-            +
-          </span>
+          <span className="text-[9px] font-black text-black leading-none">+</span>
         </div>
       );
     } else {
       badge = (
         <div className="absolute bottom-0.5 right-0.5 min-w-[16px] h-4 bg-primary rounded-full flex items-center justify-center px-0.5">
-          <svg
-            width="8"
-            height="8"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="black"
-            strokeWidth="4"
-          >
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="4">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
@@ -286,24 +261,16 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
         {uploading && hasSelection && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-30">
             <div className="w-4 h-4 rounded-full border border-primary/30 border-t-primary animate-spin mb-0.5" />
-            <span className="text-[8px] font-black text-primary">
-              {lastUploadProgress}%
-            </span>
+            <span className="text-[8px] font-black text-primary">{lastUploadProgress}%</span>
           </div>
         )}
         {count > 1 ? (
           <div className="relative w-full h-full p-1.5 flex items-center justify-center">
-            {/* Bottom Image */}
             {selectedEntries[1]?.url && (
               <div className="absolute top-1 left-1 w-6 h-6 rounded-md border border-black/40 overflow-hidden shadow-lg rotate-[-8deg] translate-x-[-1px] translate-y-[-1px]">
-                <img
-                  src={selectedEntries[1].url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+                <img src={selectedEntries[1].url} alt="" className="w-full h-full object-cover" />
               </div>
             )}
-            {/* Top Image */}
             {selectedEntries[0]?.url && (
               <div className="absolute bottom-1 right-1 w-7 h-7 rounded-sm border-[1.5px] border-black/60 overflow-hidden shadow-2xl z-10 rotate-[4deg] translate-x-[1px] translate-y-[1px]">
                 <img
@@ -321,15 +288,15 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
             src={mainEntry.url}
             alt=""
             className={`w-full h-full object-cover transition-all duration-300 ${
-              uploading && hasSelection ? "blur-[2px] scale-110 opacity-60" : "blur-0 scale-100 opacity-100"
+              uploading && hasSelection
+                ? "blur-[2px] scale-110 opacity-60"
+                : "blur-0 scale-100 opacity-100"
             }`}
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-white/5 animate-pulse">
             <div className="w-4 h-4 rounded-full border border-primary/20 border-t-primary animate-spin mb-0.5" />
-            <span className="text-[8px] font-black text-primary">
-              {lastUploadProgress}%
-            </span>
+            <span className="text-[8px] font-black text-primary">{lastUploadProgress}%</span>
           </div>
         )}
         {!uploading && badge}
@@ -346,14 +313,7 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
         strokeWidth="2"
         className="text-white/40 group-hover:text-primary transition-colors"
       >
-        <rect
-          x="3"
-          y="3"
-          width="18"
-          height="18"
-          rx="2"
-          ry="2"
-        />
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
         <circle cx="8.5" cy="8.5" r="1.5" />
         <polyline points="21 15 16 10 5 21" />
       </svg>
@@ -372,7 +332,6 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
 
   return (
     <div className="relative">
-      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -382,7 +341,6 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
         onChange={handleFileChange}
       />
 
-      {/* Trigger button */}
       <button
         ref={triggerRef}
         type="button"
@@ -400,23 +358,17 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
         {triggerContent}
       </button>
 
-      {/* Panel */}
       {panelOpen && (
         <div
           ref={panelRef}
           onClick={(e) => e.stopPropagation()}
           className="absolute z-50 bottom-[calc(100%+8px)] left-0 bg-[#111] rounded-xl p-3 shadow-4xl border border-white/10 w-96"
         >
-          {/* Header */}
           <div className="flex items-center justify-between px-1 pb-3 mb-2 border-b border-white/5">
             <div className="flex flex-col gap-0.5">
-              <span className="text-xs font-bold text-secondary">
-                Reference Images
-              </span>
+              <span className="text-xs font-bold text-secondary">Reference Images</span>
               {isMulti && (
-                <span className="text-[9px] text-muted">
-                  Select up to {maxImages} images
-                </span>
+                <span className="text-[9px] text-muted">Select up to {maxImages} images</span>
               )}
             </div>
             <div className="flex items-center gap-2">
@@ -455,7 +407,6 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
             </div>
           </div>
 
-          {/* Grid or empty state */}
           {uploadHistory.length === 0 ? (
             <div className="py-6 flex flex-col items-center gap-2 opacity-40">
               <svg
@@ -476,12 +427,9 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
           ) : (
             <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto custom-scrollbar pr-0.5">
               {uploadHistory.map((entry) => {
-                const selIdx = selectedEntries.findIndex(
-                  (e) => e.url === entry.url,
-                );
+                const selIdx = selectedEntries.findIndex((e) => e.url === entry.url);
                 const isSelected = selIdx !== -1;
-                const atMax =
-                  isMulti && !isSelected && selectedEntries.length >= maxImages;
+                const atMax = isMulti && !isSelected && selectedEntries.length >= maxImages;
 
                 return (
                   <div
@@ -492,24 +440,19 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
                       isSelected
                         ? "border-primary shadow-glow"
                         : "border-white/10 hover:border-white/30"
-                    } ${atMax ? "opacity-40 cursor-not-allowed" : ""} ${!entry.url ? "cursor-wait" : ""}`}
+                    } ${atMax ? "opacity-40 cursor-not-allowed" : ""} ${
+                      !entry.url ? "cursor-wait" : ""
+                    }`}
                   >
                     {entry.url ? (
-                      <img
-                        src={entry.url}
-                        alt={entry.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={entry.url} alt={entry.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full bg-white/5 flex flex-col items-center justify-center">
                         <div className="w-8 h-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin mb-1" />
-                        <span className="text-[10px] font-black text-primary">
-                          {entry.progress}%
-                        </span>
+                        <span className="text-[10px] font-black text-primary">{entry.progress}%</span>
                       </div>
                     )}
 
-                    {/* Hover overlay with delete */}
                     {entry.url && (
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/cell:opacity-100 transition-opacity flex items-end justify-end p-1">
                         <button
@@ -533,13 +476,10 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
                       </div>
                     )}
 
-                    {/* Selection badge */}
                     {isSelected && (
                       <div className="absolute top-1 left-1 min-w-[20px] h-5 bg-primary rounded-full flex items-center justify-center px-1">
                         {isMulti ? (
-                          <span className="text-[10px] font-black text-black">
-                            {selIdx + 1}
-                          </span>
+                          <span className="text-[10px] font-black text-black">{selIdx + 1}</span>
                         ) : (
                           <svg
                             width="9"
@@ -560,7 +500,6 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
             </div>
           )}
 
-          {/* Bottom bar for multi-select */}
           {isMulti && hasSelection && (
             <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
               <span className="text-xs text-secondary">
@@ -618,9 +557,7 @@ function ModelDropdown({ models, selectedModel, onSelect, onClose }) {
           />
         </div>
       </div>
-      <div className="text-xs font-medium text-secondary py-2 shrink-0">
-        Available models
-      </div>
+      <div className="text-xs font-medium text-secondary py-2 shrink-0">Available models</div>
       <div className="flex flex-col gap-1.5 overflow-y-auto custom-scrollbar pr-1 pb-2">
         {filtered.map((m) => (
           <div
@@ -647,20 +584,11 @@ function ModelDropdown({ models, selectedModel, onSelect, onClose }) {
                 {m.name.charAt(0)}
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-bold text-white tracking-tight">
-                  {m.name}
-                </span>
+                <span className="text-xs font-bold text-white tracking-tight">{m.name}</span>
               </div>
             </div>
             {selectedModel === m.id && (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#d9ff00"
-                strokeWidth="4"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d9ff00" strokeWidth="4">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             )}
@@ -694,14 +622,7 @@ function SimpleDropdown({ title, options, selected, onSelect, onClose }) {
               {opt}
             </span>
             {selected === opt && (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#d9ff00"
-                strokeWidth="4"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d9ff00" strokeWidth="4">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             )}
@@ -714,15 +635,10 @@ function SimpleDropdown({ title, options, selected, onSelect, onClose }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function ImageStudio({
-  apiKey,
-  onGenerationComplete,
-  historyItems,
-}) {
+export default function ImageStudio({ apiKey, onGenerationComplete, historyItems }) {
   const PERSIST_KEY = "hg_image_studio_persistent";
 
-  // ── Model / mode state ──────────────────────────────────────────────────
-  const [imageMode, setImageMode] = useState(false); // false=t2i, true=i2i
+  const [imageMode, setImageMode] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState(t2iModels[0].id);
   const [selectedModelName, setSelectedModelName] = useState(t2iModels[0].name);
   const [selectedAr, setSelectedAr] = useState(
@@ -734,30 +650,23 @@ export default function ImageStudio({
   });
   const [maxImages, setMaxImages] = useState(1);
 
-  // ── Prompt / upload state ───────────────────────────────────────────────
   const [prompt, setPrompt] = useState("");
   const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
 
-  // ── UI state ────────────────────────────────────────────────────────────
-  const [dropdownOpen, setDropdownOpen] = useState(null); // 'model' | 'ar' | 'quality' | null
+  const [dropdownOpen, setDropdownOpen] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState(null);
   const [fullscreenUrl, setFullscreenUrl] = useState(null);
 
-  // ── Canvas / history state ──────────────────────────────────────────────
   const [currentImageUrl, setCurrentImageUrl] = useState(null);
   const [activeHistoryIdx, setActiveHistoryIdx] = useState(0);
-  const [localHistory, setLocalHistory] = useState([]); // [{id,url,prompt,model,aspect_ratio,timestamp}]
+  const [localHistory, setLocalHistory] = useState([]);
 
-  // Use prop history if provided, otherwise local
   const history = historyItems ?? localHistory;
 
-  // ── Refs ────────────────────────────────────────────────────────────────
   const textareaRef = useRef(null);
   const dropdownRef = useRef(null);
-  const uploadPickerResetRef = useRef(null); // not used directly — managed via key
 
-  // ── Close dropdown on outside click ─────────────────────────────────────
   useEffect(() => {
     if (!dropdownOpen) return;
     const handler = (e) => {
@@ -769,7 +678,6 @@ export default function ImageStudio({
     return () => window.removeEventListener("click", handler);
   }, [dropdownOpen]);
 
-  // ── Persistence: Load ────────────────────────────────────────────────────
   useEffect(() => {
     try {
       const stored = localStorage.getItem(PERSIST_KEY);
@@ -790,7 +698,6 @@ export default function ImageStudio({
     }
   }, []);
 
-  // ── Persistence: Save ────────────────────────────────────────────────────
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
@@ -809,7 +716,7 @@ export default function ImageStudio({
       } catch (err) {
         console.warn("Failed to save ImageStudio persistence:", err);
       }
-    }, 500); // 500ms debounce
+    }, 500);
     return () => clearTimeout(timer);
   }, [
     imageMode,
@@ -823,7 +730,6 @@ export default function ImageStudio({
     localHistory,
   ]);
 
-  // ── Derived: current model lists & helpers ───────────────────────────────
   const currentModels = imageMode ? i2iModels : t2iModels;
   const currentAspectRatios = imageMode
     ? getAspectRatiosForI2IModel(selectedModelId)
@@ -836,7 +742,6 @@ export default function ImageStudio({
     : getQualityFieldForModel(selectedModelId);
   const showQualityBtn = currentResolutions.length > 0;
 
-  // ── Textarea auto-resize ─────────────────────────────────────────────────
   const handleTextareaInput = () => {
     const el = textareaRef.current;
     if (!el) return;
@@ -845,7 +750,6 @@ export default function ImageStudio({
     el.style.height = Math.min(el.scrollHeight, maxHeight) + "px";
   };
 
-  // ── Upload picker callbacks ──────────────────────────────────────────────
   const handleUploadSelect = useCallback(
     ({ url, urls }) => {
       const newUrls = urls || [url];
@@ -879,11 +783,8 @@ export default function ImageStudio({
     setMaxImages(1);
   }, []);
 
-  // ── Model selection ──────────────────────────────────────────────────────
   const handleModelSelect = (m) => {
-    const ars = imageMode
-      ? getAspectRatiosForI2IModel(m.id)
-      : getAspectRatiosForModel(m.id);
+    const ars = imageMode ? getAspectRatiosForI2IModel(m.id) : getAspectRatiosForModel(m.id);
     const resolutions = imageMode
       ? getResolutionsForI2IModel(m.id)
       : getResolutionsForModel(m.id);
@@ -894,7 +795,6 @@ export default function ImageStudio({
     if (imageMode) setMaxImages(getMaxImagesForI2IModel(m.id));
   };
 
-  // ── History helpers ──────────────────────────────────────────────────────
   const addToHistory = useCallback(
     (entry) => {
       if (!historyItems) {
@@ -905,8 +805,6 @@ export default function ImageStudio({
     },
     [historyItems],
   );
-
-  // ── View state ─────────────────────────────────────
 
   const resetToPrompt = () => {
     setCurrentImageUrl(null);
@@ -923,77 +821,11 @@ export default function ImageStudio({
     setMaxImages(1);
   };
 
-  // ── Generation ───────────────────────────────────────────────────────────
   const handleGenerate = async () => {
-    if (generating) return;
-
-    if (imageMode) {
-      if (uploadedImageUrls.length === 0) {
-        alert("Please upload a reference image first.");
-        return;
-      }
-    } else {
-      if (!prompt.trim()) {
-        alert("Please enter a prompt to generate an image.");
-        return;
-      }
-    }
-
-    setGenerating(true);
-    setGenerateError(null);
-
-    try {
-      let res;
-      if (imageMode) {
-        const genParams = {
-          model: selectedModelId,
-          images_list: uploadedImageUrls,
-          image_url: uploadedImageUrls[0],
-          aspect_ratio: selectedAr,
-        };
-        if (prompt.trim()) genParams.prompt = prompt.trim();
-        if (currentQualityField && selectedQuality) {
-          genParams[currentQualityField] = selectedQuality;
-        }
-        res = await generateI2I(apiKey, genParams);
-      } else {
-        const genParams = {
-          model: selectedModelId,
-          prompt: prompt.trim(),
-          aspect_ratio: selectedAr,
-        };
-        if (currentQualityField && selectedQuality) {
-          genParams[currentQualityField] = selectedQuality;
-        }
-        res = await generateImage(apiKey, genParams);
-      }
-
-      if (res && res.url) {
-        const entry = {
-          id: res.id || Date.now().toString(),
-          url: res.url,
-          prompt: prompt.trim(),
-          model: selectedModelId,
-          aspect_ratio: selectedAr,
-          timestamp: new Date().toISOString(),
-        };
-        addToHistory(entry);
-        onGenerationComplete?.({
-          url: res.url,
-          model: selectedModelId,
-          prompt: prompt.trim(),
-          type: "image",
-        });
-      } else {
-        throw new Error("No image URL returned by API");
-      }
-    } catch (e) {
-      console.error("[ImageStudio] Generation failed:", e);
-      setGenerateError(e.message.slice(0, 80));
-      setTimeout(() => setGenerateError(null), 4000);
-    } finally {
-      setGenerating(false);
-    }
+    alert(
+      "Generation is temporarily unavailable because the provider account does not have enough credits yet.",
+    );
+    return;
   };
 
   const placeholderText =
@@ -1003,11 +835,8 @@ export default function ImageStudio({
         ? "Describe how to transform this image (optional)"
         : "Describe the image you want to create";
 
-  // ── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-app-bg relative p-4 md:p-6 overflow-hidden">
-      
-      {/* ── CENTRAL GALLERY AREA ── */}
       <div className="flex-1 w-full max-w-7xl mx-auto overflow-y-auto custom-scrollbar pb-40 lg:pb-32 px-2">
         {history.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full pt-4 animate-fade-in-up">
@@ -1022,8 +851,7 @@ export default function ImageStudio({
                   className="w-full aspect-square object-cover bg-black/40 cursor-pointer hover:opacity-80 transition-opacity"
                   onClick={() => setFullscreenUrl(entry.url)}
                 />
-                
-                {/* Overlay actions */}
+
                 <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     type="button"
@@ -1056,7 +884,6 @@ export default function ImageStudio({
                   </button>
                 </div>
 
-                {/* Prompt & Details */}
                 <div className="p-3 bg-black/80 backdrop-blur-sm border-t border-white/5 flex-1 flex flex-col justify-between gap-2">
                   <p className="text-white/70 text-xs line-clamp-3 leading-relaxed" title={entry.prompt}>
                     {entry.prompt || "No prompt provided"}
@@ -1108,13 +935,15 @@ export default function ImageStudio({
         )}
       </div>
 
-      {/* ── BOTTOM PROMPT BAR ── */}
-      <div 
-        className="absolute bottom-4 w-full max-w-[95%] lg:max-w-4xl z-40 animate-fade-in-up" 
+      <div
+        className="absolute bottom-4 w-full max-w-[95%] lg:max-w-4xl z-40 animate-fade-in-up"
         style={{ animationDelay: "0.2s" }}
       >
+        <div className="mb-3 rounded-md border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-200">
+          Provider connection is configured, but image generation is temporarily unavailable because the account has insufficient credits.
+        </div>
+
         <div className="w-full bg-[#0a0a0a]/80 backdrop-blur-3xl rounded-md border border-white/10 p-4 flex flex-col gap-2 shadow-2xl">
-          {/* Top row: upload picker + textarea */}
           <div className="flex items-center gap-2">
             <UploadButton
               apiKey={apiKey}
@@ -1136,11 +965,8 @@ export default function ImageStudio({
             </div>
           </div>
 
-          {/* Bottom row: controls + generate */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2 border-t border-white/[0.03] relative">
-            {/* Left controls */}
             <div className="flex items-center gap-2 relative flex-wrap pb-1 md:pb-0">
-              {/* Model button */}
               <div className="relative">
                 <button
                   type="button"
@@ -1185,7 +1011,6 @@ export default function ImageStudio({
                 )}
               </div>
 
-              {/* Aspect ratio button */}
               <div className="relative">
                 <button
                   type="button"
@@ -1219,7 +1044,6 @@ export default function ImageStudio({
                 )}
               </div>
 
-              {/* Quality/resolution button */}
               {showQualityBtn && (
                 <div className="relative">
                   <button
@@ -1256,33 +1080,21 @@ export default function ImageStudio({
               )}
             </div>
 
-            {/* Generate button */}
             <button
               type="button"
               onClick={handleGenerate}
-              disabled={generating}
-              className="bg-[#d9ff00] text-black px-4 py-2 rounded-md font-medium text-sm hover:bg-[#e5ff33] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg shadow-[#d9ff00]/10 disabled:opacity-50 disabled:cursor-not-allowed z-10"
+              disabled={true}
+              title="Generation is unavailable until provider credits are added"
+              className="bg-white/10 text-white/60 px-4 py-2 rounded-md font-medium text-sm transition-all flex items-center justify-center gap-2 w-full sm:w-auto border border-white/10 cursor-not-allowed z-10"
             >
-              {generating ? (
-                <>
-                  <span className="animate-spin inline-block text-black">◌</span>
-                  Generating...
-                </>
-              ) : generateError ? (
-                `Error: ${generateError}`
-              ) : (
-                <>
-                  <span>Generate</span>
-                </>
-              )}
+              <span>Unavailable</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* ── FULLSCREEN IMAGE MODAL ── */}
       {fullscreenUrl && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm animate-fade-in"
           onClick={() => setFullscreenUrl(null)}
         >
@@ -1299,10 +1111,10 @@ export default function ImageStudio({
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
-          <img 
-            src={fullscreenUrl} 
-            alt="Fullscreen Preview" 
-            className="max-w-[95vw] max-h-[95vh] rounded-2xl shadow-2xl object-contain animate-scale-up" 
+          <img
+            src={fullscreenUrl}
+            alt="Fullscreen Preview"
+            className="max-w-[95vw] max-h-[95vh] rounded-2xl shadow-2xl object-contain animate-scale-up"
             onClick={(e) => e.stopPropagation()}
           />
         </div>

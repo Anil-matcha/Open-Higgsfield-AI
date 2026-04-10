@@ -1,6 +1,6 @@
 {
-  "name": "open-higgsfield-ai",
-  "description": "Open-source alternative to Higgsfield AI — AI image, video, cinema and lip sync studio",
+  "name": "clabstream-ai-studio",
+  "description": "Clabstream AI Studio — internal image, video, cinema and lip sync studio",
   "private": true,
   "version": "1.0.0",
   "workspaces": [
@@ -20,8 +20,8 @@
     "electron:build:all": "vite build && electron-builder --mac --win"
   },
   "build": {
-    "appId": "ai.higgsfield.open",
-    "productName": "Open Higgsfield AI",
+    "appId": "ai.clabstream.studio",
+    "productName": "Clabstream AI Studio",
     "copyright": "Copyright © 2025",
     "directories": { "output": "release" },
     "afterPack": "./afterPack.js",

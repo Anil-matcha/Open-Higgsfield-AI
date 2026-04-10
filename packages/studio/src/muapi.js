@@ -1,14 +1,14 @@
 import { getModelById, getVideoModelById, getI2IModelById, getI2VModelById, getV2VModelById, getLipSyncModelById } from './models.js';
 
-const BASE_URL = 'https://api.muapi.ai';
+const BASE_URL = '';
 
 async function pollForResult(requestId, key, maxAttempts = 900, interval = 2000) {
-    const pollUrl = `${BASE_URL}/api/v1/predictions/${requestId}/result`;
+    const pollUrl = `/api/jobs/${requestId}`;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         await new Promise(resolve => setTimeout(resolve, interval));
         try {
             const response = await fetch(pollUrl, {
-                headers: { 'Content-Type': 'application/json', 'x-api-key': key }
+                headers: { 'Content-Type': 'application/json' },
             });
             if (!response.ok) {
                 const errText = await response.text();
@@ -27,11 +27,14 @@ async function pollForResult(requestId, key, maxAttempts = 900, interval = 2000)
 }
 
 async function submitAndPoll(endpoint, payload, key, onRequestId, maxAttempts = 60) {
-    const url = `${BASE_URL}/api/v1/${endpoint}`;
+    const url = `/api/generate/image`;
     const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': key },
-        body: JSON.stringify(payload)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+         ...payload,
+         endpoint
+})
     });
     if (!response.ok) {
         const errText = await response.text();
@@ -42,8 +45,24 @@ async function submitAndPoll(endpoint, payload, key, onRequestId, maxAttempts = 
     if (!requestId) return submitData;
     if (onRequestId) onRequestId(requestId);
     const result = await pollForResult(requestId, key, maxAttempts);
-    const outputUrl = result.outputs?.[0] || result.url || result.output?.url;
-    return { ...result, url: outputUrl };
+
+console.log('POLL RESULT:', result);
+
+const firstOutput = Array.isArray(result.outputs) ? result.outputs[0] : null;
+
+const outputUrl =
+  (typeof firstOutput === 'string' ? firstOutput : null) ||
+  firstOutput?.url ||
+  result.url ||
+  result.output?.url ||
+  result.data?.url ||
+  result.result?.url ||
+  result.result?.outputs?.[0] ||
+  result.data?.outputs?.[0];
+
+console.log('EXTRACTED URL:', outputUrl);
+
+return { ...result, url: outputUrl };
 }
 
 export async function generateImage(apiKey, params) {

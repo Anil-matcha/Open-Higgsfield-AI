@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { processLipSync, uploadFile } from "../muapi.js";
+import { uploadFile } from "../muapi.js";
 import {
   lipsyncModels,
   imageLipSyncModels,
@@ -289,7 +289,6 @@ const VideoIcon = ({
 // ---------------------------------------------------------------------------
 export default function LipSyncStudio({
   apiKey,
-  onGenerationComplete,
   historyItems,
 }) {
   const PERSIST_KEY = "hg_lipsync_studio_persistent";
@@ -328,8 +327,6 @@ export default function LipSyncStudio({
   const [prompt, setPrompt] = useState("");
 
   // ── Generation / UI state ───────────────────────────────────────────────
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generateError, setGenerateError] = useState(null);
   const [fullscreenUrl, setFullscreenUrl] = useState(null);
   const [view, setView] = useState("input"); // 'input' | 'result'
   const [activeResultUrl, setActiveResultUrl] = useState(null);
@@ -564,68 +561,10 @@ export default function LipSyncStudio({
   };
 
   // ── Generation ──────────────────────────────────────────────────────────
-  const handleGenerate = async () => {
-    if (!audioUrl) {
-      alert("Please upload an audio file first.");
-      return;
-    }
-    if (inputMode === "image" && !imageUrl) {
-      alert("Please upload a portrait image first.");
-      return;
-    }
-    if (inputMode === "video" && !videoUrl) {
-      alert("Please upload a source video first.");
-      return;
-    }
-
-    setIsGenerating(true);
-    setGenerateError(null);
-
-    try {
-      const lipsyncParams = {
-        model: selectedModelId,
-        audio_url: audioUrl,
-      };
-      if (inputMode === "image") lipsyncParams.image_url = imageUrl;
-      else lipsyncParams.video_url = videoUrl;
-      if (prompt && selectedModel?.hasPrompt) lipsyncParams.prompt = prompt;
-      if (showResolution) lipsyncParams.resolution = selectedResolution;
-      if (selectedModel?.hasSeed) lipsyncParams.seed = -1;
-
-      const res = await processLipSync(apiKey, lipsyncParams);
-
-      if (!res?.url) throw new Error("No video URL returned by API");
-
-      const genId = res.id || Date.now().toString();
-      const entry = {
-        id: genId,
-        url: res.url,
-        prompt,
-        model: selectedModelId,
-        timestamp: new Date().toISOString(),
-      };
-
-      if (!historyItems) addToInternalHistory(entry);
-
-      setActiveResultUrl(res.url);
-      setActiveHistoryIdx(0);
-      setView("result");
-
-      if (onGenerationComplete) {
-        onGenerationComplete({
-          url: res.url,
-          model: selectedModelId,
-          prompt,
-          type: "lipsync",
-        });
-      }
-    } catch (e) {
-      console.error("[LipSyncStudio]", e);
-      setGenerateError(e.message?.slice(0, 80) ?? "Unknown error");
-      setTimeout(() => setGenerateError(null), 4000);
-    } finally {
-      setIsGenerating(false);
-    }
+  const handleGenerate = () => {
+    alert(
+      "Generation is temporarily unavailable because the provider account does not have enough credits yet.",
+    );
   };
 
   // ── Reset to input view ─────────────────────────────────────────────────
@@ -776,6 +715,10 @@ export default function LipSyncStudio({
 
       {/* ── BOTTOM PROMPT BAR ── */}
       <div className="absolute bottom-4 w-full max-w-[95%] lg:max-w-4xl z-40 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+        <div className="mb-3 rounded-md border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-200">
+          Provider connection is configured, but lip sync generation is temporarily unavailable because the account has insufficient credits.
+        </div>
+
         <div className="w-full bg-[#0a0a0a]/80 backdrop-blur-3xl rounded-md border border-white/10 p-4 flex flex-col gap-2 shadow-2xl">
           {/* Mode toggle row */}
           <div className="flex items-center gap-2 px-3">
@@ -980,23 +923,11 @@ export default function LipSyncStudio({
             <button
               type="button"
               onClick={handleGenerate}
-              disabled={isGenerating}
-              className="bg-[#d9ff00] text-black px-4 py-2 rounded-md font-medium text-sm hover:bg-[#e5ff33] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg shadow-[#d9ff00]/10 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={true}
+              title="Generation is unavailable until provider credits are added"
+              className="bg-white/10 text-white/60 px-4 py-2 rounded-md font-medium text-sm transition-all flex items-center justify-center gap-2 w-full sm:w-auto border border-white/10 cursor-not-allowed"
             >
-              {isGenerating ? (
-                <>
-                  <span className="animate-spin inline-block text-black">
-                    ◌
-                  </span>{" "}
-                  Generating...
-                </>
-              ) : generateError ? (
-                `Error: ${generateError}`
-              ) : (
-                <>
-                  <span>Sync Lip</span>
-                </>
-              )}
+              <span>Unavailable</span>
             </button>
           </div>
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { generateVideo, generateI2V, uploadFile } from "../muapi.js";
+import { uploadFile } from "../muapi.js";
 import {
   t2vModels,
   i2vModels,
@@ -233,7 +233,6 @@ function ControlBtn({ icon, label, onClick, style }) {
 
 export default function VideoStudio({
   apiKey,
-  onGenerationComplete,
   historyItems,
 }) {
   const PERSIST_KEY = "hg_video_studio_persistent";
@@ -279,8 +278,6 @@ export default function VideoStudio({
   const [uploadedVideoName, setUploadedVideoName] = useState(null);
 
   // ── generation / canvas ──
-  const [generating, setGenerating] = useState(false);
-  const [generateError, setGenerateError] = useState(null);
   const [fullscreenUrl, setFullscreenUrl] = useState(null);
   const [canvasUrl, setCanvasUrl] = useState(null);
   const [canvasModel, setCanvasModel] = useState(null);
@@ -657,188 +654,11 @@ export default function VideoStudio({
   }, []);
 
   // ── generate ──────────────────────────────────────────────────────────────
-  const handleGenerate = useCallback(async () => {
-    const currentModel = getCurrentModel();
-    const isExtendMode = currentModel?.requiresRequestId;
-    const trimmedPrompt = prompt.trim();
-
-    if (v2vMode) {
-      if (!uploadedVideoUrl) {
-        alert("Please upload a video first.");
-        return;
-      }
-    } else if (isExtendMode) {
-      if (!lastGenerationId) {
-        alert(
-          "No Seedance 2.0 generation found to extend. Generate a video first.",
-        );
-        return;
-      }
-    } else if (imageMode) {
-      if (!uploadedImageUrl) {
-        alert("Please upload a start frame image first.");
-        return;
-      }
-    } else {
-      if (!trimmedPrompt) {
-        alert("Please enter a prompt to generate a video.");
-        return;
-      }
-    }
-
-    setGenerating(true);
-    setGenerateError(null);
-
-    let hadError = false;
-
-    try {
-      let res;
-
-      if (v2vMode) {
-        // V2V: use generateVideo with video_url (the v2v models use the video endpoint)
-        res = await generateVideo(apiKey, {
-          model: selectedModel,
-          video_url: uploadedVideoUrl,
-        });
-        if (!res?.url) throw new Error("No video URL returned by API");
-
-        const genId = res.id || Date.now().toString();
-        setLastGenerationId(null);
-        setLastGenerationModel(null);
-        const entry = {
-          id: genId,
-          url: res.url,
-          prompt: "",
-          model: selectedModel,
-          timestamp: new Date().toISOString(),
-        };
-        addToLocalHistory(entry);
-        showVideoInCanvas(res.url, selectedModel);
-        if (onGenerationComplete)
-          onGenerationComplete({
-            url: res.url,
-            model: selectedModel,
-            prompt: "",
-            type: "video",
-          });
-      } else if (imageMode) {
-        const i2vParams = { model: selectedModel, image_url: uploadedImageUrl };
-        if (trimmedPrompt) i2vParams.prompt = trimmedPrompt;
-        i2vParams.aspect_ratio = selectedAr;
-        const durations = getDurationsForI2VModel(selectedModel);
-        if (durations.length > 0) i2vParams.duration = selectedDuration;
-        const resolutions = getResolutionsForI2VModel(selectedModel);
-        if (resolutions.length > 0) i2vParams.resolution = selectedResolution;
-        if (selectedQuality) i2vParams.quality = selectedQuality;
-        if (selectedMode) i2vParams.mode = selectedMode;
-
-        res = await generateI2V(apiKey, i2vParams);
-        if (!res?.url) throw new Error("No video URL returned by API");
-
-        const genId = res.id || Date.now().toString();
-        if (selectedModel === "seedance-v2.0-i2v") {
-          setLastGenerationId(genId);
-          setLastGenerationModel(selectedModel);
-        } else {
-          setLastGenerationId(null);
-          setLastGenerationModel(null);
-        }
-        const entry = {
-          id: genId,
-          url: res.url,
-          prompt: trimmedPrompt,
-          model: selectedModel,
-          aspect_ratio: selectedAr,
-          duration: selectedDuration,
-          timestamp: new Date().toISOString(),
-        };
-        addToLocalHistory(entry);
-        showVideoInCanvas(res.url, selectedModel);
-        if (onGenerationComplete)
-          onGenerationComplete({
-            url: res.url,
-            model: selectedModel,
-            prompt: trimmedPrompt,
-            type: "video",
-          });
-      } else {
-        // T2V (including extend mode)
-        const params = { model: selectedModel };
-        if (trimmedPrompt) params.prompt = trimmedPrompt;
-
-        if (isExtendMode) {
-          params.request_id = lastGenerationId;
-        } else {
-          params.aspect_ratio = selectedAr;
-        }
-
-        const durations = getDurationsForModel(selectedModel);
-        if (durations.length > 0) params.duration = selectedDuration;
-        const resolutions = getResolutionsForVideoModel(selectedModel);
-        if (resolutions.length > 0) params.resolution = selectedResolution;
-        if (selectedQuality) params.quality = selectedQuality;
-        if (selectedMode) params.mode = selectedMode;
-
-        res = await generateVideo(apiKey, params);
-        if (!res?.url) throw new Error("No video URL returned by API");
-
-        const genId = res.id || Date.now().toString();
-        if (
-          selectedModel === "seedance-v2.0-t2v" ||
-          selectedModel === "seedance-v2.0-i2v"
-        ) {
-          setLastGenerationId(genId);
-          setLastGenerationModel(selectedModel);
-        } else {
-          setLastGenerationId(null);
-          setLastGenerationModel(null);
-        }
-        const entry = {
-          id: genId,
-          url: res.url,
-          prompt: trimmedPrompt,
-          model: selectedModel,
-          aspect_ratio: selectedAr,
-          duration: selectedDuration,
-          timestamp: new Date().toISOString(),
-        };
-        addToLocalHistory(entry);
-        showVideoInCanvas(res.url, selectedModel);
-        if (onGenerationComplete)
-          onGenerationComplete({
-            url: res.url,
-            model: selectedModel,
-            prompt: trimmedPrompt,
-            type: "video",
-          });
-      }
-    } catch (e) {
-      hadError = true;
-      console.error("[VideoStudio]", e);
-      setGenerateError(e.message?.slice(0, 80) || "Generation failed");
-      setTimeout(() => setGenerateError(null), 4000);
-    } finally {
-      setGenerating(false);
-    }
-  }, [
-    apiKey,
-    prompt,
-    v2vMode,
-    imageMode,
-    selectedModel,
-    selectedAr,
-    selectedDuration,
-    selectedResolution,
-    selectedQuality,
-    selectedMode,
-    uploadedImageUrl,
-    uploadedVideoUrl,
-    lastGenerationId,
-    getCurrentModel,
-    addToLocalHistory,
-    showVideoInCanvas,
-    onGenerationComplete,
-  ]);
+  const handleGenerate = useCallback(() => {
+    alert(
+      "Generation is temporarily unavailable because the provider account does not have enough credits yet.",
+    );
+  }, []);
 
   // ── reset to prompt bar ───────────────────────────────────────────────────
   const resetToPromptBar = useCallback(() => {
@@ -1026,6 +846,10 @@ export default function VideoStudio({
 
       {/* ── BOTTOM PROMPT BAR ── */}
       <div className="absolute bottom-4 w-full max-w-[95%] lg:max-w-4xl z-40 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+        <div className="mb-3 rounded-md border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-200">
+          Provider connection is configured, but video generation is temporarily unavailable because the account has insufficient credits.
+        </div>
+
         <div className="w-full bg-[#0a0a0a]/80 backdrop-blur-3xl rounded-md border border-white/10 p-4 flex flex-col gap-2 shadow-2xl">
           <div className="flex items-center gap-2 px-1">
             {/* Image upload button */}
@@ -1390,23 +1214,11 @@ export default function VideoStudio({
             <button
               type="button"
               onClick={handleGenerate}
-              disabled={generating}
-              className="bg-[#d9ff00] text-black px-4 py-2 rounded-md font-medium text-sm hover:bg-[#e5ff33] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg shadow-[#d9ff00]/10 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={true}
+              title="Generation is unavailable until provider credits are added"
+              className="bg-white/10 text-white/60 px-4 py-2 rounded-md font-medium text-sm transition-all flex items-center justify-center gap-2 w-full sm:w-auto border border-white/10 cursor-not-allowed"
             >
-              {generating ? (
-                <>
-                  <span className="animate-spin inline-block text-black">
-                    ◌
-                  </span>{" "}
-                  Generating...
-                </>
-              ) : generateError ? (
-                `Error: ${generateError}`
-              ) : (
-                <>
-                  <span>Generate</span>
-                </>
-              )}
+              <span>Unavailable</span>
             </button>
           </div>
         </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { generateImage } from "../muapi.js";
 
 // ─── Constants (inlined from promptUtils) ───────────────────────────────────
 
@@ -462,8 +461,6 @@ function CameraControlsOverlay({
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function CinemaStudio({
-  apiKey,
-  onGenerationComplete,
   historyItems,
 }) {
   const PERSIST_KEY = "hg_cinema_studio_persistent";
@@ -481,7 +478,6 @@ export default function CinemaStudio({
 
   // ── UI state ──
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [canvasUrl, setCanvasUrl] = useState(null); // null = prompt view
   const [fullscreenUrl, setFullscreenUrl] = useState(null);
   const [activeHistoryIndex, setactiveHistoryIndex] = useState(null);
@@ -550,76 +546,11 @@ export default function CinemaStudio({
   };
 
   // ── Generate ──
-  const handleGenerate = useCallback(async () => {
-    const basePrompt = settings.prompt.trim();
-    if (!basePrompt || isGenerating) return;
-
-    setIsGenerating(true);
-
-    const finalPrompt = buildNanoBananaPrompt(
-      basePrompt,
-      settings.camera,
-      settings.lens,
-      settings.focal,
-      settings.aperture,
+  const handleGenerate = useCallback(() => {
+    alert(
+      "Generation is temporarily unavailable because the provider account does not have enough credits yet.",
     );
-
-    try {
-      const res = await generateImage(apiKey, {
-        model: "nano-banana-pro",
-        prompt: finalPrompt,
-        aspect_ratio: settings.aspect_ratio,
-        resolution: resolution.toLowerCase(),
-        negative_prompt: "blurry, low quality, distortion, bad composition",
-      });
-
-      if (res && res.url) {
-        const entry = {
-          url: res.url,
-          timestamp: Date.now(),
-          settings: {
-            prompt: basePrompt,
-            camera: settings.camera,
-            lens: settings.lens,
-            focal: settings.focal,
-            aperture: settings.aperture,
-            aspect_ratio: settings.aspect_ratio,
-            resolution,
-          },
-        };
-
-        // Only update internal history if not using prop-driven history
-        if (historyItems == null) {
-          setInternalHistory((prev) => [entry, ...prev].slice(0, 50));
-        }
-
-        setCanvasUrl(res.url);
-
-        if (onGenerationComplete) {
-          onGenerationComplete({
-            url: res.url,
-            model: "nano-banana-pro",
-            prompt: basePrompt,
-            type: "cinema",
-          });
-        }
-      } else {
-        throw new Error("No data returned");
-      }
-    } catch (e) {
-      console.error(e);
-      alert("Generation Failed: " + e.message);
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [
-    settings,
-    resolution,
-    apiKey,
-    isGenerating,
-    onGenerationComplete,
-    historyItems,
-  ]);
+  }, []);
 
   // ── Regenerate ──
   const handleRegenerate = useCallback(() => {
@@ -795,6 +726,10 @@ export default function CinemaStudio({
 
       {/* ── BOTTOM PROMPT BAR ── */}
       <div className="absolute bottom-4 left-4 right-4 md:left-0 md:right-0 md:mx-auto md:max-w-[95%] lg:max-w-4xl z-30 transition-all duration-700 animate-fade-in-up">
+        <div className="mb-3 rounded-md border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-200">
+          Provider connection is configured, but cinema generation is temporarily unavailable because the account has insufficient credits.
+        </div>
+
         <div className="bg-[#0a0a0a]/80 backdrop-blur-3xl border border-white/10 rounded-md p-4 flex justify-between shadow-2xl items-end relative gap-2">
           {/* Left Column */}
           <div className="flex-1 flex flex-col gap-3 min-h-[80px] justify-between py-1">
@@ -879,19 +814,12 @@ export default function CinemaStudio({
 
                 {/* Generate Button */}
                 <button
-                  className="h-[50px] px-8 bg-[#d9ff00] text-black rounded-md font-medium text-sm hover:bg-[#e5ff33] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#d9ff00]/10 disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={isGenerating || !settings.prompt.trim()}
+                  className="h-[50px] px-8 bg-white/10 text-white/60 rounded-md font-medium text-sm transition-all flex items-center justify-center gap-2 border border-white/10 cursor-not-allowed"
+                  disabled={true}
+                  title="Generation is unavailable until provider credits are added"
                   onClick={handleGenerate}
                 >
-                  {isGenerating ? (
-                    <>
-                      <span className="animate-spin inline-block text-black">◌</span> SHOOTING...
-                    </>
-                  ) : (
-                    <>
-                      <span>SHOOT</span>
-                    </>
-                  )}
+                  <span>Unavailable</span>
                 </button>
               </div>
             </div>

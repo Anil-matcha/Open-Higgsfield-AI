@@ -711,7 +711,18 @@ export function createVideoAgentWorkspace(runtime = null) {
   }
 
   // ==========================================
-  // 5. TAB SWITCHING FUNCTIONALITY
+  // 5. GOAL BUTTON HANDLERS
+  // ==========================================
+  container.querySelectorAll('.goal-btn[data-goal]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const goal = btn.dataset.goal;
+      input.value = goal;
+      await handleInput(goal);
+    });
+  });
+
+  // ==========================================
+  // 6. TAB SWITCHING FUNCTIONALITY
   // ==========================================
   const tabButtons = container.querySelectorAll('.tab-btn');
   const tabContents = container.querySelectorAll('.tab-content');

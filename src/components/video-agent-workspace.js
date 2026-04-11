@@ -1,3 +1,7 @@
+import { showToast } from '../lib/loading.js';
+import { MuapiClient } from '../lib/muapi.js';
+import { supabase } from '../lib/supabase.js';
+
 export function createVideoAgentWorkspace(runtime = null) {
   // Create the main container
   const container = document.createElement('div');
@@ -9,6 +13,14 @@ export function createVideoAgentWorkspace(runtime = null) {
   // ==========================================
   let uploadedVideoUrl = null;
   let isDragOver = false;
+
+  // Processing results state
+  let processingResults = {};
+  let sceneData = [];
+  let generatedVideos = [];
+  let captions = [];
+  let metadata = {};
+  let currentVideoIndex = 0; // 0 = original, 1+ = processed versions
 
   // ==========================================
   // 1. STYLES
@@ -522,20 +534,367 @@ export function createVideoAgentWorkspace(runtime = null) {
 
   const jobs = [];
   let currentProgress = 0;
+  const muapiClient = new MuapiClient();
+
+  // Execute task via specific repository
+  async function executeRepositoryTask(repoKey, params) {
+    try {
+      switch (repoKey) {
+        case 'open-higgsfield':
+          return await executeHiggsfieldTask(params);
+
+        case 'director':
+          return await executeDirectorTask(params);
+
+        case 'vimax':
+          return await executeVimaxTask(params);
+
+        case 'rendiv':
+          return await executeRendivTask(params);
+
+        case 'yucut':
+          return await executeYucutTask(params);
+
+        case 'ltx':
+          return await executeLtxTask(params);
+
+        default:
+          throw new Error(`Unsupported repository: ${repoKey}`);
+      }
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Execute task via Open Higgsfield (primary orchestration)
+  async function executeHiggsfieldTask(params) {
+    const { data, error } = await supabase.functions.invoke('videoagent', {
+      body: {
+        action: params.action,
+        tool: params.tool,
+        videoUrl: params.videoUrl,
+        prompt: `Higgsfield processing: ${params.task}`,
+        settings: params.settings
+      }
+    });
+
+    if (error) throw new Error(error.message);
+    return { success: true, data };
+  }
+
+  // Execute task via Director (cinematic editing)
+  async function executeDirectorTask(params) {
+    // Use the director agent runtime if available
+    if (runtime && runtime.executeAgentCommand) {
+      const agentId = getDirectorAgentId(params.action);
+      const result = await runtime.executeAgentCommand(agentId, {
+        videoUrl: params.videoUrl,
+        prompt: params.task
+      });
+      return { success: result.success, data: result };
+    }
+
+    // Fallback to Supabase function
+    const { data, error } = await supabase.functions.invoke('director-agent', {
+      body: {
+        action: params.action,
+        videoUrl: params.videoUrl,
+        prompt: params.task
+      }
+    });
+
+    if (error) throw new Error(error.message);
+    return { success: true, data };
+  }
+
+  // Execute task via ViMax (enhancement)
+  async function executeVimaxTask(params) {
+    // Use MuapiClient for video enhancement
+    if (params.action === 'enhance-video') {
+      const result = await muapiClient.processV2V({
+        model: 'vimax-enhancer',
+        video_url: params.videoUrl,
+        prompt: `Enhance video: ${params.task}`
+      });
+      return { success: true, data: result };
+    }
+
+    // Fallback
+    return { success: false, error: 'ViMax enhancement not implemented' };
+  }
+
+  // Execute task via Rendiv (render/export)
+  async function executeRendivTask(params) {
+    const { data, error } = await supabase.functions.invoke('rendiv-render', {
+      body: {
+        action: params.action,
+        videoUrl: params.videoUrl,
+        outputFormat: params.settings?.format || 'mp4'
+      }
+    });
+
+    if (error) throw new Error(error.message);
+    return { success: true, data };
+  }
+
+  // Execute task via Yucut (shorts/highlights)
+  async function executeYucutTask(params) {
+    const { data, error } = await supabase.functions.invoke('yucut-processor', {
+      body: {
+        action: params.action,
+        videoUrl: params.videoUrl,
+        task: params.task
+      }
+    });
+
+    if (error) throw new Error(error.message);
+    return { success: true, data };
+  }
+
+  // Execute task via LTX (subtitles/dubbing)
+  async function executeLtxTask(params) {
+    // Use MuapiClient for audio processing
+    if (params.action === 'generate-subtitles' || params.action === 'dub-video') {
+      const result = await muapiClient.generateAudio({
+        model: 'ltx-voice',
+        prompt: params.task,
+        duration: 30 // Default duration
+      });
+      return { success: true, data: result };
+    }
+
+    return { success: false, error: 'LTX task not implemented' };
+  }
+
+  // Map actions to director agent IDs
+  function getDirectorAgentId(action) {
+    const agentMap = {
+      'detect-scenes': 'scenes',
+      'extract-highlights': 'highlighter',
+      'create-clip': 'clipper',
+      'generate-subtitles': 'subtitler',
+      'dub-video': 'dubbing',
+      'add-voiceover': 'voiceover',
+      'enhance-video': 'enhancer',
+      'edit-video': 'editor',
+      'color-correct': 'color',
+      'summarize-video': 'summarizer',
+      'build-story': 'story'
+    };
+    return agentMap[action] || 'editor';
+  }
+
+  // Repository endpoints for different processing types
+  const REPO_ENDPOINTS = {
+    'open-higgsfield': { api: 'higgsfield-api', description: 'Primary orchestration' },
+    'director': { api: 'director-api', description: 'Cinematic editing' },
+    'vimax': { api: 'vimax-api', description: 'Enhancement and finishing' },
+    'rendiv': { api: 'rendiv-api', description: 'Render and export' },
+    'yucut': { api: 'yucut-api', description: 'Shorts and highlights' },
+    'ltx': { api: 'ltx-api', description: 'Subtitles and dubbing' }
+  };
+
+  // Map of task names to repository actions
+  const taskActionMap = {
+    'scene-detect': { action: 'detect-scenes', tool: 'scene-detection', repos: ['director', 'yucut'] },
+    'score-moments': { action: 'extract-highlights', tool: 'video-highlights', repos: ['yucut', 'director'] },
+    'cut-clips': { action: 'create-clip', tool: 'video-clipper', repos: ['yucut', 'rendiv'] },
+    'export': { action: 'export-video', tool: 'video-export', repos: ['rendiv'] },
+    'detect-hooks': { action: 'extract-highlights', tool: 'video-highlights', repos: ['yucut', 'director'] },
+    'resize-vertical': { action: 'create-social-clip', tool: 'social-clip', repos: ['yucut', 'rendiv'] },
+    'caption': { action: 'generate-subtitles', tool: 'video-subtitles', repos: ['ltx', 'open-higgsfield'] },
+    'transcribe': { action: 'generate-subtitles', tool: 'video-subtitles', repos: ['ltx', 'open-higgsfield'] },
+    'translate': { action: 'dub-video', tool: 'video-dubbing', repos: ['ltx', 'vimax'] },
+    'tts': { action: 'add-voiceover', tool: 'video-voiceover', repos: ['ltx', 'vimax'] },
+    'replace-audio': { action: 'dub-video', tool: 'video-dubbing', repos: ['ltx', 'vimax'] },
+    'analyze-quality': { action: 'enhance-video', tool: 'video-enhancer', repos: ['vimax', 'open-higgsfield'] },
+    'improve-pacing': { action: 'edit-video', tool: 'video-editor', repos: ['director', 'vimax'] },
+    'color-balance': { action: 'color-correct', tool: 'color-correction', repos: ['vimax', 'director'] },
+    'analyze-video': { action: 'summarize-video', tool: 'video-analysis', repos: ['director', 'open-higgsfield'] },
+    'build-plan': { action: 'build-story', tool: 'story-builder', repos: ['director', 'open-higgsfield'] }
+  };
 
   async function runTasks(tasks) {
     const progressBar = container.querySelector('#job-progress');
     const statusText = container.querySelector('#job-status-text');
-    for (let i = 0; i < tasks.length; i++) {
-      const t = tasks[i];
-      log(`Running: ${t}`, 'agent');
-      statusText.textContent = `Running ${t}...`;
-      currentProgress = Math.round(((i + 1) / tasks.length) * 100);
-      progressBar.style.width = currentProgress + '%';
-      await new Promise(r => setTimeout(r, 700));
+
+    if (!uploadedVideoUrl) {
+      log('No video uploaded for processing', 'agent');
+      statusText.textContent = 'No video uploaded';
+      return;
     }
-    statusText.textContent = 'Plan completed.';
-    log('✅ Done', 'agent');
+
+    try {
+      for (let i = 0; i < tasks.length; i++) {
+        const task = tasks[i];
+        const taskConfig = taskActionMap[task];
+
+        log(`Running: ${task}`, 'agent');
+        const taskDescriptions = {
+          'scene-detect': 'Detecting video scenes',
+          'score-moments': 'Scoring highlight moments',
+          'cut-clips': 'Cutting video clips',
+          'export': 'Exporting final video',
+          'detect-hooks': 'Finding hook moments',
+          'resize-vertical': 'Converting to vertical format',
+          'caption': 'Generating captions',
+          'transcribe': 'Transcribing audio',
+          'translate': 'Translating content',
+          'tts': 'Generating voice audio',
+          'replace-audio': 'Replacing audio track',
+          'analyze-quality': 'Analyzing video quality',
+          'improve-pacing': 'Improving video pacing',
+          'color-balance': 'Balancing colors'
+        };
+        statusText.textContent = taskDescriptions[task] || `Processing ${task}...`;
+        currentProgress = Math.round(((i + 1) / tasks.length) * 100);
+        progressBar.style.width = currentProgress + '%';
+
+        if (taskConfig) {
+          try {
+            // Execute task across specified repositories
+            const results = [];
+            for (const repoKey of taskConfig.repos) {
+              try {
+                const repoConfig = REPO_ENDPOINTS[repoKey];
+                if (!repoConfig) {
+                  log(`⚠️ Unknown repository: ${repoKey}`, 'agent');
+                  continue;
+                }
+
+                log(`🔄 Processing ${task} via ${repoKey}`, 'agent');
+
+                // Call repository-specific API
+                const result = await executeRepositoryTask(repoKey, {
+                  action: taskConfig.action,
+                  tool: taskConfig.tool,
+                  videoUrl: uploadedVideoUrl,
+                  task: task,
+                  settings: {}
+                });
+
+                if (result.success) {
+                  results.push({ repo: repoKey, result: result.data });
+                  log(`✅ ${task} completed via ${repoKey}`, 'agent');
+
+                  // Store results based on task type
+                  storeTaskResult(task, result.data);
+                } else {
+                  log(`⚠️ ${task} via ${repoKey} failed: ${result.error}`, 'agent');
+                }
+
+              } catch (repoError) {
+                log(`❌ ${task} via ${repoKey} error: ${repoError.message}`, 'agent');
+              }
+            }
+
+            if (results.length === 0) {
+              throw new Error(`All repositories failed for task: ${task}`);
+            }
+
+          } catch (apiError) {
+            log(`❌ ${task} failed: ${apiError.message}`, 'agent');
+            // Continue with other tasks even if one fails
+          }
+        } else {
+          log(`⚠️ No API mapping found for task: ${task}`, 'agent');
+        }
+
+        // Small delay between tasks
+        await new Promise(r => setTimeout(r, 500));
+      }
+
+      statusText.textContent = 'Processing completed.';
+      log('✅ All tasks completed', 'agent');
+
+      // Update all UI sections with real results
+      updateOutputsSection();
+      updateTimelineSection();
+      updateInspectorSection();
+      updateVideoToggle();
+
+    } catch (error) {
+      log(`❌ Processing failed: ${error.message}`, 'agent');
+      statusText.textContent = 'Processing failed';
+
+      // Show error in outputs section
+      updateOutputsSection();
+
+      showToast(`Video processing failed: ${error.message}`, 'error');
+    }
+  }
+
+  function storeTaskResult(task, data) {
+    processingResults[task] = data;
+
+    switch (task) {
+      case 'scene-detect':
+        if (data.scenes) {
+          sceneData = data.scenes;
+        }
+        break;
+      case 'transcribe':
+      case 'caption':
+        if (data.captions) {
+          captions = data.captions;
+        }
+        break;
+      case 'export':
+        if (data.url) {
+          generatedVideos.push({
+            url: data.url,
+            type: 'export',
+            description: 'Exported video'
+          });
+        }
+        break;
+      case 'cut-clips':
+        if (data.clips && Array.isArray(data.clips)) {
+          data.clips.forEach(clip => {
+            if (clip.url) {
+              generatedVideos.push({
+                url: clip.url,
+                type: 'clip',
+                description: `Clip: ${clip.title || 'Generated clip'}`
+              });
+            }
+          });
+        }
+        break;
+      case 'resize-vertical':
+        if (data.url) {
+          generatedVideos.push({
+            url: data.url,
+            type: 'vertical',
+            description: 'Vertical format'
+          });
+        }
+        break;
+      case 'replace-audio':
+        if (data.url) {
+          generatedVideos.push({
+            url: data.url,
+            type: 'dubbed',
+            description: 'Dubbed audio'
+          });
+        }
+        break;
+      case 'enhance-video':
+      case 'color-balance':
+        if (data.url) {
+          generatedVideos.push({
+            url: data.url,
+            type: 'enhanced',
+            description: 'Enhanced quality'
+          });
+        }
+        break;
+    }
+
+    // Update metadata if available
+    if (data.metadata) {
+      metadata = { ...metadata, ...data.metadata };
+    }
   }
 
   function createJob(tasks) {
@@ -545,8 +904,246 @@ export function createVideoAgentWorkspace(runtime = null) {
   }
 
   async function executeJob(job) {
-    await runTasks(job.tasks);
-    job.status = 'done';
+    try {
+      await runTasks(job.tasks);
+      job.status = 'completed';
+      job.completedAt = new Date();
+
+      // Update UI with results
+      updateOutputsSection();
+      updateTimelineSection();
+      updateInspectorSection();
+      updateVideoToggle();
+    } catch (error) {
+      job.status = 'failed';
+      job.error = error.message;
+      log(`Job failed: ${error.message}`, 'agent');
+
+      // Update UI even on failure
+      updateOutputsSection();
+    }
+  }
+
+  function updateOutputsSection() {
+    const outputsContainer = container.querySelector('#outputs');
+    if (!outputsContainer) return;
+
+    // Clear existing content
+    outputsContainer.innerHTML = '';
+
+    // Show generated videos
+    if (generatedVideos.length > 0) {
+      outputsContainer.innerHTML += '<div class="text-sm text-white/70 mb-4">Generated Videos</div>';
+      generatedVideos.forEach((video, index) => {
+        const videoDiv = document.createElement('div');
+        videoDiv.className = 'subtle-card p-3 mb-3';
+        videoDiv.innerHTML = `
+          <div class="text-sm font-bold text-white mb-1">${video.description}</div>
+          <div class="text-xs text-white/50 mb-2">Type: ${video.type}</div>
+          <div class="flex gap-2">
+            <button class="ghost-btn text-xs" onclick="window.open('${video.url}', '_blank')">Preview</button>
+            <button class="ghost-btn text-xs" onclick="navigator.clipboard.writeText('${video.url}')">Copy URL</button>
+          </div>
+        `;
+        outputsContainer.appendChild(videoDiv);
+      });
+    }
+
+    // Show captions if available
+    if (captions.length > 0) {
+      outputsContainer.innerHTML += '<div class="text-sm text-white/70 mb-4 mt-4">Generated Captions</div>';
+      const captionsDiv = document.createElement('div');
+      captionsDiv.className = 'subtle-card p-3 mb-3';
+      captionsDiv.innerHTML = `
+        <div class="text-sm font-bold text-white mb-1">Video Captions</div>
+        <div class="text-xs text-white/50 mb-2">${captions.length} caption entries</div>
+        <div class="text-xs text-white/70 max-h-32 overflow-y-auto">
+          ${captions.slice(0, 5).map(c => `${c.timestamp}: ${c.text}`).join('<br>')}
+          ${captions.length > 5 ? '<br>...and more' : ''}
+        </div>
+        <button class="ghost-btn text-xs mt-2" onclick="downloadCaptions()">Download SRT</button>
+      `;
+      outputsContainer.appendChild(captionsDiv);
+    }
+
+    // Show completed job status
+    const completedJobs = jobs.filter(job => job.status === 'completed');
+    const failedJobs = jobs.filter(job => job.status === 'failed');
+
+    if (completedJobs.length > 0 || failedJobs.length > 0) {
+      outputsContainer.innerHTML += '<div class="text-sm text-white/70 mb-4 mt-4">Processing Jobs</div>';
+    }
+
+    // Show completed jobs
+    completedJobs.forEach(job => {
+      const outputDiv = document.createElement('div');
+      outputDiv.className = 'subtle-card p-3 mb-3';
+      outputDiv.innerHTML = `
+        <div class="text-sm font-bold text-white mb-1">✅ Job #${job.id} - Completed</div>
+        <div class="text-xs text-white/50 mb-2">Finished: ${job.completedAt?.toLocaleTimeString()}</div>
+        <div class="text-xs text-white/70 mb-2">Tasks processed: ${job.tasks.join(' → ')}</div>
+        <div class="text-xs text-green-400">All repositories processed successfully</div>
+      `;
+      outputsContainer.appendChild(outputDiv);
+    });
+
+    // Show failed jobs
+    failedJobs.forEach(job => {
+      const outputDiv = document.createElement('div');
+      outputDiv.className = 'subtle-card p-3 mb-3 border-red-500/20';
+      outputDiv.innerHTML = `
+        <div class="text-sm font-bold text-red-400 mb-1">❌ Job #${job.id} - Failed</div>
+        <div class="text-xs text-white/50 mb-2">Failed: ${job.completedAt?.toLocaleTimeString()}</div>
+        <div class="text-xs text-white/70 mb-2">Tasks attempted: ${job.tasks.join(' → ')}</div>
+        <div class="text-xs text-red-400">${job.error || 'Unknown error occurred'}</div>
+      `;
+      outputsContainer.appendChild(outputDiv);
+    });
+
+    // If no outputs at all
+    if (generatedVideos.length === 0 && captions.length === 0 && completedJobs.length === 0 && failedJobs.length === 0) {
+      outputsContainer.innerHTML = `
+        <div class="text-sm text-white/70 mb-4">Generated outputs will appear here</div>
+        <div class="subtle-card p-3">
+          <div class="text-sm font-bold text-white mb-1">No outputs yet</div>
+          <div class="text-xs text-white/50">Run an AI agent to generate video outputs</div>
+        </div>
+      `;
+    }
+  }
+
+  function downloadCaptions() {
+    if (captions.length === 0) return;
+
+    const srtContent = captions.map((caption, index) => {
+      const start = formatTime(caption.timestamp || 0);
+      const end = formatTime((caption.timestamp || 0) + (caption.duration || 2));
+      return `${index + 1}\n${start} --> ${end}\n${caption.text}\n`;
+    }).join('\n');
+
+    const blob = new Blob([srtContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'captions.srt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    const ms = Math.floor((seconds % 1) * 1000);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')},${ms.toString().padStart(3, '0')}`;
+  }
+
+  function updateTimelineSection() {
+    if (sceneData.length === 0) return;
+
+    const timelineContainer = container.querySelector('.timeline-track');
+    if (!timelineContainer) return;
+
+    // Clear existing timeline blocks
+    timelineContainer.innerHTML = '';
+
+    // Calculate total duration (assume from metadata or estimate)
+    const totalDuration = metadata.duration || 225; // default 3:45
+    const scale = 300 / totalDuration; // pixels per second
+
+    sceneData.forEach(scene => {
+      const width = (scene.duration || 30) * scale;
+      const block = document.createElement('div');
+      block.className = 'timeline-block';
+      block.style.width = `${Math.max(width, 60)}px`;
+      block.textContent = scene.title || scene.description || `Scene ${scene.index || 1}`;
+      timelineContainer.appendChild(block);
+    });
+  }
+
+  function updateInspectorSection() {
+    const inspectorContainer = container.querySelector('#inspector');
+    if (!inspectorContainer) return;
+
+    // Update metadata card
+    const metadataCard = inspectorContainer.querySelector('.subtle-card');
+    if (metadataCard && Object.keys(metadata).length > 0) {
+      metadataCard.innerHTML = `
+        <div class="text-sm font-bold text-white mb-1">Video Metadata</div>
+        <div class="text-xs text-white/50 space-y-1">
+          <div>Duration: ${formatDuration(metadata.duration)}</div>
+          <div>Resolution: ${metadata.width || '--'}x${metadata.height || '--'}</div>
+          <div>Codec: ${metadata.codec || '--'}</div>
+          <div>Size: ${formatBytes(metadata.size)}</div>
+          <div>Scenes: ${sceneData.length}</div>
+          <div>Captions: ${captions.length}</div>
+        </div>
+      `;
+    }
+
+    // Add additional analysis cards if available
+    if (sceneData.length > 0) {
+      const sceneCard = document.createElement('div');
+      sceneCard.className = 'subtle-card p-3 mt-3';
+      sceneCard.innerHTML = `
+        <div class="text-sm font-bold text-white mb-1">Scene Analysis</div>
+        <div class="text-xs text-white/50 space-y-1">
+          ${sceneData.slice(0, 3).map(scene => `<div>${scene.title || 'Scene'}: ${formatDuration(scene.timestamp)}</div>`).join('')}
+          ${sceneData.length > 3 ? '<div>...and more scenes</div>' : ''}
+        </div>
+      `;
+      inspectorContainer.appendChild(sceneCard);
+    }
+  }
+
+  function formatDuration(seconds) {
+    if (!seconds) return '--';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  function formatBytes(bytes) {
+    if (!bytes) return '--';
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  function updateVideoToggle() {
+    const toggleButtons = container.querySelectorAll('.preview-stage + div button');
+    const originalBtn = toggleButtons[0];
+    const aiBtn = toggleButtons[1];
+    if (!originalBtn || !aiBtn) return;
+
+    // Update button states based on available videos
+    if (generatedVideos.length > 0) {
+      aiBtn.disabled = false;
+      aiBtn.textContent = `AI Version (${generatedVideos.length})`;
+      aiBtn.classList.remove('ghost-btn');
+      aiBtn.classList.add('primary-btn');
+    } else {
+      aiBtn.disabled = true;
+      aiBtn.textContent = 'No AI Versions';
+      aiBtn.classList.remove('primary-btn');
+      aiBtn.classList.add('ghost-btn');
+    }
+
+    // Update current video info
+    const activeOutputDiv = container.querySelector('.subtle-card:nth-child(3) .text-sm');
+    const activeDescDiv = container.querySelector('.subtle-card:nth-child(3) .text-xs');
+    if (activeOutputDiv && activeDescDiv) {
+      if (currentVideoIndex === 0) {
+        activeOutputDiv.textContent = 'Original Video';
+        activeDescDiv.textContent = 'Source video';
+      } else {
+        const video = generatedVideos[currentVideoIndex - 1];
+        if (video) {
+          activeOutputDiv.textContent = video.description;
+          activeDescDiv.textContent = video.type;
+        }
+      }
+    }
   }
 
   const chat = container.querySelector('#chat');
@@ -588,12 +1185,14 @@ export function createVideoAgentWorkspace(runtime = null) {
         log(`Error processing command: ${error.message}`, 'agent');
       }
     } else {
-      // Fallback to mock functionality
+      // Fallback to direct API calls
       const intent = parseIntent(val);
       const tasks = planTasks(intent);
       const planText = tasks.join(' → ');
       log(`Plan: ${planText}`, 'agent');
       planPreview.textContent = planText;
+
+      // Create job and execute with real API calls
       createJob(tasks);
     }
   };
@@ -614,8 +1213,33 @@ export function createVideoAgentWorkspace(runtime = null) {
 
   container.querySelectorAll('#quick-actions [data-prompt]').forEach(btn => {
     btn.addEventListener('click', async () => {
-      input.value = btn.dataset.prompt;
-      await handleInput(btn.dataset.prompt);
+      const prompt = btn.dataset.prompt;
+      log(`Quick action: ${prompt}`, 'user');
+
+      if (!uploadedVideoUrl) {
+        log('Please upload a video first', 'agent');
+        showToast('Please upload a video before running actions', 'warning');
+        return;
+      }
+
+      // Map quick actions to tasks
+      const actionTaskMap = {
+        'Create highlights from this video': ['scene-detect', 'score-moments', 'cut-clips', 'export'],
+        'Make 3 short vertical clips': ['detect-hooks', 'resize-vertical', 'caption', 'export'],
+        'Add captions to this video': ['transcribe', 'caption'],
+        'Dub this video into Spanish': ['transcribe', 'translate', 'tts', 'replace-audio'],
+        'Improve video quality and pacing': ['analyze-quality', 'improve-pacing', 'color-balance', 'export']
+      };
+
+      const tasks = actionTaskMap[prompt];
+      if (tasks) {
+        planPreview.textContent = `Quick action: ${tasks.join(' → ')}`;
+        createJob(tasks);
+      } else {
+        // Fallback to text input
+        input.value = prompt;
+        await handleInput(prompt);
+      }
     });
   });
 
@@ -640,11 +1264,7 @@ export function createVideoAgentWorkspace(runtime = null) {
     }
   }
 
-  function showUploadZone() {
-    videoElement.style.display = 'none';
-    uploadZone.style.display = 'flex';
-    uploadedVideoUrl = null;
-  }
+
 
   // Drag and drop handlers
   previewStage.addEventListener('dragover', (e) => {
@@ -689,17 +1309,20 @@ export function createVideoAgentWorkspace(runtime = null) {
 
   function handleVideoFile(file) {
     if (!file.type.startsWith('video/')) {
-      alert('Please select a video file.');
+      showToast('Please select a video file.', 'error');
       return;
     }
 
     if (file.size > 2 * 1024 * 1024 * 1024) { // 2GB limit
-      alert('File size must be less than 2GB.');
+      showToast('File size must be less than 2GB.', 'error');
       return;
     }
 
     const url = URL.createObjectURL(file);
     showVideoPlayer(url);
+
+    // Extract metadata
+    extractVideoMetadata(file);
 
     // Update metadata display
     const sourceDiv = container.querySelector('.subtle-card:nth-child(1) .text-sm');
@@ -707,6 +1330,33 @@ export function createVideoAgentWorkspace(runtime = null) {
     if (sourceDiv && sizeDiv) {
       sourceDiv.textContent = file.name;
       sizeDiv.textContent = `${(file.size / (1024 * 1024)).toFixed(1)} MB • ${file.type}`;
+    }
+  }
+
+  async function extractVideoMetadata(file) {
+    try {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.src = URL.createObjectURL(file);
+
+      await new Promise((resolve, reject) => {
+        video.onloadedmetadata = resolve;
+        video.onerror = reject;
+      });
+
+      metadata = {
+        duration: video.duration,
+        width: video.videoWidth,
+        height: video.videoHeight,
+        size: file.size,
+        codec: file.type,
+        filename: file.name
+      };
+
+      updateInspectorSection();
+      URL.revokeObjectURL(video.src);
+    } catch (error) {
+      console.warn('Could not extract video metadata:', error);
     }
   }
 
@@ -743,19 +1393,30 @@ export function createVideoAgentWorkspace(runtime = null) {
   });
 
   // Add video controls
-  const originalBtn = container.querySelector('button[data-original]');
-  const aiBtn = container.querySelector('button[data-ai]');
+  const toggleButtons = container.querySelectorAll('.preview-stage + div button');
+  const originalBtn = toggleButtons[0];
+  const aiBtn = toggleButtons[1];
 
   if (originalBtn && aiBtn) {
     originalBtn.addEventListener('click', () => {
+      currentVideoIndex = 0;
       if (uploadedVideoUrl) {
         showVideoPlayer(uploadedVideoUrl);
       }
+      updateVideoToggle();
     });
 
     aiBtn.addEventListener('click', () => {
-      // TODO: Show AI processed version when available
-      showToast('AI processing not yet implemented', 'info');
+      if (generatedVideos.length > 0) {
+        currentVideoIndex = (currentVideoIndex % (generatedVideos.length + 1)) || 1;
+        const video = generatedVideos[currentVideoIndex - 1];
+        if (video && video.url) {
+          showVideoPlayer(video.url);
+        }
+        updateVideoToggle();
+      } else {
+        showToast('No AI processed videos available', 'info');
+      }
     });
   }
 

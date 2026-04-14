@@ -53,9 +53,6 @@
     "vitest": "^4.1.2"
   },
   "dependencies": {
-    "@higgsfield/layout": "file:packages/layout",
-    "@higgsfield/navigation": "file:packages/navigation",
-    "@higgsfield/tokens": "file:packages/tokens",
     "@supabase/supabase-js": "^2.99.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@tailwindcss/vite": "^4.1.18",

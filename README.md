@@ -10,6 +10,8 @@ Use all four studios (Image, Video, Lip Sync, Cinema) directly in your browser �
 
 **Community:** Join [Discord](https://discord.gg/sqFYv8ugND) for discussions and support
 
+**Happy Horse top video model coming soon:** Follow [Happy Horse AI](https://github.com/Anil-matcha/HappyHorse-1.0-API) for updates   
+
 ---
 
 ## ⬇️ Download Desktop App

@@ -6,7 +6,7 @@
 // Core Animation System
 export { KeyframeSystem, ANIMATION_PROPERTIES, INTERPOLATION_MODES, EASING_PRESETS, MotionBlur, SpeedRamping, LayerParenting } from './keyframeSystem.js';
 export { KeyframeEditor } from './keyframeEditor.js';
-export { AnimationControls, EasingCurveEditor } from './animationControls.js';
+export { AnimationControls, EasingCurveEditor } from './animationControls.jsx';
 export { MotionGraphicsTools } from './motionGraphicsTools.js';
 export { TimelineAnimationIntegration } from './timelineAnimationIntegration.js';
 

@@ -192,7 +192,7 @@ jobs:
     - name: Generate comprehensive test report
       run: |
         npm install -g junit-report-merger
-        find test-results/ -name "*.xml" | head -10 | xargs npx junit-report-merger -o test-results/combined-report.xml || echo "No XML files found"
+        find test-results/ -name "*.xml" | xargs npx junit-report-merger -o test-results/combined-report.xml || echo "No test results found"
 
     - name: Upload comprehensive report
       uses: actions/upload-artifact@v4

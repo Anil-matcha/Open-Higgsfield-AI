@@ -62,7 +62,8 @@
     "dompurify": "^3.3.3",
     "interactjs": "^1.10.27",
     "lucide-react": "^1.8.0",
-    "mobx-react-lite": "^4.1.1"
+    "mobx-react-lite": "^4.1.1",
+    "moment": "^2.30.1"
   },
   "engines": {
     "node": ">=18.0.0"

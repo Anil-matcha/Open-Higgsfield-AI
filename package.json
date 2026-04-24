@@ -87,14 +87,14 @@
     }
   },
   "dependencies": {
+    "ai-agent": "file:./packages/ai-agent",
     "axios": "^1.7.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.4.1",
     "studio": "*",
-    "workflow-builder": "file:./packages/workflow-ui",
-    "ai-agent": "file:./packages/ai-agent"
+    "workflow-builder": "file:packages/workflow-ui"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

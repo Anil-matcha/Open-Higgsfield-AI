@@ -370,6 +370,8 @@ export default function LipSyncStudio({
   const [fullscreenUrl, setFullscreenUrl] = useState(null);
   const [view, setView] = useState("input"); // 'input' | 'result'
   const [activeResultUrl, setActiveResultUrl] = useState(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const genTimerRef = useRef(null);
 
   // ── History ─────────────────────────────────────────────────────────────
   // If historyItems prop is provided, use it; otherwise use internal state.
@@ -637,6 +639,8 @@ export default function LipSyncStudio({
 
     setIsGenerating(true);
     setGenerateError(null);
+    setElapsedSeconds(0);
+    genTimerRef.current = setInterval(() => setElapsedSeconds((s) => s + 1), 1000);
 
     try {
       const lipsyncParams = {
@@ -681,7 +685,10 @@ export default function LipSyncStudio({
       setGenerateError(e.message?.slice(0, 80) ?? "Unknown error");
       setTimeout(() => setGenerateError(null), 4000);
     } finally {
+      clearInterval(genTimerRef.current);
+      genTimerRef.current = null;
       setIsGenerating(false);
+      setElapsedSeconds(0);
     }
   };
 
@@ -728,6 +735,12 @@ export default function LipSyncStudio({
     id: r,
     name: r,
   }));
+
+  // ── Generation progress helpers ─────────────────────────────────────────
+  const formatElapsed = (s) =>
+    s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
+  // Logarithmic fill: fast start, slows toward 95%, never hits 100% until done
+  const genProgress = Math.min(95, (1 - Math.exp(-elapsedSeconds / 150)) * 100);
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
@@ -957,6 +970,18 @@ export default function LipSyncStudio({
             )}
           </div>
 
+          {/* Generation progress bar */}
+          {isGenerating && (
+            <div className="px-1 pb-1">
+              <div className="w-full h-1 bg-white/[0.05] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#d9ff00] rounded-full transition-all duration-1000 ease-out"
+                  style={{ width: `${genProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Bottom controls row */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2 border-t border-white/[0.03] relative">
             <div className="flex items-center gap-2 px-1">
@@ -1052,10 +1077,8 @@ export default function LipSyncStudio({
             >
               {isGenerating ? (
                 <>
-                  <span className="animate-spin inline-block text-black">
-                    ◌
-                  </span>{" "}
-                  Generating...
+                  <span className="animate-spin inline-block text-black">◌</span>
+                  <span>Generating... {formatElapsed(elapsedSeconds)}</span>
                 </>
               ) : generateError ? (
                 `Error: ${generateError}`

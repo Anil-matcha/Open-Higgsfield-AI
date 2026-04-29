@@ -371,7 +371,10 @@ export default function LipSyncStudio({
   const [view, setView] = useState("input"); // 'input' | 'result'
   const [activeResultUrl, setActiveResultUrl] = useState(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [pollStatus, setPollStatus] = useState(null); // e.g. "queued", "processing"
+  const [pollAttempt, setPollAttempt] = useState(0);
   const genTimerRef = useRef(null);
+  const abortControllerRef = useRef(null);
 
   // ── History ─────────────────────────────────────────────────────────────
   // If historyItems prop is provided, use it; otherwise use internal state.
@@ -640,12 +643,20 @@ export default function LipSyncStudio({
     setIsGenerating(true);
     setGenerateError(null);
     setElapsedSeconds(0);
+    setPollStatus(null);
+    setPollAttempt(0);
     genTimerRef.current = setInterval(() => setElapsedSeconds((s) => s + 1), 1000);
+    abortControllerRef.current = new AbortController();
 
     try {
       const lipsyncParams = {
         model: selectedModelId,
         audio_url: audioUrl,
+        signal: abortControllerRef.current.signal,
+        onPollStatus: ({ attempt, status }) => {
+          setPollStatus(status);
+          setPollAttempt(attempt);
+        },
       };
       if (inputMode === "image") lipsyncParams.image_url = imageUrl;
       else lipsyncParams.video_url = videoUrl;
@@ -687,9 +698,17 @@ export default function LipSyncStudio({
     } finally {
       clearInterval(genTimerRef.current);
       genTimerRef.current = null;
+      abortControllerRef.current = null;
       setIsGenerating(false);
       setElapsedSeconds(0);
+      setPollStatus(null);
+      setPollAttempt(0);
     }
+  };
+
+  // ── Cancel generation ───────────────────────────────────────────────────
+  const handleCancel = () => {
+    abortControllerRef.current?.abort();
   };
 
   // ── Reset to input view ─────────────────────────────────────────────────
@@ -970,14 +989,31 @@ export default function LipSyncStudio({
             )}
           </div>
 
-          {/* Generation progress bar */}
+          {/* Generation progress bar + status */}
           {isGenerating && (
-            <div className="px-1 pb-1">
+            <div className="px-1 pb-1 flex flex-col gap-1.5">
               <div className="w-full h-1 bg-white/[0.05] rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#d9ff00] rounded-full transition-all duration-1000 ease-out"
                   style={{ width: `${genProgress}%` }}
                 />
+              </div>
+              <div className="flex items-center justify-between px-0.5">
+                <span className="text-[10px] text-white/30 font-mono">
+                  {pollStatus ? (
+                    <span className={pollStatus === 'queued' ? 'text-yellow-500/60' : pollStatus === 'processing' ? 'text-[#d9ff00]/60' : 'text-white/30'}>
+                      ● {pollStatus}
+                    </span>
+                  ) : '● connecting...'}
+                  <span className="text-white/20 ml-1">· poll {pollAttempt}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="text-[10px] text-white/30 hover:text-red-400 transition-colors font-medium"
+                >
+                  Cancel ✕
+                </button>
               </div>
             </div>
           )}

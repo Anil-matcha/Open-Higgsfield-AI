@@ -217,7 +217,14 @@ function Dropdown({ isOpen, items, selectedId, onSelect, onClose, anchorRef }) {
               : "text-white font-medium"
           }`}
         >
-          <div>{item.name}</div>
+          <div className="flex items-center gap-1.5">
+            <span>{item.name}</span>
+            {item.maxDuration && (
+              <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-bold text-white/40 leading-none">
+                Max {item.maxDuration}s
+              </span>
+            )}
+          </div>
           {item.description && (
             <div className="text-xs text-muted mt-0.5">
               {item.description.slice(0, 60)}...
@@ -995,6 +1002,16 @@ export default function LipSyncStudio({
                   anchorRef={modelBtnRef}
                 />
               </div>
+
+              {/* Duration limit pill */}
+              {selectedModel?.maxDuration && (
+                <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/[0.03] border border-white/[0.03] text-[10px] font-bold text-white/30 whitespace-nowrap">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  Max {selectedModel.maxDuration}s
+                </span>
+              )}
 
               {/* Resolution selector */}
               {showResolution && (

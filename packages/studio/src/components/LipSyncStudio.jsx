@@ -217,7 +217,14 @@ function Dropdown({ isOpen, items, selectedId, onSelect, onClose, anchorRef }) {
               : "text-white font-medium"
           }`}
         >
-          <div>{item.name}</div>
+          <div className="flex items-center gap-1.5">
+            <span>{item.name}</span>
+            {item.maxDuration && (
+              <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-bold text-white/40 leading-none">
+                Max {item.maxDuration}s
+              </span>
+            )}
+          </div>
           {item.description && (
             <div className="text-xs text-muted mt-0.5">
               {item.description.slice(0, 60)}...
@@ -363,6 +370,11 @@ export default function LipSyncStudio({
   const [fullscreenUrl, setFullscreenUrl] = useState(null);
   const [view, setView] = useState("input"); // 'input' | 'result'
   const [activeResultUrl, setActiveResultUrl] = useState(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [pollStatus, setPollStatus] = useState(null); // e.g. "queued", "processing"
+  const [pollAttempt, setPollAttempt] = useState(0);
+  const genTimerRef = useRef(null);
+  const abortControllerRef = useRef(null);
 
   // ── History ─────────────────────────────────────────────────────────────
   // If historyItems prop is provided, use it; otherwise use internal state.
@@ -630,11 +642,21 @@ export default function LipSyncStudio({
 
     setIsGenerating(true);
     setGenerateError(null);
+    setElapsedSeconds(0);
+    setPollStatus(null);
+    setPollAttempt(0);
+    genTimerRef.current = setInterval(() => setElapsedSeconds((s) => s + 1), 1000);
+    abortControllerRef.current = new AbortController();
 
     try {
       const lipsyncParams = {
         model: selectedModelId,
         audio_url: audioUrl,
+        signal: abortControllerRef.current.signal,
+        onPollStatus: ({ attempt, status }) => {
+          setPollStatus(status);
+          setPollAttempt(attempt);
+        },
       };
       if (inputMode === "image") lipsyncParams.image_url = imageUrl;
       else lipsyncParams.video_url = videoUrl;
@@ -674,8 +696,19 @@ export default function LipSyncStudio({
       setGenerateError(e.message?.slice(0, 80) ?? "Unknown error");
       setTimeout(() => setGenerateError(null), 4000);
     } finally {
+      clearInterval(genTimerRef.current);
+      genTimerRef.current = null;
+      abortControllerRef.current = null;
       setIsGenerating(false);
+      setElapsedSeconds(0);
+      setPollStatus(null);
+      setPollAttempt(0);
     }
+  };
+
+  // ── Cancel generation ───────────────────────────────────────────────────
+  const handleCancel = () => {
+    abortControllerRef.current?.abort();
   };
 
   // ── Reset to input view ─────────────────────────────────────────────────
@@ -721,6 +754,12 @@ export default function LipSyncStudio({
     id: r,
     name: r,
   }));
+
+  // ── Generation progress helpers ─────────────────────────────────────────
+  const formatElapsed = (s) =>
+    s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
+  // Logarithmic fill: fast start, slows toward 95%, never hits 100% until done
+  const genProgress = Math.min(95, (1 - Math.exp(-elapsedSeconds / 150)) * 100);
 
   // ── Render ──────────────────────────────────────────────────────────────
   return (
@@ -950,6 +989,35 @@ export default function LipSyncStudio({
             )}
           </div>
 
+          {/* Generation progress bar + status */}
+          {isGenerating && (
+            <div className="px-1 pb-1 flex flex-col gap-1.5">
+              <div className="w-full h-1 bg-white/[0.05] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#d9ff00] rounded-full transition-all duration-1000 ease-out"
+                  style={{ width: `${genProgress}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between px-0.5">
+                <span className="text-[10px] text-white/30 font-mono">
+                  {pollStatus ? (
+                    <span className={pollStatus === 'queued' ? 'text-yellow-500/60' : pollStatus === 'processing' ? 'text-[#d9ff00]/60' : 'text-white/30'}>
+                      ● {pollStatus}
+                    </span>
+                  ) : '● connecting...'}
+                  <span className="text-white/20 ml-1">· poll {pollAttempt}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="text-[10px] text-white/30 hover:text-red-400 transition-colors font-medium"
+                >
+                  Cancel ✕
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Bottom controls row */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2 border-t border-white/[0.03] relative">
             <div className="flex items-center gap-2 px-1">
@@ -996,6 +1064,16 @@ export default function LipSyncStudio({
                 />
               </div>
 
+              {/* Duration limit pill */}
+              {selectedModel?.maxDuration && (
+                <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/[0.03] border border-white/[0.03] text-[10px] font-bold text-white/30 whitespace-nowrap">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  Max {selectedModel.maxDuration}s
+                </span>
+              )}
+
               {/* Resolution selector */}
               {showResolution && (
                 <div className="relative">
@@ -1035,10 +1113,8 @@ export default function LipSyncStudio({
             >
               {isGenerating ? (
                 <>
-                  <span className="animate-spin inline-block text-black">
-                    ◌
-                  </span>{" "}
-                  Generating...
+                  <span className="animate-spin inline-block text-black">◌</span>
+                  <span>Generating... {formatElapsed(elapsedSeconds)}</span>
                 </>
               ) : generateError ? (
                 `Error: ${generateError}`

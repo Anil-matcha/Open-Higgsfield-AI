@@ -303,8 +303,16 @@ export function LipSyncStudio() {
     generateBtn.className = 'ml-auto px-6 py-2.5 bg-primary text-black font-black text-sm rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-glow disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100';
     generateBtn.textContent = 'Generate ✨';
 
+    // Duration limit pill — updates when model changes
+    const durationPill = document.createElement('span');
+    durationPill.id = 'ls-duration-pill';
+    durationPill.className = 'px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-muted flex items-center gap-1';
+    const currentModelInitial = getCurrentModel();
+    durationPill.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-muted"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="ls-duration-pill-text">Max: ${currentModelInitial?.maxDuration ? currentModelInitial.maxDuration + 's' : '—'}</span>`;
+
     bottomRow.appendChild(modelBtn);
     bottomRow.appendChild(resolutionBtn);
+    bottomRow.appendChild(durationPill);
     bottomRow.appendChild(generateBtn);
     bar.appendChild(bottomRow);
 
@@ -333,7 +341,10 @@ export function LipSyncStudio() {
                 const item = document.createElement('button');
                 item.type = 'button';
                 item.className = `w-full text-left px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-white/10 ${m.id === selectedModel ? 'text-primary font-bold bg-primary/5' : 'text-white font-medium'}`;
-                item.innerHTML = `<div>${m.name}</div><div class="text-xs text-muted mt-0.5">${m.description?.slice(0, 60)}...</div>`;
+                const durationTag = m.maxDuration
+                    ? `<span class="ml-1.5 px-1.5 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] font-bold text-muted">Max ${m.maxDuration}s</span>`
+                    : '';
+                item.innerHTML = `<div class="flex items-center gap-1">${m.name}${durationTag}</div><div class="text-xs text-muted mt-0.5">${m.description?.slice(0, 60)}...</div>`;
                 item.onclick = () => {
                     selectedModel = m.id;
                     document.getElementById('ls-model-btn-label').textContent = m.name;
@@ -346,6 +357,8 @@ export function LipSyncStudio() {
                         resolutionBtn.classList.add('hidden');
                     }
                     textarea.style.display = m.hasPrompt ? '' : 'none';
+                    const pillText = document.getElementById('ls-duration-pill-text');
+                    if (pillText) pillText.textContent = `Max: ${m.maxDuration ? m.maxDuration + 's' : '—'}`;
                     closeDropdown();
                 };
                 dropdown.appendChild(item);
@@ -435,6 +448,10 @@ export function LipSyncStudio() {
 
         // Show/hide prompt
         textarea.style.display = models[0].hasPrompt ? '' : 'none';
+
+        // Update duration pill
+        const pillText = document.getElementById('ls-duration-pill-text');
+        if (pillText) pillText.textContent = `Max: ${models[0].maxDuration ? models[0].maxDuration + 's' : '—'}`;
     };
 
     imageModeBtn.onclick = () => {

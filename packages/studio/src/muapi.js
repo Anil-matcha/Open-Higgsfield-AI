@@ -3,13 +3,19 @@ import { getModelById, getVideoModelById, getI2IModelById, getI2VModelById, getV
 const BASE_URL = 'https://api.muapi.ai';
 const PROXY_WF_BASE = '/api/workflow';
 
-async function pollForResult(requestId, key, maxAttempts = 900, interval = 2000) {
+async function pollForResult(requestId, key, maxAttempts = 900, interval = 2000, { signal, onPollStatus } = {}) {
     const pollUrl = `${BASE_URL}/api/v1/predictions/${requestId}/result`;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        await new Promise(resolve => setTimeout(resolve, interval));
+        if (signal?.aborted) throw new Error('Generation cancelled.');
+        await new Promise((resolve, reject) => {
+            const t = setTimeout(resolve, interval);
+            signal?.addEventListener('abort', () => { clearTimeout(t); reject(new Error('Generation cancelled.')); }, { once: true });
+        });
+        if (signal?.aborted) throw new Error('Generation cancelled.');
         try {
             const response = await fetch(pollUrl, {
-                headers: { 'Content-Type': 'application/json', 'x-api-key': key }
+                headers: { 'Content-Type': 'application/json', 'x-api-key': key },
+                signal,
             });
             if (!response.ok) {
                 const errText = await response.text();
@@ -18,21 +24,24 @@ async function pollForResult(requestId, key, maxAttempts = 900, interval = 2000)
             }
             const data = await response.json();
             const status = data.status?.toLowerCase();
+            if (onPollStatus) onPollStatus({ attempt, maxAttempts, status, requestId });
             if (status === 'completed' || status === 'succeeded' || status === 'success') return data;
             if (status === 'failed' || status === 'error') throw new Error(`Generation failed: ${data.error || 'Unknown error'}`);
         } catch (error) {
+            if (error.message === 'Generation cancelled.' || error.name === 'AbortError') throw new Error('Generation cancelled.');
             if (attempt === maxAttempts) throw error;
         }
     }
     throw new Error('Generation timed out after polling.');
 }
 
-async function submitAndPoll(endpoint, payload, key, onRequestId, maxAttempts = 60) {
+async function submitAndPoll(endpoint, payload, key, onRequestId, maxAttempts = 60, { signal, onPollStatus } = {}) {
     const url = `${BASE_URL}/api/v1/${endpoint}`;
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-api-key': key },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal,
     });
     if (!response.ok) {
         const errText = await response.text();
@@ -42,7 +51,7 @@ async function submitAndPoll(endpoint, payload, key, onRequestId, maxAttempts = 
     const requestId = submitData.request_id || submitData.id;
     if (!requestId) return submitData;
     if (onRequestId) onRequestId(requestId);
-    const result = await pollForResult(requestId, key, maxAttempts);
+    const result = await pollForResult(requestId, key, maxAttempts, 2000, { signal, onPollStatus });
     const outputUrl = result.outputs?.[0] || result.url || result.output?.url;
     return { ...result, url: outputUrl };
 }
@@ -137,7 +146,10 @@ export async function processLipSync(apiKey, params) {
     if (modelInfo?.hasPrompt) payload.prompt = params.prompt || '';
     if (params.resolution) payload.resolution = params.resolution;
     if (params.seed !== undefined && params.seed !== -1) payload.seed = params.seed;
-    return submitAndPoll(endpoint, payload, apiKey, params.onRequestId, 900);
+    return submitAndPoll(endpoint, payload, apiKey, params.onRequestId, 900, {
+        signal: params.signal,
+        onPollStatus: params.onPollStatus,
+    });
 }
 
 export function uploadFile(apiKey, file, onProgress) {

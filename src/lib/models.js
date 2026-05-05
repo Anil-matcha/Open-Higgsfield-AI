@@ -8273,6 +8273,7 @@ export const lipsyncModels = [
     "family": "infinitetalk",
     "category": "image",
     "hasPrompt": true,
+    "maxDuration": 60,
     "description": "Animate a portrait image into a talking video driven by audio.",
     "inputs": {
       "resolution": {
@@ -8291,6 +8292,7 @@ export const lipsyncModels = [
     "family": "wan",
     "category": "image",
     "hasPrompt": true,
+    "maxDuration": 60,
     "description": "Generate a talking portrait video from an image and audio using Wan 2.2.",
     "inputs": {
       "resolution": {
@@ -8310,6 +8312,7 @@ export const lipsyncModels = [
     "category": "image",
     "hasPrompt": true,
     "hasSeed": true,
+    "maxDuration": 20,
     "description": "High-quality lipsync from portrait image and audio using LTX 2.3.",
     "inputs": {
       "resolution": {
@@ -8328,6 +8331,7 @@ export const lipsyncModels = [
     "family": "ltx",
     "category": "image",
     "hasPrompt": true,
+    "maxDuration": 20,
     "description": "Lipsync from portrait image and audio using LTX 2 19B model.",
     "inputs": {
       "resolution": {
@@ -8347,6 +8351,7 @@ export const lipsyncModels = [
     "family": "lipsync",
     "category": "video",
     "hasPrompt": false,
+    "maxDuration": 60,
     "description": "Generate realistic lipsync animations from audio using Sync's advanced algorithms."
   },
   {
@@ -8356,6 +8361,7 @@ export const lipsyncModels = [
     "family": "lipsync",
     "category": "video",
     "hasPrompt": false,
+    "maxDuration": 30,
     "description": "Video-to-video lipsync using LatentSync for high-quality audio-driven lip animations."
   },
   {
@@ -8365,6 +8371,7 @@ export const lipsyncModels = [
     "family": "lipsync",
     "category": "video",
     "hasPrompt": false,
+    "maxDuration": 60,
     "description": "Realistic lipsync video optimized for speed, quality, and consistency by Creatify."
   },
   {
@@ -8374,6 +8381,7 @@ export const lipsyncModels = [
     "family": "lipsync",
     "category": "video",
     "hasPrompt": false,
+    "maxDuration": 120,
     "description": "Generate realistic lipsync from any audio using VEED's latest model."
   },
   {
@@ -8383,6 +8391,7 @@ export const lipsyncModels = [
     "family": "infinitetalk",
     "category": "video",
     "hasPrompt": true,
+    "maxDuration": 60,
     "description": "Apply audio-driven lipsync to an existing video using Infinite Talk.",
     "inputs": {
       "resolution": {

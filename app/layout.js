@@ -12,8 +12,18 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const apiKey = process.env.NEXT_PUBLIC_MUAPI_KEY || '';
   return (
     <html lang="en">
+      <head>
+        {apiKey && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.__MUAPI_KEY__ = ${JSON.stringify(apiKey)};`,
+            }}
+          />
+        )}
+      </head>
       <body className={inter.variable}>{children}</body>
     </html>
   );

@@ -87,7 +87,7 @@ function BinaryStatusBar(onStatusChange) {
         }
     };
 
-    if (isLocalAIAvailable()) refresh();
+    if (isLocalAIAvailable()) refresh().catch(() => {});
 
     return bar;
 }
@@ -184,12 +184,16 @@ function Wan2gpConfigBar(onChange) {
     };
 
     (async () => {
-        const cfg = await localAI.getWan2gpConfig();
-        if (cfg.url) {
-            input.value = cfg.url;
-            const r = await localAI.probeWan2gp(cfg.url);
-            setStatus(r.ok ? `Connected · Gradio ${r.version}` : `Saved URL not reachable: ${r.error}`, r.ok ? 'ok' : 'warn');
-        } else {
+        try {
+            const cfg = await localAI.getWan2gpConfig();
+            if (cfg.url) {
+                input.value = cfg.url;
+                const r = await localAI.probeWan2gp(cfg.url);
+                setStatus(r.ok ? `Connected · Gradio ${r.version}` : `Saved URL not reachable: ${r.error}`, r.ok ? 'ok' : 'warn');
+            } else {
+                setStatus('Not configured (Wan2GP models will appear offline)', 'muted');
+            }
+        } catch (e) {
             setStatus('Not configured (Wan2GP models will appear offline)', 'muted');
         }
     })();

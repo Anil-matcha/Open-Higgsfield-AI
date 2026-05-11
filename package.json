@@ -18,6 +18,7 @@
     "build:workflow": "npm run build -w workflow-builder",
     "build:agent": "npm run build -w ai-agent",
     "build:packages": "npm run build:workflow && npm run build:agent && npm run build:studio",
+    "verify:upload-proxy": "node scripts/verify_upload_proxy_security.mjs",
     "setup": "git submodule update --init --recursive && npm install && npm run build:packages",
     "vite:dev": "vite",
     "vite:build": "vite build",

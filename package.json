@@ -29,6 +29,7 @@
     "electron:build:linux:dir": "vite build && electron-builder --linux dir",
     "electron:build:linux:arm64:dir": "vite build && electron-builder --linux dir --arm64",
     "stage:local-ai": "node scripts/stage-local-ai-binary.js",
+    "set:comfyui-path": "node scripts/set-comfyui-path.js",
     "package:linux:deb": "node scripts/package-linux-deb.js",
     "package:linux:deb:arm64": "node scripts/package-linux-deb.js --arch arm64",
     "package:linux:deb:x64": "node scripts/package-linux-deb.js --arch x64",

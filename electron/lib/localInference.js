@@ -5,6 +5,14 @@ const https = require('https');
 const http = require('http');
 const { spawn, execFile } = require('child_process');
 const {
+    findComfyUiModelSource,
+} = require('./comfyUiCatalog');
+const {
+    getComfyUiConfigFile,
+    readComfyUiConfig,
+    resolveComfyUiPath,
+} = require('./comfyUiConfig');
+const {
     getLocalBinaryResourceDir,
     pickBinaryAssetForPlatform,
 } = require('./localInferenceAssets');
@@ -19,6 +27,11 @@ const DATA_DIR = path.join(app.getPath('userData'), 'local-ai');
 const BIN_DIR = path.join(DATA_DIR, 'bin');
 const MODELS_DIR = path.join(DATA_DIR, 'models');
 const TMP_DIR = path.join(DATA_DIR, 'tmp');
+const COMFYUI_CONFIG_FILE = getComfyUiConfigFile({
+    dataDir: DATA_DIR,
+    platform: process.platform,
+});
+const COMFYUI_LINKS_FILE = path.join(DATA_DIR, 'comfyui-links.json');
 
 for (const dir of [BIN_DIR, MODELS_DIR, TMP_DIR]) {
     fs.mkdirSync(dir, { recursive: true });
@@ -205,6 +218,147 @@ async function getBinaryStatus() {
     return { exists, path: BINARY_PATH };
 }
 
+function hasFileSystemEntry(filePath) {
+    try {
+        fs.lstatSync(filePath);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function readComfyUiLinkRegistry() {
+    if (!fs.existsSync(COMFYUI_LINKS_FILE)) return {};
+
+    try {
+        return JSON.parse(fs.readFileSync(COMFYUI_LINKS_FILE, 'utf-8'));
+    } catch {
+        return {};
+    }
+}
+
+function writeComfyUiLinkRegistry(registry) {
+    fs.writeFileSync(COMFYUI_LINKS_FILE, JSON.stringify(registry, null, 2));
+}
+
+function updateComfyUiLinkRecord(fileName, linkInfo) {
+    const registry = readComfyUiLinkRegistry();
+
+    if (linkInfo) {
+        registry[fileName] = linkInfo;
+    } else {
+        delete registry[fileName];
+    }
+
+    writeComfyUiLinkRegistry(registry);
+}
+
+function getResolvedComfyUiPath() {
+    const config = readComfyUiConfig({ configFile: COMFYUI_CONFIG_FILE });
+    return resolveComfyUiPath({
+        config,
+        env: process.env,
+        platform: process.platform,
+    });
+}
+
+function isPathInside(parentPath, childPath) {
+    const resolvedParent = path.resolve(parentPath);
+    const resolvedChild = path.resolve(childPath);
+    const relativePath = path.relative(resolvedParent, resolvedChild);
+    return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
+}
+
+function resolveExistingComfyUiLink(fileName) {
+    const targetPath = path.join(MODELS_DIR, fileName);
+    if (!hasFileSystemEntry(targetPath)) {
+        updateComfyUiLinkRecord(fileName, null);
+        return null;
+    }
+
+    const registry = readComfyUiLinkRegistry();
+    const recorded = registry[fileName];
+    if (recorded?.sourcePath) {
+        return recorded;
+    }
+
+    try {
+        const stat = fs.lstatSync(targetPath);
+        if (!stat.isSymbolicLink()) return null;
+
+        const sourcePath = fs.realpathSync(targetPath);
+        const comfyUiPath = getResolvedComfyUiPath();
+        if (!comfyUiPath || !isPathInside(comfyUiPath, sourcePath)) return null;
+
+        const detected = {
+            provider: 'comfyui',
+            comfyUiPath,
+            linkType: 'symlink',
+            sourcePath,
+        };
+        updateComfyUiLinkRecord(fileName, detected);
+        return detected;
+    } catch {
+        return null;
+    }
+}
+
+function linkModelFromComfyUi({ modelId, filename }) {
+    const targetPath = path.join(MODELS_DIR, filename);
+    const existingLink = resolveExistingComfyUiLink(filename);
+    if (existingLink) return existingLink;
+
+    if (hasFileSystemEntry(targetPath)) return null;
+
+    const comfyUiPath = getResolvedComfyUiPath();
+    const sourcePath = findComfyUiModelSource({
+        comfyUiPath,
+        modelId,
+        filename,
+    });
+    if (!sourcePath) return null;
+
+    try {
+        fs.symlinkSync(sourcePath, targetPath, 'file');
+        const linkInfo = {
+            provider: 'comfyui',
+            comfyUiPath,
+            linkType: 'symlink',
+            sourcePath,
+        };
+        updateComfyUiLinkRecord(filename, linkInfo);
+        return linkInfo;
+    } catch {
+        try {
+            fs.linkSync(sourcePath, targetPath);
+            const linkInfo = {
+                provider: 'comfyui',
+                comfyUiPath,
+                linkType: 'hardlink',
+                sourcePath,
+            };
+            updateComfyUiLinkRecord(filename, linkInfo);
+            return linkInfo;
+        } catch {
+            return null;
+        }
+    }
+}
+
+function ensureModelFileAvailable(model) {
+    const filePath = path.join(MODELS_DIR, model.filename);
+    const linkedFrom = resolveExistingComfyUiLink(model.filename) || linkModelFromComfyUi({
+        modelId: model.id,
+        filename: model.filename,
+    });
+
+    return {
+        exists: fs.existsSync(filePath),
+        filePath,
+        linkedFrom,
+    };
+}
+
 // Metal-enabled binaries hosted on our own release (macOS arm64 only).
 // Other platforms fall back to the stock leejet release.
 const CUSTOM_BINARIES = {
@@ -306,16 +460,30 @@ async function downloadBinary(mainWindow) {
 
 // ─── Model management ─────────────────────────────────────────────────────────
 function getModelState(model) {
-    const filePath = path.join(MODELS_DIR, model.filename);
+    const availability = ensureModelFileAvailable(model);
+    const filePath = availability.filePath;
     const partPath = filePath + '.part';
-    if (fs.existsSync(filePath)) return 'downloaded';
-    if (fs.existsSync(partPath)) return 'partial';
-    return 'not-downloaded';
+    if (availability.exists) {
+        return {
+            linkedFrom: availability.linkedFrom,
+            state: 'downloaded',
+        };
+    }
+    if (fs.existsSync(partPath)) {
+        return {
+            linkedFrom: null,
+            state: 'partial',
+        };
+    }
+    return {
+        linkedFrom: null,
+        state: 'not-downloaded',
+    };
 }
 
 function getAuxState(aux) {
-    const filePath = path.join(MODELS_DIR, aux.filename);
-    return fs.existsSync(filePath) ? 'downloaded' : 'not-downloaded';
+    const availability = ensureModelFileAvailable(aux);
+    return availability.exists ? 'downloaded' : 'not-downloaded';
 }
 
 async function listModels() {
@@ -326,7 +494,7 @@ async function listModels() {
     };
     return LOCAL_MODEL_CATALOG.map(m => ({
         ...m,
-        state: getModelState(m),
+        ...getModelState(m),
         path: path.join(MODELS_DIR, m.filename),
         ...(m.requiresAuxiliary ? { auxiliaryStatus: auxStatus } : {}),
     }));
@@ -338,7 +506,14 @@ async function downloadModel(modelId, mainWindow) {
     if (!model) throw new Error(`Unknown model: ${modelId}`);
 
     const destPath = path.join(MODELS_DIR, model.filename);
-    if (fs.existsSync(destPath)) return { ok: true, path: destPath };
+    const availability = ensureModelFileAvailable(model);
+    if (availability.exists) {
+        return {
+            ok: true,
+            path: destPath,
+            ...(availability.linkedFrom ? { source: 'comfyui' } : {}),
+        };
+    }
 
     const send = (data) => mainWindow?.webContents.send('local-ai:download-progress', { id: modelId, ...data });
     send({ phase: 'downloading', progress: 0 });
@@ -357,7 +532,14 @@ async function downloadAuxiliary(auxKey, mainWindow) {
     if (!aux) throw new Error(`Unknown auxiliary file: ${auxKey}`);
 
     const destPath = path.join(MODELS_DIR, aux.filename);
-    if (fs.existsSync(destPath)) return { ok: true, path: destPath };
+    const availability = ensureModelFileAvailable(aux);
+    if (availability.exists) {
+        return {
+            ok: true,
+            path: destPath,
+            ...(availability.linkedFrom ? { source: 'comfyui' } : {}),
+        };
+    }
 
     const id = aux.id;
     const send = (data) => mainWindow?.webContents.send('local-ai:download-progress', { id, ...data });
@@ -372,14 +554,16 @@ async function downloadAuxiliary(auxKey, mainWindow) {
 }
 
 async function deleteModel(modelId) {
-    const { LOCAL_MODEL_CATALOG } = require('./modelCatalog');
-    const model = LOCAL_MODEL_CATALOG.find(m => m.id === modelId);
+    const { LOCAL_MODEL_CATALOG, ZIMAGE_AUXILIARY } = require('./modelCatalog');
+    const model = LOCAL_MODEL_CATALOG.find(m => m.id === modelId)
+        || Object.values(ZIMAGE_AUXILIARY).find(aux => aux.id === modelId);
     if (!model) throw new Error(`Unknown model: ${modelId}`);
 
     const filePath = path.join(MODELS_DIR, model.filename);
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     const partPath = filePath + '.part';
     if (fs.existsSync(partPath)) fs.unlinkSync(partPath);
+    updateComfyUiLinkRecord(model.filename, null);
     return { ok: true };
 }
 
@@ -406,14 +590,17 @@ async function generate(params, mainWindow) {
     const model = LOCAL_MODEL_CATALOG.find(m => m.id === params.model);
     if (!model) throw new Error(`Unknown local model: ${params.model}`);
 
-    const modelPath = path.join(MODELS_DIR, model.filename);
-    if (!fs.existsSync(modelPath)) throw new Error(`Model file not found. Download "${model.name}" in Settings > Local Models.`);
+    const modelAvailability = ensureModelFileAvailable(model);
+    const modelPath = modelAvailability.filePath;
+    if (!modelAvailability.exists) throw new Error(`Model file not found. Download "${model.name}" in Settings > Local Models.`);
 
     if (model.requiresAuxiliary) {
-        const llmPath = path.join(MODELS_DIR, ZIMAGE_AUXILIARY.llm.filename);
-        const vaePath = path.join(MODELS_DIR, ZIMAGE_AUXILIARY.vae.filename);
-        if (!fs.existsSync(llmPath)) throw new Error('Text encoder (Qwen3-4B) not downloaded. Go to Settings > Local Models and download all required files for Z-Image.');
-        if (!fs.existsSync(vaePath)) throw new Error('VAE (ae.safetensors) not downloaded. Go to Settings > Local Models and download all required files for Z-Image.');
+        const llmAvailability = ensureModelFileAvailable(ZIMAGE_AUXILIARY.llm);
+        const vaeAvailability = ensureModelFileAvailable(ZIMAGE_AUXILIARY.vae);
+        const llmPath = llmAvailability.filePath;
+        const vaePath = vaeAvailability.filePath;
+        if (!llmAvailability.exists) throw new Error('Text encoder (Qwen3-4B) not downloaded. Go to Settings > Local Models and download all required files for Z-Image.');
+        if (!vaeAvailability.exists) throw new Error('VAE (ae.safetensors) not downloaded. Go to Settings > Local Models and download all required files for Z-Image.');
     }
 
     const [width, height] = arToDimensions(params.aspect_ratio || '1:1', model.type);

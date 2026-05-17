@@ -253,6 +253,7 @@ function ModelCard(model, onStateChange) {
     const auxStatus = model.auxiliaryStatus || {};
     const auxReady = !model.requiresAuxiliary || (auxStatus.llm === 'downloaded' && auxStatus.vae === 'downloaded');
     const fullyReady = isDownloaded && auxReady;
+    const linkedFromComfyUi = model.linkedFrom?.provider === 'comfyui';
 
     card.innerHTML = `
         <div class="flex items-start justify-between gap-3">
@@ -260,6 +261,7 @@ function ModelCard(model, onStateChange) {
                 <div class="flex items-center gap-2 flex-wrap">
                     <span class="text-sm font-bold text-white truncate">${model.name}</span>
                     ${model.featured ? `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-black bg-primary/20 text-primary border border-primary/30">⚡ Featured</span>` : ''}
+                    ${linkedFromComfyUi ? `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-black bg-cyan-500/15 text-cyan-300 border border-cyan-400/20">Linked from ComfyUI</span>` : ''}
                     ${fullyReady ? `<span class="text-green-400">${CheckIcon}</span>` : ''}
                 </div>
                 <p class="text-[11px] text-muted leading-relaxed">${model.description}</p>
@@ -370,7 +372,7 @@ export function LocalModelManager() {
     modelsSection.innerHTML = `
         <div class="flex items-center justify-between">
             <h3 class="text-xs font-bold text-secondary uppercase tracking-wider">Local Models</h3>
-            <span class="text-[10px] text-muted">Stored in your app data folder</span>
+            <span class="text-[10px] text-muted">Downloaded or linked into your app data folder</span>
         </div>
         <div id="local-model-list" class="flex flex-col gap-3"></div>
     `;

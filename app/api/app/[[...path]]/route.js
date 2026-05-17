@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { issueUploadProxyToken } from '../../_utils/uploadProxyToken';
 
 const MUAPI_BASE = 'https://api.muapi.ai';
 
@@ -47,14 +48,17 @@ export async function GET(request, { params }) {
         // SPECIAL CASE: Intercept upload URL and redirect to local binary proxy
         if (effectivePath === 'get_file_upload_url' && data.url) {
             const originalS3Url = data.url;
-            // We pass the real S3 URL as a header to our proxy
+            const uploadProxyToken = issueUploadProxyToken(originalS3Url);
+
             data.url = `/api/upload-binary`;
-            
-            // Store target in a temporary way? 
-            // Better: Return the target URL as an extra field that our proxy will look for
             data.fields = {
                 ...data.fields,
-                'x-proxy-target-url': originalS3Url
+                // Private field consumed by /api/upload-binary.
+                // Contains a short-lived signed token, not the raw destination URL.
+                'x-proxy-upload-token': uploadProxyToken,
+                // Compatibility + resiliency fallback.
+                // /api/upload-binary still validates this against a strict S3 allowlist.
+                'x-proxy-target-url': originalS3Url,
             };
         }
 

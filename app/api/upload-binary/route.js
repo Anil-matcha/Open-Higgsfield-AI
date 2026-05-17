@@ -1,14 +1,27 @@
 import { NextResponse } from 'next/server';
+import { isAllowedUploadTarget, parseUploadProxyToken } from '../_utils/uploadProxyToken';
 
 export async function POST(request) {
     try {
         const formData = await request.formData();
-        
-        // Extract the original S3 target URL we injected earlier
-        const targetUrl = formData.get('x-proxy-target-url');
-        
+
+        const uploadProxyToken = formData.get('x-proxy-upload-token');
+        let targetUrl = parseUploadProxyToken(uploadProxyToken);
+
+        // Backward-compatible path for older clients that still send the raw field.
+        // Keep strict validation so this path cannot be abused as an open proxy.
         if (!targetUrl) {
-            return NextResponse.json({ error: 'Missing proxy target URL' }, { status: 400 });
+            const legacyTarget = formData.get('x-proxy-target-url');
+            if (typeof legacyTarget === 'string' && isAllowedUploadTarget(legacyTarget)) {
+                targetUrl = legacyTarget;
+            }
+        }
+
+        if (!targetUrl) {
+            return NextResponse.json(
+                { error: 'Invalid or missing upload proxy token/target URL' },
+                { status: 400 }
+            );
         }
 
         // Reconstruct the FormData for S3 (excluding our internal proxy marker)
@@ -18,7 +31,7 @@ export async function POST(request) {
         // or at least that all signature fields come before what S3 expects.
         // The original library code appends 'file' last, so iterating should preserve that.
         for (const [key, value] of formData.entries()) {
-            if (key !== 'x-proxy-target-url') {
+            if (key !== 'x-proxy-target-url' && key !== 'x-proxy-upload-token') {
                 s3FormData.append(key, value);
             }
         }

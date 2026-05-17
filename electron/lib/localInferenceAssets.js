@@ -43,7 +43,22 @@ function getBundledBinaryResourceDir({ resourcesPath, platform, arch }) {
     return pathLib.join(resourcesPath, 'local-ai', `${platform}-${arch}`, 'bin');
 }
 
+function getLocalBinaryResourceDir({ appPath, moduleDir, resourcesPath, isPackaged, platform, arch }) {
+    const pathLib = platform === 'win32' ? path.win32 : path.posix;
+
+    if (isPackaged) {
+        return getBundledBinaryResourceDir({ resourcesPath, platform, arch });
+    }
+
+    const sourceRoot = moduleDir
+        ? pathLib.resolve(moduleDir, '..', '..')
+        : appPath;
+
+    return pathLib.join(sourceRoot, 'build', 'local-ai', `${platform}-${arch}`, 'bin');
+}
+
 module.exports = {
     getBundledBinaryResourceDir,
+    getLocalBinaryResourceDir,
     pickBinaryAssetForPlatform,
 };

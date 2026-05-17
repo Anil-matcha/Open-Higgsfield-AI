@@ -5,7 +5,7 @@ const https = require('https');
 const http = require('http');
 const { spawn, execFile } = require('child_process');
 const {
-    getBundledBinaryResourceDir,
+    getLocalBinaryResourceDir,
     pickBinaryAssetForPlatform,
 } = require('./localInferenceAssets');
 const {
@@ -184,10 +184,11 @@ function ensureBundledBinaryInstalled() {
         return true;
     }
 
-    if (!app.isPackaged) return false;
-
-    const bundledDir = getBundledBinaryResourceDir({
+    const bundledDir = getLocalBinaryResourceDir({
+        appPath: app.getAppPath(),
+        moduleDir: __dirname,
         resourcesPath: process.resourcesPath,
+        isPackaged: app.isPackaged,
         platform: process.platform,
         arch: process.arch,
     });

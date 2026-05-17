@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const {
     pickBinaryAssetForPlatform,
     getBundledBinaryResourceDir,
+    getLocalBinaryResourceDir,
 } = require('../electron/lib/localInferenceAssets');
 
 test('pickBinaryAssetForPlatform prefers native linux arm64 assets', () => {
@@ -32,5 +33,36 @@ test('getBundledBinaryResourceDir resolves linux arm64 bundled path', () => {
     assert.equal(
         bundledDir,
         '/opt/Open Generative AI/resources/local-ai/linux-arm64/bin'
+    );
+});
+
+test('getLocalBinaryResourceDir resolves unpackaged linux x64 staged path', () => {
+    const bundledDir = getLocalBinaryResourceDir({
+        appPath: '/home/joes021/codex/open-generative-ai',
+        resourcesPath: '/opt/Open Generative AI/resources',
+        isPackaged: false,
+        platform: 'linux',
+        arch: 'x64',
+    });
+
+    assert.equal(
+        bundledDir,
+        '/home/joes021/codex/open-generative-ai/build/local-ai/linux-x64/bin'
+    );
+});
+
+test('getLocalBinaryResourceDir prefers repo-relative module path for unpackaged runs', () => {
+    const bundledDir = getLocalBinaryResourceDir({
+        appPath: '/home/joes021/codex',
+        moduleDir: '/home/joes021/codex/open-generative-ai/electron/lib',
+        resourcesPath: '/opt/Open Generative AI/resources',
+        isPackaged: false,
+        platform: 'linux',
+        arch: 'x64',
+    });
+
+    assert.equal(
+        bundledDir,
+        '/home/joes021/codex/open-generative-ai/build/local-ai/linux-x64/bin'
     );
 });

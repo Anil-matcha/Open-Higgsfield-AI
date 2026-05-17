@@ -26,6 +26,8 @@ dist-ssr
 # Electron build output
 release/
 .webpack/
+build/local-ai/*
+!build/local-ai/README.md
 
 # Next.js
 .next/
